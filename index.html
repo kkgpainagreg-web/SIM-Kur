@@ -3,172 +3,360 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Sistem Perangkat Ajar & Akademik PAI</title>
+    <title>Sistem Perangkat Ajar & Akademik PAI Terpadu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
+        @page { size: A4; margin: 15mm; }
         body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #2c3e50; color: white; padding-top: 20px;}
-        .sidebar .nav-link { color: #bdc3c7; cursor: pointer; margin-bottom: 5px; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #34495e; border-radius: 5px; }
-        .content-area { padding: 20px; }
-        .document-page { background: white; padding: 20px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; }
+        .sidebar { min-height: 100vh; background-color: #1a252f; color: white; padding-top: 20px;}
+        .sidebar .nav-link { color: #bdc3c7; cursor: pointer; margin-bottom: 5px; font-weight: 500; }
+        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #2c3e50; border-radius: 5px; }
+        .content-area { padding: 20px; height: 100vh; overflow-y: auto; }
         
-        /* Print Styles */
+        /* Print/Document Styles */
+        .document-page { background: white; padding: 30px; box-shadow: 0 0 10px rgba(0,0,0,0.1); margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; color: black; }
+        .doc-header { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 15px; text-transform: uppercase; }
+        table.doc-table { width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 15px; }
+        table.doc-table th, table.doc-table td { border: 1px solid black; padding: 6px 8px; vertical-align: top; }
+        table.identity-table { width: 100%; margin-bottom: 15px; font-size: 11pt; }
+        table.identity-table td { padding: 2px 5px; vertical-align: top; }
+        .signature-area { width: 100%; margin-top: 30px; display: table; page-break-inside: avoid; }
+        .signature-box { display: table-cell; width: 50%; text-align: center; font-size: 11pt; }
+        .signature-name { text-decoration: underline; font-weight: bold; margin-top: 70px; }
+
         @media print {
+            body { background-color: white; }
             body * { visibility: hidden; }
             .print-section, .print-section * { visibility: visible; }
-            .print-section { position: absolute; left: 0; top: 0; width: 100%; margin: 0; box-shadow: none; }
+            .print-section { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; box-shadow: none; }
             .no-print { display: none !important; }
-            .sidebar { display: none; }
-            .col-md-10 { width: 100%; }
+            .sidebar { display: none !important; }
+            .col-md-10 { width: 100% !important; height: auto !important; overflow: visible !important; }
+            .document-page { box-shadow: none; margin: 0; padding: 0; page-break-after: always; }
         }
-        table.doc-table { width: 100%; border-collapse: collapse; font-size: 11pt; }
-        table.doc-table th, table.doc-table td { border: 1px solid black; padding: 8px; }
-        .doc-header { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 20px; }
     </style>
 </head>
 <body>
 
     <div id="loginScreen" class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-        <div class="card p-5 text-center shadow">
-            <h3>🎓 Aplikasi PAI Terpadu</h3>
-            <p class="text-muted">Prota, Promes, Modul, LKPD, Absen & Evaluasi</p>
+        <div class="card p-5 text-center shadow" style="max-width: 450px;">
+            <h3 class="mb-3 text-success">📚 SIM PAI Terpadu</h3>
+            <p class="text-muted small">Aplikasi Modul Ajar, Jadwal Anti-Bentrok, LKPD, dan Absensi Terintegrasi 8 Profil Lulusan.</p>
             <button id="btnLogin" class="btn btn-danger mt-3">
-                Sign in with Google (belajar.id / Gmail)
+                🌐 Sign in with Google / belajar.id
             </button>
+            <button class="btn btn-outline-secondary mt-3 btn-sm" onclick="bypassLogin()">Mode Uji Coba (Tanpa Login)</button>
         </div>
     </div>
 
     <div id="mainApp" class="container-fluid d-none">
         <div class="row">
-            <div class="col-md-2 sidebar d-flex flex-column">
-                <h5 class="text-center text-warning mb-4">Guru PAI</h5>
+            <div class="col-md-2 sidebar d-flex flex-column no-print">
+                <h6 class="text-center text-warning mb-4 fw-bold">GURU PAI PRO</h6>
                 <div class="text-center mb-3">
-                    <img id="userAvatar" src="" class="rounded-circle mb-2" width="60" alt="User">
-                    <div id="userName" class="small"></div>
-                    <button id="btnLogout" class="btn btn-sm btn-outline-light mt-2">Logout</button>
+                    <img id="userAvatar" src="https://via.placeholder.com/60" class="rounded-circle mb-2" width="60" height="60" alt="User" style="object-fit: cover;">
+                    <div id="userName" class="small fw-bold"></div>
+                    <button id="btnLogout" class="btn btn-sm btn-outline-light mt-2" style="font-size: 0.7rem;">Logout</button>
                 </div>
-                <hr>
-                <nav class="nav flex-column">
-                    <a class="nav-link active" onclick="showTab('tabDashboard')">Dashboard</a>
-                    <a class="nav-link" onclick="showTab('tabSiswa')">Data Siswa (CSV)</a>
-                    <a class="nav-link" onclick="showTab('tabJadwal')">Jadwal Anti-Bentrok</a>
-                    <a class="nav-link" onclick="showTab('tabPerangkat')">Perangkat Ajar</a>
-                    <a class="nav-link" onclick="showTab('tabPelaksanaan')">Absen & Jurnal</a>
-                    <a class="nav-link" onclick="showTab('tabEvaluasi')">Evaluasi & LKPD</a>
+                <hr class="bg-light">
+                <nav class="nav flex-column small">
+                    <a class="nav-link active" onclick="showTab('tabDashboard')">🏠 Dashboard</a>
+                    <a class="nav-link" onclick="showTab('tabProfil')">🏫 Profil Instansi</a>
+                    <a class="nav-link" onclick="showTab('tabSiswa')">👥 Data Siswa & Kelas</a>
+                    <a class="nav-link" onclick="showTab('tabJadwal')">📅 Jadwal Pelajaran</a>
+                    <a class="nav-link" onclick="showTab('tabPerangkat')">📖 Perangkat Ajar</a>
+                    <a class="nav-link" onclick="showTab('tabPelaksanaan')">📋 Absen & Jurnal</a>
+                    <a class="nav-link" onclick="showTab('tabEvaluasi')">📝 Evaluasi & LKPD</a>
                 </nav>
             </div>
 
             <div class="col-md-10 content-area">
                 
                 <div id="tabDashboard" class="tab-content">
-                    <h2>Selamat Datang!</h2>
-                    <p>Sistem ini terintegrasi dengan Firebase Firestore. Jadwal yang Anda buat akan dicek silang dengan guru lain secara realtime.</p>
+                    <h3 class="mb-4">Selamat Datang di Sistem Terpadu PAI!</h3>
+                    <div class="row">
+                        <div class="col-md-4">
+                            <div class="card bg-primary text-white p-3 mb-3 shadow-sm">
+                                <h5>Total Siswa</h5>
+                                <h2 id="dashTotalSiswa">0</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="card bg-success text-white p-3 mb-3 shadow-sm">
+                                <h5>Jadwal Anda</h5>
+                                <h2 id="dashTotalJadwal">0</h2>
+                            </div>
+                        </div>
+                        <div class="col-md-12 mt-3">
+                            <div class="alert alert-info">
+                                <strong>Langkah Penggunaan:</strong><br>
+                                1. Isi <b>Profil Instansi</b> terlebih dahulu.<br>
+                                2. Import <b>Data Siswa</b> sesuai kelasnya menggunakan file CSV.<br>
+                                3. Buat <b>Jadwal Pelajaran</b> (sistem akan mengecek otomatis bentrok jam/ruangan).<br>
+                                4. Generate <b>Modul Ajar, Absensi, dan LKPD</b> sesuai jadwal yang dibuat.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabProfil" class="tab-content d-none no-print">
+                    <h3 class="mb-3">Pengaturan Profil Instansi & Guru</h3>
+                    <div class="card p-4 shadow-sm mb-4">
+                        <div class="row g-3">
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nama Satuan Pendidikan (Sekolah)</label>
+                                <input type="text" id="profSekolah" class="form-control" placeholder="Contoh: SDN 1 Nusantara">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Tahun Ajaran</label>
+                                <input type="text" id="profTahun" class="form-control" value="2025/2026">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nama Kepala Sekolah</label>
+                                <input type="text" id="profKepsek" class="form-control" placeholder="Nama Lengkap dan Gelar">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">NIP Kepala Sekolah</label>
+                                <input type="text" id="profNipKepsek" class="form-control" placeholder="1980...">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Nama Guru PAI</label>
+                                <input type="text" id="profGuru" class="form-control" placeholder="Nama Anda beserta gelar">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">NIP / NUPTK Guru</label>
+                                <input type="text" id="profNipGuru" class="form-control" placeholder="Kosongkan jika tidak ada">
+                            </div>
+                            <div class="col-md-12">
+                                <label class="form-label small fw-bold">Tempat & Tanggal Pengesahan Dokumen</label>
+                                <input type="text" id="profTanggal" class="form-control" placeholder="Contoh: Jakarta, 15 Juli 2025">
+                            </div>
+                            <div class="col-md-12 mt-4">
+                                <button class="btn btn-success" onclick="simpanProfil()">💾 Simpan Profil</button>
+                                <span id="msgProfil" class="text-success ms-3" style="display:none;">Berhasil disimpan!</span>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
                 <div id="tabSiswa" class="tab-content d-none no-print">
-                    <h3>Import Data Siswa</h3>
-                    <div class="card p-3 mb-3">
-                        <label>Upload File CSV Siswa (Kolom: NIS, Nama, L/P)</label>
-                        <input type="file" id="fileCsvSiswa" class="form-control mb-2" accept=".csv">
-                        <button class="btn btn-primary" onclick="importSiswa()">Import CSV</button>
+                    <h3 class="mb-3">Manajemen Data Siswa</h3>
+                    <div class="card p-4 mb-4 shadow-sm">
+                        <div class="row g-2 align-items-end">
+                            <div class="col-md-3">
+                                <label class="form-label small fw-bold">Pilih Kelas / Rombel Tujuan</label>
+                                <input type="text" id="inputSiswaKelas" class="form-control" placeholder="Misal: Kelas 3A">
+                            </div>
+                            <div class="col-md-6">
+                                <label class="form-label small fw-bold">Upload File CSV Siswa (Kolom: NIS, Nama, L/P)</label>
+                                <input type="file" id="fileCsvSiswa" class="form-control" accept=".csv">
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-primary w-100" onclick="importSiswa()">📥 Import CSV</button>
+                            </div>
+                        </div>
                     </div>
-                    <table class="table table-bordered bg-white">
-                        <thead class="table-dark"><tr><th>NIS</th><th>Nama Siswa</th><th>L/P</th></tr></thead>
-                        <tbody id="tabelSiswaBody"><tr><td colspan="3" class="text-center">Belum ada data siswa</td></tr></tbody>
+                    
+                    <div class="d-flex justify-content-between mb-2">
+                        <select id="filterKelasSiswa" class="form-select w-25" onchange="renderTabelSiswa()">
+                            <option value="ALL">-- Semua Kelas --</option>
+                        </select>
+                        <button class="btn btn-outline-danger btn-sm" onclick="clearDataSiswa()">Hapus Semua Data Siswa</button>
+                    </div>
+
+                    <table class="table table-bordered table-hover bg-white shadow-sm">
+                        <thead class="table-dark"><tr><th width="5%">No</th><th width="15%">NIS</th><th>Nama Siswa</th><th width="10%">L/P</th><th width="20%">Kelas/Rombel</th></tr></thead>
+                        <tbody id="tabelSiswaBody"><tr><td colspan="5" class="text-center">Belum ada data siswa</td></tr></tbody>
                     </table>
                 </div>
 
                 <div id="tabJadwal" class="tab-content d-none no-print">
-                    <h3>Jadwal Pelajaran (Anti-Bentrok)</h3>
-                    <div class="card p-3 mb-3">
-                        <div class="row">
-                            <div class="col"><select id="jadwalHari" class="form-select"><option value="Senin">Senin</option><option value="Selasa">Selasa</option></select></div>
-                            <div class="col"><input type="number" id="jadwalJam" class="form-control" placeholder="Jam ke- (Misal: 1)"></div>
-                            <div class="col"><input type="text" id="jadwalRombel" class="form-control" placeholder="Nama Rombel (Misal: Kelas 3A)"></div>
-                            <div class="col"><button class="btn btn-success w-100" id="btnTambahJadwal">Tambah Jadwal</button></div>
+                    <h3 class="mb-3">Jadwal Pelajaran (Sistem Anti-Bentrok)</h3>
+                    <div class="card p-4 mb-4 shadow-sm">
+                        <div class="row g-2">
+                            <div class="col-md-2">
+                                <label class="small fw-bold">Hari</label>
+                                <select id="jadwalHari" class="form-select"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option><option>Sabtu</option></select>
+                            </div>
+                            <div class="col-md-2">
+                                <label class="small fw-bold">Jam Ke-</label>
+                                <input type="number" id="jadwalJam" class="form-control" min="1" max="10" placeholder="1">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Kelas / Rombel</label>
+                                <input type="text" id="jadwalRombel" class="form-control" placeholder="Misal: Kelas 3A">
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Fase Kurikulum</label>
+                                <select id="jadwalFase" class="form-select"><option value="A">Fase A (Kls 1-2)</option><option value="B">Fase B (Kls 3-4)</option><option value="C">Fase C (Kls 5-6)</option></select>
+                            </div>
+                            <div class="col-md-2 d-flex align-items-end">
+                                <button class="btn btn-success w-100" id="btnTambahJadwal">➕ Tambah</button>
+                            </div>
                         </div>
-                        <small class="text-danger mt-2" id="msgJadwal"></small>
+                        <small class="text-danger mt-2 fw-bold" id="msgJadwal"></small>
                     </div>
-                    <table class="table table-striped bg-white">
-                        <thead class="table-dark"><tr><th>Hari</th><th>Jam Ke-</th><th>Rombel</th><th>Aksi</th></tr></thead>
+                    <table class="table table-striped bg-white shadow-sm">
+                        <thead class="table-dark"><tr><th>Hari</th><th>Jam Ke-</th><th>Kelas/Rombel</th><th>Fase</th><th>Aksi</th></tr></thead>
                         <tbody id="tabelJadwalBody"></tbody>
                     </table>
                 </div>
 
                 <div id="tabPerangkat" class="tab-content d-none">
-                    <div class="no-print card p-3 mb-3">
-                        <div class="row">
-                            <div class="col"><label>Kelas/Fase</label><select id="pKelas" class="form-select"><option value="3">Kelas 3 (Fase B)</option><option value="6">Kelas 6 (Fase C)</option></select></div>
-                            <div class="col"><label>Semester</label><select id="pSmt" class="form-select"><option value="Gasal">Gasal</option><option value="Genap">Genap</option></select></div>
-                            <div class="col"><label>Bab</label><input type="number" id="pBab" class="form-control" value="1" min="1" max="5"></div>
-                            <div class="col d-flex align-items-end"><button class="btn btn-primary w-100" onclick="generatePerangkat()">Buat Dokumen</button></div>
+                    <div class="no-print card p-4 mb-4 shadow-sm bg-light border-0 border-start border-5 border-primary">
+                        <h5 class="mb-3">Generate Modul Ajar</h5>
+                        <div class="row g-3">
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Pilih Jadwal Mengajar</label>
+                                <select id="pSelectJadwal" class="form-select"><option>-- Buat Jadwal Dulu --</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Semester</label>
+                                <select id="pSmt" class="form-select"><option value="Gasal">Gasal</option><option value="Genap">Genap</option></select>
+                            </div>
+                            <div class="col-md-3">
+                                <label class="small fw-bold">Materi Bab Ke-</label>
+                                <input type="number" id="pBab" class="form-control" value="1" min="1">
+                            </div>
+                            <div class="col-md-3 d-flex align-items-end">
+                                <button class="btn btn-primary w-100" onclick="generatePerangkat()">Terapkan ke Dokumen</button>
+                            </div>
                         </div>
                     </div>
                     
                     <button class="btn btn-secondary no-print mb-3" onclick="printDoc('docModul')">🖨️ Cetak Modul Ajar</button>
                     
-                    <div id="docModul" class="document-page">
-                        <div class="doc-header">MODUL AJAR PENDIDIKAN AGAMA ISLAM</div>
-                        <table class="doc-table mb-3">
-                            <tr><td><strong>Informasi Umum:</strong> Kelas <span id="outKelas"></span> / Semester <span id="outSmt"></span></td></tr>
-                            <tr><td><strong>8 Profil Lulusan:</strong><br>
-                                1. Keimanan 2. Kewargaan 3. Penalaran Kritis 4. Kreativitas <br>
-                                5. Kolaborasi 6. Kemandirian 7. Kesehatan 8. Komunikasi
-                            </td></tr>
+                    <div id="docModul" class="document-page print-section-target">
+                        <div class="doc-header">MODUL AJAR KURIKULUM MERDEKA<br>PENDIDIKAN AGAMA ISLAM DAN BUDI PEKERTI</div>
+                        
+                        <b>A. INFORMASI UMUM</b>
+                        <table class="identity-table mt-2 mb-3">
+                            <tr><td width="20%">Nama Penyusun</td><td width="2%">:</td><td width="30%" class="vGuru fw-bold"></td><td width="15%">Instansi</td><td width="2%">:</td><td class="vSekolah"></td></tr>
+                            <tr><td>Fase / Kelas</td><td>:</td><td><span id="outFase" class="fw-bold"></span> / <span id="outRombel"></span></td><td>Semester</td><td>:</td><td><span id="outSmt"></span></td></tr>
+                            <tr><td>Tahun Ajaran</td><td>:</td><td class="vTahun"></td><td>Alokasi Waktu</td><td>:</td><td>4 JP (1x Pertemuan)</td></tr>
                         </table>
-                        <b>A. Capaian & Tujuan Pembelajaran (Bab <span id="outBab"></span>)</b>
-                        <p id="outMateri">Isi materi akan di-generate di sini berdasarkan kurikulum PAI.</p>
-                        <b>B. Kegiatan Pembelajaran</b>
-                        <p>1. Pendahuluan (Siswa diabsen, berdoa - <i>Keimanan</i>)<br>2. Inti (Diskusi kelompok - <i>Kolaborasi & Komunikasi</i>)<br>3. Penutup (Refleksi - <i>Penalaran Kritis</i>)</p>
+
+                        <b>B. 8 PROFIL LULUSAN TERPADU</b>
+                        <p style="margin-top:5px; font-size:10.5pt; text-align:justify;">Modul ajar ini diintegrasikan dengan pembentukan 8 karakter unggul peserta didik, meliputi: <b>1. Keimanan, 2. Kewargaan, 3. Penalaran Kritis, 4. Kreativitas, 5. Kolaborasi, 6. Kemandirian, 7. Kesehatan, dan 8. Komunikasi.</b></p>
+
+                        <b>C. KOMPONEN INTI (TUJUAN PEMBELAJARAN BAB <span id="outBab"></span>)</b>
+                        <p id="outMateri" style="margin-top:5px; margin-bottom:15px; text-align:justify;">Materi pembelajaran PAI diarahkan untuk membentuk peserta didik yang bertakwa dan berakhlak mulia. (Silakan pilih jadwal dan tekan Terapkan untuk menggenerate materi spesifik fase).</p>
+
+                        <b>D. KEGIATAN PEMBELAJARAN</b>
+                        <table class="doc-table mt-2">
+                            <tr><th width="20%">Tahap</th><th>Deskripsi Kegiatan & Integrasi Profil Lulusan</th></tr>
+                            <tr>
+                                <td><b>Pendahuluan</b><br>(15 Menit)</td>
+                                <td>1. Guru mengucapkan salam dan berdoa bersama <i>(Keimanan)</i>.<br>2. Guru mengecek kebersihan kelas <i>(Kesehatan)</i> dan presensi siswa.<br>3. Guru menyampaikan apersepsi dan tujuan pembelajaran.</td>
+                            </tr>
+                            <tr>
+                                <td><b>Kegiatan Inti</b><br>(110 Menit)</td>
+                                <td>1. Siswa mengamati penjelasan guru mengenai materi Bab <span class="vBab"></span>.<br>2. Siswa dibagi ke dalam kelompok kecil untuk berdiskusi <i>(Kolaborasi & Komunikasi)</i>.<br>3. Siswa merumuskan pemecahan masalah berdasarkan materi <i>(Penalaran Kritis & Kreativitas)</i>.<br>4. Masing-masing mempresentasikan hasil tanpa bergantung pada orang lain <i>(Kemandirian)</i>.</td>
+                            </tr>
+                            <tr>
+                                <td><b>Penutup</b><br>(15 Menit)</td>
+                                <td>1. Siswa dan guru menyimpulkan materi bersama <i>(Kewargaan/Keterbukaan)</i>.<br>2. Evaluasi singkat dan penugasan LKPD.<br>3. Doa penutup dan salam.</td>
+                            </tr>
+                        </table>
+
+                        <div class="signature-area">
+                            <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div>NIP. <span class="vNipKepsek"></span></div>
+                            <div class="signature-box"><span class="vTanggal"></span><br>Guru Pendidikan Agama Islam<div class="signature-name vGuru"></div>NIP. <span class="vNipGuru"></span></div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="tabPelaksanaan" class="tab-content d-none">
-                    <div class="no-print card p-3 mb-3">
-                        <h5>Pilih Jadwal Hari Ini</h5>
-                        <select id="selectJadwalAbsen" class="form-select mb-2"><option>-- Pilih Jadwal --</option></select>
-                        <button class="btn btn-info" onclick="loadAbsensi()">Mulai Kelas & Absen</button>
+                    <div class="no-print card p-4 mb-4 shadow-sm border-0 border-start border-5 border-success bg-light">
+                        <div class="row align-items-end">
+                            <div class="col-md-5">
+                                <label class="fw-bold small">Pilih Jadwal Mengajar Hari Ini</label>
+                                <select id="selectJadwalAbsen" class="form-select"></select>
+                            </div>
+                            <div class="col-md-3">
+                                <button class="btn btn-success w-100" onclick="loadAbsensi()">Tampilkan Daftar Siswa</button>
+                            </div>
+                        </div>
                     </div>
 
-                    <div id="areaAbsen" class="d-none no-print mb-3 bg-white p-3 border">
-                        <h5>Ceklist Kehadiran Siswa</h5>
+                    <div id="areaAbsen" class="d-none no-print mb-4 bg-white p-4 shadow-sm border rounded">
+                        <h5 class="border-bottom pb-2 mb-3">Ceklist Kehadiran Siswa: <span id="labelKelasAbsen" class="text-primary fw-bold"></span></h5>
                         <div id="listSiswaAbsen" class="row"></div>
-                        <button class="btn btn-success mt-3" onclick="simpanJurnal()">Simpan Absen & Cetak Jurnal</button>
+                        <div class="mt-4 pt-3 border-top text-end">
+                            <button class="btn btn-primary" onclick="simpanJurnal()">Terapkan Kehadiran ke Jurnal</button>
+                        </div>
                     </div>
 
-                    <button class="btn btn-secondary no-print mb-3" onclick="printDoc('docJurnal')">🖨️ Cetak Jurnal</button>
+                    <button class="btn btn-secondary no-print mb-3" onclick="printDoc('docJurnal')">🖨️ Cetak Jurnal Pembelajaran</button>
                     
-                    <div id="docJurnal" class="document-page">
-                        <div class="doc-header">JURNAL PEMBELAJARAN & ABSENSI</div>
-                        <table class="doc-table">
-                            <tr><td width="20%">Tanggal</td><td><span id="jurTanggal"></span></td></tr>
-                            <tr><td>Rombel / Jam</td><td><span id="jurRombel"></span></td></tr>
-                            <tr><td>Materi Pokok</td><td>Sesuai Modul (Otomatis Sinkron)</td></tr>
-                            <tr><td>Kehadiran</td><td>Hadir: <span id="jurHadir">0</span> | Sakit/Izin/Alpha: <span id="jurAbsen">0</span></td></tr>
-                            <tr><td>Catatan KBM</td><td>Pelaksanaan berjalan lancar. Seluruh 8 Profil Lulusan terintegrasi dengan baik.</td></tr>
+                    <div id="docJurnal" class="document-page print-section-target">
+                        <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN DAN ABSENSI</div>
+                        
+                        <table class="identity-table mt-3">
+                            <tr><td width="20%">Sekolah</td><td width="2%">:</td><td width="40%" class="vSekolah fw-bold"></td><td width="15%">Kelas / Rombel</td><td width="2%">:</td><td><span id="jurRombel" class="fw-bold"></span></td></tr>
+                            <tr><td>Mata Pelajaran</td><td>:</td><td>Pendidikan Agama Islam & BP</td><td>Hari, Tanggal</td><td>:</td><td><span id="jurTanggal"></span></td></tr>
+                            <tr><td>Nama Guru</td><td>:</td><td class="vGuru"></td><td>Jam Ke-</td><td>:</td><td><span id="jurJam"></span></td></tr>
                         </table>
+
+                        <table class="doc-table mt-3">
+                            <thead style="background-color: #f2f2f2;">
+                                <tr>
+                                    <th width="35%">Materi / Topik Bahasan</th>
+                                    <th width="35%">Catatan Kegiatan (8 Profil Lulusan)</th>
+                                    <th width="30%">Rekapitulasi Kehadiran Siswa</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td style="height: 120px;">Pelaksanaan pembelajaran sesuai dengan Modul Ajar.</td>
+                                    <td>Proses KBM berjalan lancar. Sikap kemandirian, kolaborasi, dan penalaran kritis teramati dengan baik selama proses diskusi kelas.</td>
+                                    <td>
+                                        Hadir: <span id="jurHadir" class="fw-bold fs-5">0</span> Siswa<br><br>
+                                        Tidak Hadir (S/I/A): <span id="jurAbsen" class="fw-bold fs-5 text-danger">0</span> Siswa<br>
+                                        <div id="jurListAbsen" class="small mt-2" style="font-style: italic;"></div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+
+                        <div class="signature-area mt-5">
+                            <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div>NIP. <span class="vNipKepsek"></span></div>
+                            <div class="signature-box"><span class="vTanggal"></span><br>Guru PAI / Wali Kelas<div class="signature-name vGuru"></div>NIP. <span class="vNipGuru"></span></div>
+                        </div>
                     </div>
                 </div>
 
                 <div id="tabEvaluasi" class="tab-content d-none">
-                    <button class="btn btn-secondary no-print mb-3" onclick="printDoc('docLKPD')">🖨️ Cetak LKPD & Soal</button>
+                    <button class="btn btn-secondary no-print mb-3" onclick="printDoc('docLKPD')">🖨️ Cetak LKPD & Kisi-kisi</button>
                     
-                    <div id="docLKPD" class="document-page">
+                    <div id="docLKPD" class="document-page print-section-target">
                         <div class="doc-header">LEMBAR KERJA PESERTA DIDIK (LKPD)</div>
-                        <p><strong>Nama:</strong> ........................................ &nbsp;&nbsp;&nbsp; <strong>Kelas:</strong> ........................</p>
-                        <p><strong>Instruksi:</strong> Kerjakan tugas di bawah ini secara mandiri (<i>Kemandirian & Penalaran Kritis</i>).</p>
-                        <div style="min-height: 100px; border: 1px dashed black; padding: 10px;">Tempat Pengerjaan Siswa</div>
+                        <table class="identity-table" style="width: 50%;">
+                            <tr><td>Nama Siswa</td><td>:</td><td style="border-bottom: 1px dotted black;"></td></tr>
+                            <tr><td>Kelas</td><td>:</td><td style="border-bottom: 1px dotted black;" class="vRombelPrint"></td></tr>
+                            <tr><td>Nilai</td><td>:</td><td style="border-bottom: 1px dotted black;"></td></tr>
+                        </table>
                         
-                        <hr>
-                        <div class="doc-header" style="font-size: 12pt; margin-top: 20px;">KISI-KISI & BUTIR SOAL EVALUASI</div>
+                        <p class="mt-3"><strong>Instruksi:</strong> Kerjakan tugas di bawah ini secara mandiri guna melatih <i>Kemandirian & Penalaran Kritis</i>.</p>
+                        <div style="min-height: 150px; border: 1px dashed black; padding: 15px; border-radius: 5px; background-color: #fdfdfd;">
+                            <i>(Tempat Pengerjaan Siswa / Ruang Jawaban)</i>
+                        </div>
+                        
+                        <hr style="border: 1px solid black; margin-top: 40px; margin-bottom: 20px;">
+                        
+                        <div class="doc-header" style="font-size: 13pt;">KISI-KISI & BUTIR SOAL EVALUASI</div>
+                        <p class="small">Digunakan oleh guru sebagai panduan penilaian. Mata Pelajaran: <b>PAI & BP</b> | Instansi: <b class="vSekolah"></b></p>
                         <table class="doc-table">
-                            <tr><th>Jenis Soal</th><th>Butir Soal (Otomatis generate dari Bab terpilih)</th><th>Kunci</th></tr>
-                            <tr><td>Pilihan Ganda</td><td>1. Apa pesan pokok dari materi yang dipelajari hari ini?<br>a. X &nbsp; b. Y &nbsp; c. Z &nbsp; d. W</td><td>a</td></tr>
-                            <tr><td>Benar / Salah</td><td>2. (B/S) Kita harus selalu mengedepankan Kolaborasi.</td><td>B</td></tr>
-                            <tr><td>Isian Singkat</td><td>3. Sebutkan salah satu sifat wajib Rasul! .................</td><td>Siddiq</td></tr>
-                            <tr><td>Uraian</td><td>4. Jelaskan bagaimana cara menerapkan toleransi!</td><td>Kebijakan Guru</td></tr>
+                            <thead style="background-color: #f2f2f2;">
+                                <tr><th width="15%">Bentuk Soal</th><th width="65%">Butir Soal (Penalaran Kritis & Pemahaman)</th><th width="20%">Kunci Jawaban</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr><td>Pilihan Ganda</td><td>1. Sifat yang menunjukkan bahwa Rasul selalu dapat dipercaya adalah?<br>a. Fatanah &nbsp;&nbsp; b. Amanah &nbsp;&nbsp; c. Tablig &nbsp;&nbsp; d. Kizib</td><td>B</td></tr>
+                                <tr><td>Benar / Salah</td><td>2. (B / S) Bertoleransi antar umat beragama adalah contoh sikap yang mencerminkan profil Kewargaan.</td><td>Benar</td></tr>
+                                <tr><td>Isian Singkat</td><td>3. Sebutkan salah satu nama Asmaul Husna beserta artinya secara singkat! .................</td><td>(Kebijakan Guru)</td></tr>
+                                <tr><td>Uraian</td><td>4. Jelaskan sebuah contoh perilaku bergotong royong (Kolaborasi) di lingkungan sekolah!</td><td>(Kebijakan Guru)</td></tr>
+                            </tbody>
                         </table>
                     </div>
                 </div>
@@ -180,9 +368,8 @@
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot, deleteDoc, doc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // Konfigurasi dari Anda
         const firebaseConfig = {
             apiKey: "AIzaSyCTEbggjJ5cguXAlq-QpbY5mO2G16S7rvQ",
             authDomain: "si-gumart.firebaseapp.com",
@@ -199,157 +386,346 @@
         const provider = new GoogleAuthProvider();
 
         let currentUser = null;
-        let dataSiswa = [];
+        let isBypass = false;
 
-        // Global functions for HTML onclick
+        // --- STATE MANAGEMENT ---
+        let dataSiswa = JSON.parse(localStorage.getItem('pai_dataSiswa')) || [];
+        
+        // --- UI NAVIGATION & PRINT ---
         window.showTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('d-none');
             event.target.classList.add('active');
+            updateUIProfile(); // Update every tab switch
         };
 
         window.printDoc = function(docId) {
+            updateUIProfile(); // Ensure variables are injected before print
             document.getElementById(docId).classList.add('print-section');
             window.print();
             document.getElementById(docId).classList.remove('print-section');
         };
 
-        // LOGIN LOGIC
+        // --- AUTH LOGIC ---
         document.getElementById('btnLogin').addEventListener('click', () => {
-            signInWithPopup(auth, provider).catch(err => alert("Error Login: " + err.message));
+            signInWithPopup(auth, provider).catch(err => alert("Login Error (Pastikan jalankan di Web Server, bukan file://): " + err.message));
         });
 
-        document.getElementById('btnLogout').addEventListener('click', () => signOut(auth));
+        document.getElementById('btnLogout').addEventListener('click', () => {
+            if(isBypass) location.reload(); else signOut(auth);
+        });
+
+        window.bypassLogin = function() {
+            isBypass = true;
+            currentUser = { uid: "local_user_123", displayName: "Guru PAI Mode Lokal" };
+            handleLoginSuccess();
+        }
 
         onAuthStateChanged(auth, (user) => {
-            if (user) {
-                currentUser = user;
-                document.getElementById('loginScreen').classList.add('d-none');
-                document.getElementById('mainApp').classList.remove('d-none');
-                document.getElementById('userName').innerText = user.displayName;
-                document.getElementById('userAvatar').src = user.photoURL;
-                loadJadwal();
-            } else {
-                currentUser = null;
+            if (user) { currentUser = user; handleLoginSuccess(); } 
+            else if (!isBypass) {
                 document.getElementById('loginScreen').classList.remove('d-none');
                 document.getElementById('mainApp').classList.add('d-none');
             }
         });
 
-        // IMPORT CSV SISWA LOGIC
+        function handleLoginSuccess() {
+            document.getElementById('loginScreen').classList.add('d-none');
+            document.getElementById('mainApp').classList.remove('d-none');
+            document.getElementById('userName').innerText = currentUser.displayName;
+            if(currentUser.photoURL) document.getElementById('userAvatar').src = currentUser.photoURL;
+            loadProfil();
+            renderTabelSiswa();
+            loadJadwal();
+        }
+
+        // --- PROFIL INSTANSI LOGIC ---
+        window.simpanProfil = function() {
+            const profil = {
+                sekolah: document.getElementById('profSekolah').value,
+                tahun: document.getElementById('profTahun').value,
+                kepsek: document.getElementById('profKepsek').value,
+                nipKepsek: document.getElementById('profNipKepsek').value,
+                guru: document.getElementById('profGuru').value,
+                nipGuru: document.getElementById('profNipGuru').value,
+                tanggal: document.getElementById('profTanggal').value
+            };
+            localStorage.setItem('pai_profilInstansi', JSON.stringify(profil));
+            document.getElementById('msgProfil').style.display = 'inline';
+            setTimeout(() => document.getElementById('msgProfil').style.display = 'none', 3000);
+            updateUIProfile();
+        };
+
+        function loadProfil() {
+            const saved = JSON.parse(localStorage.getItem('pai_profilInstansi'));
+            if(saved) {
+                document.getElementById('profSekolah').value = saved.sekolah || '';
+                document.getElementById('profTahun').value = saved.tahun || '';
+                document.getElementById('profKepsek').value = saved.kepsek || '';
+                document.getElementById('profNipKepsek').value = saved.nipKepsek || '';
+                document.getElementById('profGuru').value = saved.guru || '';
+                document.getElementById('profNipGuru').value = saved.nipGuru || '';
+                document.getElementById('profTanggal').value = saved.tanggal || '';
+            }
+            updateUIProfile();
+        }
+
+        function updateUIProfile() {
+            const saved = JSON.parse(localStorage.getItem('pai_profilInstansi')) || {};
+            document.querySelectorAll('.vSekolah').forEach(el => el.innerText = saved.sekolah || '................');
+            document.querySelectorAll('.vTahun').forEach(el => el.innerText = saved.tahun || '................');
+            document.querySelectorAll('.vKepsek').forEach(el => el.innerText = saved.kepsek || '................');
+            document.querySelectorAll('.vNipKepsek').forEach(el => el.innerText = saved.nipKepsek || '................');
+            document.querySelectorAll('.vGuru').forEach(el => el.innerText = saved.guru || '................');
+            document.querySelectorAll('.vNipGuru').forEach(el => el.innerText = saved.nipGuru || '................');
+            document.querySelectorAll('.vTanggal').forEach(el => el.innerText = saved.tanggal || '................');
+        }
+
+        // --- DATA SISWA LOGIC ---
         window.importSiswa = function() {
             const file = document.getElementById('fileCsvSiswa').files[0];
+            const kelasInput = document.getElementById('inputSiswaKelas').value.trim();
+            
             if(!file) return alert("Pilih file CSV dulu!");
+            if(!kelasInput) return alert("Mohon isi target Kelas/Rombel tempat siswa ini akan dimasukkan (Misal: Kelas 3A)");
             
             Papa.parse(file, {
                 header: true,
+                skipEmptyLines: true,
                 complete: function(results) {
-                    dataSiswa = results.data;
-                    let html = '';
-                    dataSiswa.forEach(s => {
-                        if(s.NIS && s.Nama) html += `<tr><td>${s.NIS}</td><td>${s.Nama}</td><td>${s['L/P'] || '-'}</td></tr>`;
+                    let imported = 0;
+                    results.data.forEach(s => {
+                        // Support standard keys regardless of case
+                        let nis = s.NIS || s.nis || '-';
+                        let nama = s.Nama || s.nama || s.NAMA;
+                        let lp = s['L/P'] || s.LP || s.JK || '-';
+                        if(nama) {
+                            dataSiswa.push({ nis, nama, lp, kelas: kelasInput });
+                            imported++;
+                        }
                     });
-                    document.getElementById('tabelSiswaBody').innerHTML = html;
-                    alert("Data Siswa Berhasil Diimport!");
+                    localStorage.setItem('pai_dataSiswa', JSON.stringify(dataSiswa));
+                    alert(`${imported} data siswa berhasil ditambahkan ke ${kelasInput}!`);
+                    renderTabelSiswa();
                 }
             });
         };
 
-        // JADWAL ANTI-BENTROK LOGIC
+        window.clearDataSiswa = function() {
+            if(confirm("Yakin ingin menghapus seluruh data siswa?")) {
+                dataSiswa = [];
+                localStorage.setItem('pai_dataSiswa', JSON.stringify(dataSiswa));
+                renderTabelSiswa();
+            }
+        };
+
+        window.renderTabelSiswa = function() {
+            const filter = document.getElementById('filterKelasSiswa').value;
+            let kelasSet = new Set(dataSiswa.map(s => s.kelas));
+            
+            // Update Filter Dropdown
+            let optHtml = '<option value="ALL">-- Semua Kelas --</option>';
+            kelasSet.forEach(k => {
+                optHtml += `<option value="${k}" ${filter === k ? 'selected' : ''}>${k}</option>`;
+            });
+            document.getElementById('filterKelasSiswa').innerHTML = optHtml;
+
+            // Render Table
+            let tbody = '';
+            let filteredData = filter === "ALL" ? dataSiswa : dataSiswa.filter(s => s.kelas === filter);
+            
+            if(filteredData.length === 0) {
+                tbody = `<tr><td colspan="5" class="text-center">Belum ada data siswa di kelas ini.</td></tr>`;
+            } else {
+                filteredData.forEach((s, idx) => {
+                    tbody += `<tr><td>${idx+1}</td><td>${s.nis}</td><td>${s.nama}</td><td>${s.lp}</td><td><span class="badge bg-secondary">${s.kelas}</span></td></tr>`;
+                });
+            }
+            document.getElementById('tabelSiswaBody').innerHTML = tbody;
+            document.getElementById('dashTotalSiswa').innerText = dataSiswa.length;
+        };
+
+        // --- JADWAL ANTI-BENTROK LOGIC ---
+        let daftarJadwal = []; // Store locally for ease of use in other tabs
+        
         document.getElementById('btnTambahJadwal').addEventListener('click', async () => {
             const hari = document.getElementById('jadwalHari').value;
             const jam = document.getElementById('jadwalJam').value;
             const rombel = document.getElementById('jadwalRombel').value;
+            const fase = document.getElementById('jadwalFase').value;
             const msg = document.getElementById('msgJadwal');
-            msg.innerText = "Mengecek ketersediaan waktu...";
-
-            // Cek Anti-Bentrok di Firestore (Apakah Rombel ini sedang dipakai guru lain, atau guru ini mengajar kelas lain)
-            const q = query(collection(db, "jadwal"), where("hari", "==", hari), where("jam", "==", jam));
-            const querySnapshot = await getDocs(q);
             
-            let bentrok = false;
-            querySnapshot.forEach((doc) => {
-                let data = doc.data();
-                if(data.uid === currentUser.uid) {
-                    bentrok = true;
-                    msg.innerText = `GAGAL: Anda sudah jadwal mengajar di ${data.rombel} pada Jam ke-${jam}!`;
-                } else if (data.rombel === rombel) {
-                    bentrok = true;
-                    msg.innerText = `GAGAL: Rombel ${rombel} sedang diajar oleh guru lain pada Jam ke-${jam}!`;
-                }
-            });
+            if(!jam || !rombel) return alert("Jam dan Kelas/Rombel wajib diisi!");
+            msg.innerText = "Mengecek ketersediaan...";
 
-            if(!bentrok) {
-                await addDoc(collection(db, "jadwal"), { uid: currentUser.uid, guru: currentUser.displayName, hari, jam, rombel });
-                msg.innerText = "Jadwal berhasil ditambahkan!";
-                document.getElementById('jadwalJam').value = '';
-                document.getElementById('jadwalRombel').value = '';
+            if(!isBypass) {
+                // Firebase Anti-Bentrok Validation
+                const q = query(collection(db, "jadwal"), where("hari", "==", hari), where("jam", "==", jam));
+                const querySnapshot = await getDocs(q);
+                let bentrok = false;
+                querySnapshot.forEach((doc) => {
+                    let d = doc.data();
+                    if(d.uid === currentUser.uid) {
+                        bentrok = true; msg.innerText = `BENTROK: Anda sudah mengajar di ${d.rombel} pada ${hari} Jam ke-${jam}!`;
+                    } else if (d.rombel === rombel) {
+                        bentrok = true; msg.innerText = `BENTROK: Rombel ${rombel} sedang dipakai guru lain pada ${hari} Jam ke-${jam}!`;
+                    }
+                });
+
+                if(!bentrok) {
+                    await addDoc(collection(db, "jadwal"), { uid: currentUser.uid, hari, jam, rombel, fase });
+                    msg.innerText = "Jadwal berhasil ditambahkan!";
+                }
+            } else {
+                // Local bypass logic
+                const docId = Date.now().toString();
+                let localJadwal = JSON.parse(localStorage.getItem('pai_jadwal')) || [];
+                let bentrok = localJadwal.find(j => j.hari === hari && j.jam === jam);
+                if(bentrok) { msg.innerText = "BENTROK: Jadwal bertabrakan!"; return; }
+                localJadwal.push({ id: docId, uid: currentUser.uid, hari, jam, rombel, fase });
+                localStorage.setItem('pai_jadwal', JSON.stringify(localJadwal));
+                msg.innerText = "Jadwal lokal berhasil ditambahkan!";
+                loadJadwal();
             }
+            document.getElementById('jadwalJam').value = '';
+            document.getElementById('jadwalRombel').value = '';
         });
 
-        function loadJadwal() {
-            const q = query(collection(db, "jadwal"), where("uid", "==", currentUser.uid));
-            onSnapshot(q, (snapshot) => {
-                let html = '';
-                let opsi = '<option>-- Pilih Jadwal --</option>';
-                snapshot.forEach(doc => {
-                    let d = doc.data();
-                    html += `<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td>${d.rombel}</td><td><button class="btn btn-sm btn-danger">Hapus</button></td></tr>`;
-                    opsi += `<option value="${d.hari} - Jam ${d.jam} (${d.rombel})">${d.hari} - Jam ${d.jam} (${d.rombel})</option>`;
-                });
-                document.getElementById('tabelJadwalBody').innerHTML = html;
-                document.getElementById('selectJadwalAbsen').innerHTML = opsi;
-            });
-        }
-
-        // GENERATE MODUL (PROFIL BARU)
-        window.generatePerangkat = function() {
-            let kelas = document.getElementById('pKelas').value;
-            let smt = document.getElementById('pSmt').value;
-            let bab = document.getElementById('pBab').value;
-
-            document.getElementById('outKelas').innerText = kelas;
-            document.getElementById('outSmt').innerText = smt;
-            document.getElementById('outBab').innerText = bab;
-            
-            document.getElementById('outMateri').innerHTML = `Materi untuk Kelas ${kelas} Semester ${smt} Bab ${bab}. Fokus pada pendalaman Al-Qur'an dan Hadis, penguatan Akidah, Akhlak, serta Sejarah Kebudayaan Islam. (Disinkronkan otomatis dari database CP).`;
-            alert("Perangkat, LKPD, dan Kisi-kisi berhasil di-generate!");
+        window.hapusJadwal = async function(id) {
+            if(!confirm("Hapus jadwal ini?")) return;
+            if(!isBypass) {
+                await deleteDoc(doc(db, "jadwal", id));
+            } else {
+                let localJadwal = JSON.parse(localStorage.getItem('pai_jadwal')) || [];
+                localJadwal = localJadwal.filter(j => j.id !== id);
+                localStorage.setItem('pai_jadwal', JSON.stringify(localJadwal));
+                loadJadwal();
+            }
         };
 
-        // ABSEN & JURNAL SINKRONISASI
-        window.loadAbsensi = function() {
-            if(dataSiswa.length === 0) return alert("Silakan import data siswa (CSV) di menu Data Siswa terlebih dahulu.");
-            document.getElementById('areaAbsen').classList.remove('d-none');
+        function processJadwalData(dataArray) {
+            daftarJadwal = dataArray;
+            document.getElementById('dashTotalJadwal').innerText = daftarJadwal.length;
             
             let html = '';
-            dataSiswa.forEach((s, idx) => {
-                if(s.Nama) {
-                    html += `<div class="col-md-4 mb-2">
-                        <div class="form-check">
-                            <input class="form-check-input absen-check" type="checkbox" value="" id="abs${idx}" checked>
-                            <label class="form-check-label" for="abs${idx}">${s.Nama}</label>
-                        </div>
-                    </div>`;
-                }
+            let opsiPerangkat = '<option value="">-- Pilih Jadwal --</option>';
+            let opsiAbsen = '<option value="">-- Pilih Jadwal Kelas Hari Ini --</option>';
+            
+            daftarJadwal.forEach(d => {
+                let textObj = `${d.hari}, Jam ke-${d.jam} | ${d.rombel} (Fase ${d.fase})`;
+                html += `<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td><span class="badge bg-primary">${d.rombel}</span></td><td>Fase ${d.fase}</td>
+                         <td><button class="btn btn-sm btn-danger" onclick="hapusJadwal('${d.id}')">Hapus</button></td></tr>`;
+                
+                opsiPerangkat += `<option value='${JSON.stringify(d)}'>${textObj}</option>`;
+                opsiAbsen += `<option value='${JSON.stringify(d)}'>${textObj}</option>`;
+            });
+            
+            document.getElementById('tabelJadwalBody').innerHTML = html;
+            document.getElementById('pSelectJadwal').innerHTML = opsiPerangkat;
+            document.getElementById('selectJadwalAbsen').innerHTML = opsiAbsen;
+        }
+
+        function loadJadwal() {
+            if(!isBypass) {
+                const q = query(collection(db, "jadwal"), where("uid", "==", currentUser.uid));
+                onSnapshot(q, (snapshot) => {
+                    let dataArr = [];
+                    snapshot.forEach(doc => { dataArr.push({ id: doc.id, ...doc.data() }) });
+                    processJadwalData(dataArr);
+                });
+            } else {
+                let localJadwal = JSON.parse(localStorage.getItem('pai_jadwal')) || [];
+                processJadwalData(localJadwal);
+            }
+        }
+
+        // --- PERANGKAT AJAR (MODUL) LOGIC ---
+        window.generatePerangkat = function() {
+            const jVal = document.getElementById('pSelectJadwal').value;
+            if(!jVal) return alert("Pilih Jadwal Mengajar terlebih dahulu!");
+            
+            const jadwal = JSON.parse(jVal);
+            const smt = document.getElementById('pSmt').value;
+            const bab = document.getElementById('pBab').value;
+
+            document.getElementById('outFase').innerText = `Fase ${jadwal.fase}`;
+            document.getElementById('outRombel').innerText = jadwal.rombel;
+            document.getElementById('outSmt').innerText = smt;
+            document.getElementById('outBab').innerText = bab;
+            document.querySelectorAll('.vBab').forEach(el => el.innerText = bab);
+            document.querySelectorAll('.vRombelPrint').forEach(el => el.innerText = jadwal.rombel); // LKPD Update
+            
+            // Konteks CP Dinamis berdasarkan Fase
+            let konteks = "";
+            if(jadwal.fase === "A") konteks = "Memahami huruf hijaiyah, rukun iman, dan rukun islam secara sederhana.";
+            else if(jadwal.fase === "B") konteks = "Membaca surah pendek dengan tartil, memahami asmaul husna, dan kisah keteladanan nabi.";
+            else if(jadwal.fase === "C") konteks = "Memahami hukum tajwid, beriman pada qada & qadar, serta sejarah peradaban Islam di Nusantara.";
+
+            document.getElementById('outMateri').innerHTML = `Tujuan Pembelajaran Fase ${jadwal.fase} Bab ${bab}: Peserta didik mampu <b>${konteks}</b> Modul ini menerapkan pendekatan pembelajaran yang interaktif guna memastikan 8 profil lulusan dapat terbangun secara seimbang.`;
+            
+            alert("Modul Ajar dan LKPD berhasil disesuaikan dengan Fase " + jadwal.fase);
+        };
+
+        // --- ABSENSI & JURNAL LOGIC ---
+        window.loadAbsensi = function() {
+            const jVal = document.getElementById('selectJadwalAbsen').value;
+            if(!jVal) return alert("Pilih jadwal hari ini terlebih dahulu!");
+            const jadwal = JSON.parse(jVal);
+            
+            // Filter siswa berdasarkan rombel di jadwal
+            let siswaKelasIni = dataSiswa.filter(s => s.kelas.toLowerCase() === jadwal.rombel.toLowerCase());
+            
+            document.getElementById('areaAbsen').classList.remove('d-none');
+            document.getElementById('labelKelasAbsen').innerText = jadwal.rombel;
+            
+            if(siswaKelasIni.length === 0) {
+                document.getElementById('listSiswaAbsen').innerHTML = `<div class="col-12 text-danger">Tidak ada data siswa untuk Rombel <b>${jadwal.rombel}</b>. Silakan import di menu Data Siswa terlebih dahulu.</div>`;
+                return;
+            }
+
+            let html = '';
+            siswaKelasIni.forEach((s, idx) => {
+                html += `<div class="col-md-4 mb-2">
+                    <div class="form-check p-2 border rounded" style="background: #f8f9fa;">
+                        <input class="form-check-input absen-check" type="checkbox" value="${s.nama}" id="abs${idx}" checked>
+                        <label class="form-check-label ms-1" for="abs${idx}">
+                            <span class="fw-bold">${s.nama}</span> <br><small class="text-muted">NIS: ${s.nis} (${s.lp})</small>
+                        </label>
+                    </div>
+                </div>`;
             });
             document.getElementById('listSiswaAbsen').innerHTML = html;
         };
 
         window.simpanJurnal = function() {
-            let total = document.querySelectorAll('.absen-check').length;
-            let hadir = document.querySelectorAll('.absen-check:checked').length;
-            let absen = total - hadir;
+            const boxes = document.querySelectorAll('.absen-check');
+            if(boxes.length === 0) return alert("Tidak ada data absensi untuk disingkronisasi.");
+            
+            let total = boxes.length;
+            let hadir = 0;
+            let tidakHadirNames = [];
 
-            let jadwal = document.getElementById('selectJadwalAbsen').value;
-            let tgl = new Date().toLocaleDateString('id-ID');
+            boxes.forEach(b => {
+                if(b.checked) hadir++;
+                else tidakHadirNames.push(b.value);
+            });
 
+            const jVal = document.getElementById('selectJadwalAbsen').value;
+            const jadwal = JSON.parse(jVal);
+            const tgl = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+            // Injeksi ke Tabel Jurnal
             document.getElementById('jurTanggal').innerText = tgl;
-            document.getElementById('jurRombel').innerText = jadwal;
+            document.getElementById('jurJam').innerText = jadwal.jam;
+            document.getElementById('jurRombel').innerText = jadwal.rombel;
             document.getElementById('jurHadir').innerText = hadir;
-            document.getElementById('jurAbsen').innerText = absen;
+            document.getElementById('jurAbsen').innerText = (total - hadir);
+            
+            let ketAbsen = tidakHadirNames.length > 0 ? "Siswa tidak hadir: " + tidakHadirNames.join(", ") : "Nihil (Hadir Semua)";
+            document.getElementById('jurListAbsen').innerText = ketAbsen;
 
-            alert("Data Absen tersimpan ke Jurnal! Silakan Cetak Jurnal.");
+            alert("Data Absen tersimpan ke Jurnal! Silakan Cetak Jurnal Pembelajaran.");
         };
     </script>
 </body>
