@@ -1,338 +1,435 @@
-// =============================================
-// SIM KURIKULUM MERDEKA - MAIN APPLICATION
-// =============================================
+// ==========================================
+// SIM KURIKULUM MERDEKA PRO - MAIN APP JS
+// ==========================================
 
-// ========== DATA STATE ==========
+// Data State
 let dataSiswa = JSON.parse(localStorage.getItem('sim_siswa')) || [];
 let dataJadwal = JSON.parse(localStorage.getItem('sim_jadwal')) || [];
 let dataNilai = JSON.parse(localStorage.getItem('sim_nilai')) || {};
 let dataCPTP = JSON.parse(localStorage.getItem('sim_cptp')) || { cp: "", tps: [{bab:1, judul:"Materi Pertama", jp:4}] };
+let customHolidays = JSON.parse(localStorage.getItem('sim_holidays')) || [];
+let premiumUsers = JSON.parse(localStorage.getItem('sim_premium_users')) || [];
 
-// ========== ADMIN SETTINGS ==========
-const ADMIN_EMAIL = "afifaro@gmail.com";
+// Admin Default Settings
+const DEFAULT_ADMIN = {
+    email: "afifaro@gmail.com",
+    password: "admin123"
+};
 
-let adminSettings = JSON.parse(localStorage.getItem('sim_admin_settings')) || {
-    price: 99000,
+let adminSettings = JSON.parse(localStorage.getItem('sim_admin')) || DEFAULT_ADMIN;
+let pricingSettings = JSON.parse(localStorage.getItem('sim_pricing')) || {
     whatsapp: "6281234567890",
+    harga: 99000,
+    hargaDesc: "Akses Selamanya / Lifetime",
     bank: "BCA",
     rekening: "1234567890",
-    namaRekening: "Admin SIM Kurikulum"
+    namaRek: "Admin SIM Kurikulum"
 };
 
-let currentUser = JSON.parse(localStorage.getItem('sim_current_user')) || null;
-let isPremiumUser = JSON.parse(localStorage.getItem('sim_premium')) || false;
-
-// ========== DEVICE CODE ==========
-function getDeviceCode() {
-    let code = localStorage.getItem('sim_device_code');
-    if (!code) {
-        code = 'SIM-' + Math.random().toString(36).substring(2, 8).toUpperCase() + '-' + Date.now().toString(36).toUpperCase().substring(0, 5);
-        localStorage.setItem('sim_device_code', code);
-    }
-    return code;
+// Device ID for premium check
+let deviceId = localStorage.getItem('sim_device_id');
+if (!deviceId) {
+    deviceId = 'DEV_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+    localStorage.setItem('sim_device_id', deviceId);
 }
 
-// ========== GOOGLE SIGN-IN ==========
-function initGoogleSignIn() {
-    if (typeof google !== 'undefined' && google.accounts) {
-        google.accounts.id.initialize({
-            client_id: 'YOUR_GOOGLE_CLIENT_ID.apps.googleusercontent.com', // Ganti dengan Client ID Anda
-            callback: handleGoogleCallback,
-            auto_select: false
-        });
-    }
-}
+// Calendar State
+let currentMonth = new Date().getMonth();
+let currentYear = new Date().getFullYear();
 
-window.handleGoogleLogin = function() {
-    if (typeof google !== 'undefined' && google.accounts) {
-        google.accounts.id.prompt((notification) => {
-            if (notification.isNotDisplayed() || notification.isSkippedMoment()) {
-                // Fallback: tampilkan one-tap atau redirect
-                showManualLoginPrompt();
-            }
-        });
-    } else {
-        showManualLoginPrompt();
-    }
+// National Holidays (Fixed dates)
+const nationalHolidays = {
+    "01-01": "Tahun Baru Masehi",
+    "02-01": "Tahun Baru Imlek",
+    "03-12": "Hari Raya Nyepi",
+    "03-29": "Wafat Isa Al Masih",
+    "04-10": "Hari Buruh Internasional",
+    "05-01": "Hari Buruh Internasional",
+    "05-12": "Hari Raya Waisak",
+    "05-29": "Kenaikan Isa Al Masih",
+    "06-01": "Hari Lahir Pancasila",
+    "08-17": "Hari Kemerdekaan RI",
+    "10-05": "Hari Tentara Nasional Indonesia",
+    "11-10": "Hari Pahlawan",
+    "12-25": "Hari Natal"
 };
 
-function showManualLoginPrompt() {
-    // Simulasi untuk demo - dalam produksi gunakan Google Sign-In yang proper
-    const email = prompt("Masukkan email admin (untuk demo):");
-    if (email && email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-        loginAsAdmin(email, "Admin", "");
-    } else if (email) {
-        alert("Email tidak dikenali sebagai admin. Hanya " + ADMIN_EMAIL + " yang bisa mengakses Admin Panel.");
-    }
-}
-
-function handleGoogleCallback(response) {
-    const payload = parseJwt(response.credential);
-    
-    if (payload.email.toLowerCase() === ADMIN_EMAIL.toLowerCase()) {
-        loginAsAdmin(payload.email, payload.name, payload.picture);
-    } else {
-        alert("Maaf, hanya admin (" + ADMIN_EMAIL + ") yang bisa login.");
-    }
-}
-
-function parseJwt(token) {
-    try {
-        const base64Url = token.split('.')[1];
-        const base64 = base64Url.replace(/-/g, '+').replace(/_/g, '/');
-        const jsonPayload = decodeURIComponent(atob(base64).split('').map(function(c) {
-            return '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2);
-        }).join(''));
-        return JSON.parse(jsonPayload);
-    } catch (e) {
-        return {};
-    }
-}
-
-function loginAsAdmin(email, name, picture) {
-    currentUser = { email, name, picture, isAdmin: true };
-    localStorage.setItem('sim_current_user', JSON.stringify(currentUser));
-    isPremiumUser = true;
-    localStorage.setItem('sim_premium', 'true');
-    
-    updateUserUI();
-    showTab('tabAdmin');
-    alert("Login berhasil! Selamat datang, " + name);
-}
-
-window.handleLogout = function() {
-    currentUser = null;
-    localStorage.removeItem('sim_current_user');
-    
-    // Cek apakah device ini sudah diaktivasi premium
-    checkDeviceActivation();
-    
-    updateUserUI();
-    showTab('tabDashboard');
-    alert("Logout berhasil!");
+// ==========================================
+// INITIALIZATION
+// ==========================================
+window.onload = function() {
+    loadProfil();
+    renderTabelSiswa();
+    renderJadwal();
+    renderCPTP();
+    renderCalendar();
+    updateStats();
+    checkPremiumStatus();
+    loadPricingDisplay();
 };
 
-function updateUserUI() {
-    const loginSection = document.getElementById('loginSection');
-    const logoutSection = document.getElementById('logoutSection');
-    const adminMenuSection = document.getElementById('adminMenuSection');
-    const userRole = document.getElementById('userRole');
-    
-    if (currentUser && currentUser.isAdmin) {
-        loginSection.classList.add('d-none');
-        logoutSection.classList.remove('d-none');
-        adminMenuSection.classList.remove('d-none');
-        
-        document.getElementById('adminName').textContent = currentUser.name || currentUser.email;
-        
-        if (currentUser.picture) {
-            document.getElementById('adminAvatar').src = currentUser.picture;
-            document.getElementById('adminAvatar').style.display = 'block';
-        }
-        
-        userRole.textContent = 'Administrator';
-        userRole.classList.add('text-warning');
-    } else {
-        loginSection.classList.remove('d-none');
-        logoutSection.classList.add('d-none');
-        adminMenuSection.classList.add('d-none');
-        
-        userRole.textContent = isPremiumUser ? 'Premium User' : 'Versi Gratis';
-        userRole.classList.remove('text-warning');
-        if (isPremiumUser) userRole.classList.add('text-success');
-    }
-}
-
-// ========== SIDEBAR TOGGLE ==========
-window.toggleSidebar = function() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    sidebar.classList.toggle('show');
-    overlay.classList.toggle('show');
-};
-
-function closeSidebar() {
-    const sidebar = document.getElementById('sidebar');
-    const overlay = document.querySelector('.sidebar-overlay');
-    
-    sidebar.classList.remove('show');
-    overlay.classList.remove('show');
-}
-
-// ========== NAVIGATION ==========
+// ==========================================
+// NAVIGATION
+// ==========================================
 window.showTab = function(tabId) {
-    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
-    document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
+    // Check premium for restricted tabs
+    const premiumTabs = ['tabCPTP', 'tabSiswa', 'tabPerangkat', 'tabPelaksanaan', 'tabPenilaian'];
+    const promesOnly = ['tabTahunan']; // Promes is premium, ATP and Prota are free
     
-    const tab = document.getElementById(tabId);
-    if (tab) tab.classList.remove('d-none');
+    if (premiumTabs.includes(tabId) && !isPremiumUser()) {
+        showUpgradeModal();
+        return;
+    }
+    
+    document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
+    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    
+    const targetTab = document.getElementById(tabId);
+    if (targetTab) {
+        targetTab.classList.remove('d-none');
+    }
     
     if (event && event.target) {
-        const link = event.target.closest('.nav-link');
-        if (link) link.classList.add('active');
+        event.target.classList.add('active');
     }
     
-    closeSidebar();
     updateUIProfile();
-    updateStats();
     
-    if (tabId === 'tabCPTP') renderCPTP();
-    if (tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
-    if (tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
-    if (tabId === 'tabPenilaian') renderKelasPenilaian();
-    if (tabId === 'tabAdmin') {
-        loadAdminSettingsToForm();
-        renderActivatedCodes();
-    }
+    // Tab-specific initializations
+    if(tabId === 'tabCPTP') renderCPTP();
+    if(tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
+    if(tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
+    if(tabId === 'tabPenilaian') renderKelasPenilaian();
+    if(tabId === 'tabKalender') renderCalendar();
+    if(tabId === 'tabAdmin') loadAdminPanel();
 };
 
-// ========== PREMIUM CHECK ==========
-window.checkPremium = function(tabId) {
-    if (isPremiumUser || (currentUser && currentUser.isAdmin)) {
-        showTab(tabId);
-    } else {
-        showUpgradeModal();
-    }
+window.toggleSidebar = function() {
+    document.getElementById('sidebarMenu').classList.toggle('show');
 };
+
+// ==========================================
+// PREMIUM SYSTEM
+// ==========================================
+function isPremiumUser() {
+    return premiumUsers.includes(deviceId);
+}
+
+function checkPremiumStatus() {
+    const badge = document.getElementById('userStatusBadge');
+    const banner = document.getElementById('upgradeBanner');
+    
+    if (isPremiumUser()) {
+        badge.className = 'badge';
+        badge.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
+        badge.innerHTML = '<i class="fas fa-crown me-1"></i>Premium';
+        if (banner) banner.style.display = 'none';
+    } else {
+        badge.className = 'badge bg-secondary';
+        badge.innerHTML = 'Free User';
+        if (banner) banner.style.display = 'flex';
+    }
+}
 
 window.showUpgradeModal = function() {
-    document.getElementById('displayPrice').textContent = 'Rp ' + adminSettings.price.toLocaleString('id-ID');
-    document.getElementById('displayBank').textContent = adminSettings.bank + ' - ' + adminSettings.rekening;
-    document.getElementById('displayAccountName').textContent = 'a.n. ' + adminSettings.namaRekening;
-    
-    const deviceCode = getDeviceCode();
-    const waMessage = encodeURIComponent(`Halo Admin, saya ingin upgrade SIM Kurikulum Merdeka ke Premium.\n\nKode Perangkat: ${deviceCode}\n\nMohon bantuan aktivasinya. Terima kasih!`);
-    document.getElementById('waUpgradeBtn').href = `https://wa.me/${adminSettings.whatsapp}?text=${waMessage}`;
-    
+    loadPricingDisplay();
     const modal = new bootstrap.Modal(document.getElementById('upgradeModal'));
     modal.show();
 };
 
-// ========== ADMIN FUNCTIONS ==========
-function loadAdminSettingsToForm() {
-    document.getElementById('adminPrice').value = adminSettings.price;
-    document.getElementById('adminWA').value = adminSettings.whatsapp;
-    document.getElementById('adminBank').value = adminSettings.bank;
-    document.getElementById('adminRekening').value = adminSettings.rekening;
-    document.getElementById('adminNamaRek').value = adminSettings.namaRekening;
+function loadPricingDisplay() {
+    document.getElementById('displayPrice').textContent = 'Rp ' + Number(pricingSettings.harga).toLocaleString('id-ID');
+    document.getElementById('displayPriceDesc').textContent = pricingSettings.hargaDesc;
+    document.getElementById('displayBank').textContent = pricingSettings.bank;
+    document.getElementById('displayRekening').textContent = pricingSettings.rekening;
+    document.getElementById('displayNamaRek').textContent = pricingSettings.namaRek;
+    
+    const waBtn = document.getElementById('waUpgradeBtn');
+    const waMessage = encodeURIComponent(`Halo, saya ingin upgrade ke SIM Kurikulum Merdeka Pro.\n\nDevice ID: ${deviceId}\n\nMohon informasi lebih lanjut. Terima kasih!`);
+    waBtn.href = `https://wa.me/${pricingSettings.whatsapp}?text=${waMessage}`;
 }
 
-window.saveAdminSettings = function() {
-    adminSettings.price = parseInt(document.getElementById('adminPrice').value) || 99000;
-    adminSettings.whatsapp = document.getElementById('adminWA').value || '6281234567890';
-    adminSettings.bank = document.getElementById('adminBank').value || 'BCA';
-    adminSettings.rekening = document.getElementById('adminRekening').value || '1234567890';
-    adminSettings.namaRekening = document.getElementById('adminNamaRek').value || 'Admin';
-    
-    localStorage.setItem('sim_admin_settings', JSON.stringify(adminSettings));
-    alert('Pengaturan berhasil disimpan!');
+window.checkPremiumAndPrint = function(docId, name, orientation) {
+    if (!isPremiumUser()) {
+        showUpgradeModal();
+        return;
+    }
+    triggerPrint(docId, name, orientation);
 };
 
-window.activateUserPremium = function() {
-    const code = document.getElementById('userActivationCode').value.trim().toUpperCase();
-    
-    if (!code) {
-        alert('Masukkan kode aktivasi!');
-        return;
-    }
-    
-    let activatedCodes = JSON.parse(localStorage.getItem('sim_activated_codes')) || [];
-    
-    if (activatedCodes.includes(code)) {
-        alert('Kode ini sudah pernah diaktivasi!');
-        return;
-    }
-    
-    activatedCodes.push(code);
-    localStorage.setItem('sim_activated_codes', JSON.stringify(activatedCodes));
-    
-    // Jika kode yang diaktivasi sama dengan device code sendiri
-    if (code === getDeviceCode()) {
-        isPremiumUser = true;
-        localStorage.setItem('sim_premium', 'true');
-        updateUserUI();
-    }
-    
-    renderActivatedCodes();
-    alert(`Kode ${code} berhasil diaktivasi!`);
-    document.getElementById('userActivationCode').value = '';
+// ==========================================
+// ADMIN PANEL
+// ==========================================
+window.showAdminLogin = function() {
+    const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
+    modal.show();
 };
 
-function renderActivatedCodes() {
-    const container = document.getElementById('activatedCodesList');
-    const codes = JSON.parse(localStorage.getItem('sim_activated_codes')) || [];
+window.loginAdmin = function() {
+    const email = document.getElementById('adminEmail').value;
+    const password = document.getElementById('adminPassword').value;
     
-    if (codes.length === 0) {
-        container.innerHTML = '<p class="text-muted mb-0">Belum ada kode yang diaktivasi.</p>';
+    if (email === adminSettings.email && password === adminSettings.password) {
+        localStorage.setItem('sim_admin_logged', 'true');
+        bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
+        showTab('tabAdmin');
+        showToast('Login berhasil!', 'success');
+    } else {
+        showToast('Email atau password salah!', 'danger');
+    }
+};
+
+window.logoutAdmin = function() {
+    localStorage.removeItem('sim_admin_logged');
+    showTab('tabDashboard');
+    showToast('Logout berhasil!', 'info');
+};
+
+function loadAdminPanel() {
+    if (localStorage.getItem('sim_admin_logged') !== 'true') {
+        showAdminLogin();
         return;
     }
     
-    let html = '<ul class="list-group list-group-flush">';
-    codes.forEach((code, i) => {
-        html += `<li class="list-group-item d-flex justify-content-between align-items-center py-2 px-0">
-            <code>${code}</code>
-            <button class="btn btn-outline-danger btn-sm" onclick="removeActivatedCode(${i})">
-                <i class="bi bi-trash"></i>
-            </button>
-        </li>`;
+    document.getElementById('adminEmailSetting').value = adminSettings.email;
+    document.getElementById('settingWA').value = pricingSettings.whatsapp;
+    document.getElementById('settingHarga').value = pricingSettings.harga;
+    document.getElementById('settingHargaDesc').value = pricingSettings.hargaDesc;
+    document.getElementById('settingBank').value = pricingSettings.bank;
+    document.getElementById('settingRekening').value = pricingSettings.rekening;
+    document.getElementById('settingNamaRek').value = pricingSettings.namaRek;
+    
+    renderPremiumUsers();
+}
+
+window.simpanAdminSettings = function() {
+    const newEmail = document.getElementById('adminEmailSetting').value;
+    const newPassword = document.getElementById('adminPasswordSetting').value;
+    
+    adminSettings.email = newEmail;
+    if (newPassword.trim()) {
+        adminSettings.password = newPassword;
+    }
+    
+    localStorage.setItem('sim_admin', JSON.stringify(adminSettings));
+    showToast('Pengaturan admin tersimpan!', 'success');
+};
+
+window.simpanPricingSettings = function() {
+    pricingSettings.whatsapp = document.getElementById('settingWA').value;
+    pricingSettings.harga = document.getElementById('settingHarga').value;
+    pricingSettings.hargaDesc = document.getElementById('settingHargaDesc').value;
+    pricingSettings.bank = document.getElementById('settingBank').value;
+    pricingSettings.rekening = document.getElementById('settingRekening').value;
+    pricingSettings.namaRek = document.getElementById('settingNamaRek').value;
+    
+    localStorage.setItem('sim_pricing', JSON.stringify(pricingSettings));
+    showToast('Pengaturan harga tersimpan!', 'success');
+};
+
+window.addPremiumUser = function() {
+    const userId = document.getElementById('newPremiumUser').value.trim();
+    if (!userId) {
+        showToast('Masukkan User ID!', 'warning');
+        return;
+    }
+    
+    if (!premiumUsers.includes(userId)) {
+        premiumUsers.push(userId);
+        localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
+        document.getElementById('newPremiumUser').value = '';
+        renderPremiumUsers();
+        showToast('User premium ditambahkan!', 'success');
+    } else {
+        showToast('User sudah ada!', 'warning');
+    }
+};
+
+window.activateCurrentDevice = function() {
+    if (!premiumUsers.includes(deviceId)) {
+        premiumUsers.push(deviceId);
+        localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
+        renderPremiumUsers();
+        checkPremiumStatus();
+        showToast('Device ini sekarang Premium!', 'success');
+    } else {
+        showToast('Device ini sudah Premium!', 'info');
+    }
+};
+
+window.removePremiumUser = function(userId) {
+    if (confirm('Hapus user premium ini?')) {
+        premiumUsers = premiumUsers.filter(u => u !== userId);
+        localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
+        renderPremiumUsers();
+        checkPremiumStatus();
+        showToast('User dihapus!', 'info');
+    }
+};
+
+function renderPremiumUsers() {
+    const tbody = document.getElementById('premiumUsersList');
+    if (premiumUsers.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada user premium</td></tr>';
+        return;
+    }
+    
+    let html = '';
+    premiumUsers.forEach((user, i) => {
+        const isCurrentDevice = user === deviceId ? ' <span class="badge bg-success">Device Ini</span>' : '';
+        html += `<tr>
+            <td>${i+1}</td>
+            <td>${user}${isCurrentDevice}</td>
+            <td>${new Date().toLocaleDateString('id-ID')}</td>
+            <td><button class="btn btn-sm btn-danger" onclick="removePremiumUser('${user}')"><i class="fas fa-trash"></i></button></td>
+        </tr>`;
     });
-    html += '</ul>';
+    tbody.innerHTML = html;
+}
+
+// ==========================================
+// CALENDAR SYSTEM
+// ==========================================
+function renderCalendar() {
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
+                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    
+    document.getElementById('calendarTitle').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    
+    const firstDay = new Date(currentYear, currentMonth, 1).getDay();
+    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
+    const today = new Date();
+    
+    let html = '';
+    
+    // Empty cells before first day
+    for (let i = 0; i < firstDay; i++) {
+        html += '<div class="calendar-day" style="opacity: 0.3;"></div>';
+    }
+    
+    // Days of month
+    for (let day = 1; day <= daysInMonth; day++) {
+        const dateStr = `${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        const fullDateStr = `${currentYear}-${dateStr}`;
+        
+        let classes = 'calendar-day';
+        let holidayName = '';
+        
+        // Check if today
+        if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
+            classes += ' today';
+        }
+        
+        // Check national holiday
+        if (nationalHolidays[dateStr]) {
+            classes += ' holiday';
+            holidayName = nationalHolidays[dateStr];
+        }
+        
+        // Check custom holiday
+        const customHoliday = customHolidays.find(h => h.date === fullDateStr);
+        if (customHoliday) {
+            classes += ' holiday-custom';
+            holidayName = customHoliday.name;
+        }
+        
+        html += `<div class="${classes}" onclick="showHolidayInfo('${fullDateStr}', '${holidayName}')" title="${holidayName}">
+            ${day}
+            ${holidayName ? '<div class="holiday-dot"></div>' : ''}
+        </div>`;
+    }
+    
+    document.getElementById('calendarDays').innerHTML = html;
+    renderHolidayList();
+    updateStats();
+}
+
+window.changeMonth = function(delta) {
+    currentMonth += delta;
+    if (currentMonth > 11) {
+        currentMonth = 0;
+        currentYear++;
+    } else if (currentMonth < 0) {
+        currentMonth = 11;
+        currentYear--;
+    }
+    renderCalendar();
+};
+
+window.showHolidayInfo = function(date, name) {
+    if (name) {
+        showToast(`${date}: ${name}`, 'info');
+    }
+};
+
+window.addCustomHoliday = function() {
+    const date = document.getElementById('customHolidayDate').value;
+    const name = document.getElementById('customHolidayName').value.trim();
+    
+    if (!date || !name) {
+        showToast('Lengkapi tanggal dan nama hari libur!', 'warning');
+        return;
+    }
+    
+    if (!customHolidays.find(h => h.date === date)) {
+        customHolidays.push({ date, name });
+        localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
+        document.getElementById('customHolidayDate').value = '';
+        document.getElementById('customHolidayName').value = '';
+        renderCalendar();
+        showToast('Hari libur ditambahkan!', 'success');
+    } else {
+        showToast('Tanggal sudah ada!', 'warning');
+    }
+};
+
+window.removeCustomHoliday = function(date) {
+    customHolidays = customHolidays.filter(h => h.date !== date);
+    localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
+    renderCalendar();
+    showToast('Hari libur dihapus!', 'info');
+};
+
+function renderHolidayList() {
+    const container = document.getElementById('holidayList');
+    let html = '<h6 class="fw-bold mb-3 text-danger"><i class="fas fa-flag me-2"></i>Libur Nasional</h6>';
+    
+    for (const [date, name] of Object.entries(nationalHolidays)) {
+        const [month, day] = date.split('-');
+        html += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+            <span><small class="text-muted">${day}/${month}</small> ${name}</span>
+        </div>`;
+    }
+    
+    html += '<hr><h6 class="fw-bold mb-3 text-success"><i class="fas fa-star me-2"></i>Libur Kustom</h6>';
+    
+    if (customHolidays.length === 0) {
+        html += '<p class="text-muted small">Belum ada hari libur kustom</p>';
+    } else {
+        customHolidays.forEach(h => {
+            html += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
+                <span><small class="text-muted">${h.date}</small><br>${h.name}</span>
+                <button class="btn btn-sm btn-outline-danger" onclick="removeCustomHoliday('${h.date}')"><i class="fas fa-times"></i></button>
+            </div>`;
+        });
+    }
     
     container.innerHTML = html;
 }
 
-window.removeActivatedCode = function(index) {
-    if (!confirm('Hapus kode aktivasi ini?')) return;
-    
-    let codes = JSON.parse(localStorage.getItem('sim_activated_codes')) || [];
-    codes.splice(index, 1);
-    localStorage.setItem('sim_activated_codes', JSON.stringify(codes));
-    renderActivatedCodes();
-};
-
-function checkDeviceActivation() {
-    const myCode = getDeviceCode();
-    const activatedCodes = JSON.parse(localStorage.getItem('sim_activated_codes')) || [];
-    
-    if (activatedCodes.includes(myCode)) {
-        isPremiumUser = true;
-        localStorage.setItem('sim_premium', 'true');
-    } else {
-        isPremiumUser = false;
-        localStorage.setItem('sim_premium', 'false');
-    }
+// ==========================================
+// STATISTICS
+// ==========================================
+function updateStats() {
+    document.getElementById('statSiswa').textContent = dataSiswa.length;
+    document.getElementById('statJadwal').textContent = dataJadwal.length;
+    document.getElementById('statTP').textContent = dataCPTP.tps.length;
+    document.getElementById('statLibur').textContent = Object.keys(nationalHolidays).length + customHolidays.length;
 }
 
-// ========== COPY TO CLIPBOARD ==========
-window.copyToClipboard = function(elementId) {
-    const el = document.getElementById(elementId);
-    el.select();
-    navigator.clipboard.writeText(el.value);
-    alert("Prompt disalin!");
-};
-
-// ========== PRINT ==========
-window.triggerPrint = function(sourceId, pdfName) {
-    updateUIProfile();
-    document.title = pdfName + "_" + new Date().getTime();
-    
-    document.querySelectorAll('.print-view').forEach(el => {
-        el.classList.add('hide-on-print');
-        el.style.display = 'none';
-    });
-    
-    const target = document.getElementById(sourceId);
-    target.classList.remove('d-none', 'hide-on-print');
-    target.style.display = 'block';
-    
-    setTimeout(() => {
-        window.print();
-        target.style.display = 'none';
-    }, 100);
-};
-
-// ========== PROFILE ==========
+// ==========================================
+// PROFILE MANAGEMENT
+// ==========================================
 window.simpanProfil = function() {
     const p = {
         mapel: document.getElementById('profMapel').value,
@@ -346,13 +443,13 @@ window.simpanProfil = function() {
         tgl: document.getElementById('profTanggal').value
     };
     localStorage.setItem('sim_prof', JSON.stringify(p));
-    alert("Profil Tersimpan!");
+    showToast('Profil tersimpan!', 'success');
     updateUIProfile();
 };
 
 function loadProfil() {
     const p = JSON.parse(localStorage.getItem('sim_prof'));
-    if (p) {
+    if(p) {
         document.getElementById('profMapel').value = p.mapel || '';
         document.getElementById('profNpsn').value = p.npsn || '';
         document.getElementById('profSekolah').value = p.sek || '';
@@ -363,6 +460,7 @@ function loadProfil() {
         document.getElementById('profNipGuru').value = p.ngur || '';
         document.getElementById('profTanggal').value = p.tgl || '';
     }
+    updateUIProfile();
 }
 
 function updateUIProfile() {
@@ -377,25 +475,21 @@ function updateUIProfile() {
     document.querySelectorAll('.vTanggal').forEach(e => e.innerText = p.tgl || '...');
 }
 
-function updateStats() {
-    document.getElementById('statSiswa').textContent = dataSiswa.length;
-    document.getElementById('statJadwal').textContent = dataJadwal.length;
-    document.getElementById('statTP').textContent = dataCPTP.tps.length;
-    document.getElementById('statRombel').textContent = new Set(dataSiswa.map(s => s.rombel)).size;
-}
-
-// ========== CP & TP ==========
+// ==========================================
+// CP & TP MANAGEMENT
+// ==========================================
 function renderCPTP() {
     document.getElementById('inputCP').value = dataCPTP.cp;
-    let h = '';
-    dataCPTP.tps.forEach((tp) => {
-        h += `<tr>
-            <td><input type="number" class="form-control form-control-sm tp-bab" value="${tp.bab}"></td>
-            <td><input type="text" class="form-control form-control-sm tp-judul" value="${tp.judul}"></td>
-            <td><input type="number" class="form-control form-control-sm tp-jp" value="${tp.jp}"></td>
+    let html = '';
+    dataCPTP.tps.forEach((tp, index) => {
+        html += `<tr>
+            <td><input type="number" class="form-control tp-bab" value="${tp.bab}"></td>
+            <td><input type="text" class="form-control tp-judul" value="${tp.judul}"></td>
+            <td><input type="number" class="form-control tp-jp" value="${tp.jp}"></td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="hapusTP(${index})"><i class="fas fa-trash"></i></button></td>
         </tr>`;
     });
-    document.getElementById('bodyInputTP').innerHTML = h;
+    document.getElementById('bodyInputTP').innerHTML = html;
 }
 
 window.tambahBarisTP = function() {
@@ -403,282 +497,243 @@ window.tambahBarisTP = function() {
     renderCPTP();
 };
 
+window.hapusTP = function(index) {
+    dataCPTP.tps.splice(index, 1);
+    renderCPTP();
+};
+
 window.simpanCPTP = function() {
     dataCPTP.cp = document.getElementById('inputCP').value;
     dataCPTP.tps = [];
-    
     const babs = document.querySelectorAll('.tp-bab');
     const juduls = document.querySelectorAll('.tp-judul');
     const jps = document.querySelectorAll('.tp-jp');
     
-    for (let i = 0; i < babs.length; i++) {
-        if (juduls[i].value.trim()) {
-            dataCPTP.tps.push({ bab: babs[i].value, judul: juduls[i].value, jp: jps[i].value });
+    for(let i = 0; i < babs.length; i++) {
+        if(juduls[i].value.trim() !== "") {
+            dataCPTP.tps.push({
+                bab: babs[i].value,
+                judul: juduls[i].value,
+                jp: jps[i].value
+            });
         }
     }
-    
     localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
-    alert("CP & TP Disimpan!");
     updateStats();
+    showToast('CP & TP tersimpan!', 'success');
 };
 
 window.loadDefaultPAI = function() {
-    if (typeof dbKurikulumPAI === 'undefined') {
-        return alert("File data_default.js tidak ditemukan!");
+    if(typeof dbKurikulumPAI === 'undefined') {
+        return showToast('File data_default.js tidak ditemukan!', 'danger');
     }
-    
     const kls = document.getElementById('loadDefaultKls').value;
-    const data = dbKurikulumPAI[kls];
-    
-    if (data) {
-        dataCPTP.cp = data.cp;
-        dataCPTP.tps = data.tps;
+    const dataKelas = dbKurikulumPAI[kls];
+    if(dataKelas) {
+        dataCPTP.cp = dataKelas.cp;
+        dataCPTP.tps = dataKelas.tps;
         localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
         renderCPTP();
-        alert(`Data PAI Kelas ${kls} dimuat!`);
         updateStats();
+        showToast(`Data PAI Kelas ${kls} berhasil dimuat!`, 'success');
     }
 };
 
-// ========== SISWA ==========
+// ==========================================
+// STUDENT DATA MANAGEMENT
+// ==========================================
+function processCsvData(d) {
+    let count = 0;
+    d.forEach(s => {
+        let nisn = s.nisn || s.NISN;
+        let nama = s.nama || s.Nama;
+        let jk = s.jk || s.JK;
+        let kelas = s.kelas || s.Kelas;
+        let rombel = s.rombel || s.Rombel;
+        
+        if(nama && kelas && rombel) {
+            dataSiswa.push({
+                nisn: nisn || '-',
+                nama: nama,
+                jk: jk || '-',
+                kelas: kelas,
+                rombel: rombel
+            });
+            count++;
+        }
+    });
+    localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
+    renderTabelSiswa();
+    updateStats();
+    showToast(`${count} siswa berhasil diimport!`, 'success');
+}
+
 window.importSiswaLokal = function() {
-    const f = document.getElementById('fileCsvSiswa').files[0];
-    if (!f) return alert("Pilih file CSV!");
+    const file = document.getElementById('fileCsvSiswa').files[0];
+    if(!file) return showToast('Pilih file CSV!', 'warning');
     
-    Papa.parse(f, {
+    Papa.parse(file, {
         header: true,
         skipEmptyLines: true,
-        complete: function(r) {
-            let count = 0;
-            r.data.forEach(s => {
-                const nm = s.nama || s.Nama;
-                const kls = s.kelas || s.Kelas;
-                const rmb = s.rombel || s.Rombel;
-                
-                if (nm && kls && rmb) {
-                    dataSiswa.push({
-                        nisn: s.nisn || s.NISN || '-',
-                        nama: nm,
-                        jk: s.jk || s.JK || '-',
-                        kelas: kls,
-                        rombel: rmb
-                    });
-                    count++;
-                }
-            });
-            
-            localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
-            renderTabelSiswa();
-            updateStats();
-            alert(`${count} siswa diimport!`);
+        complete: function(results) {
+            processCsvData(results.data);
         }
     });
 };
 
 window.clearDataSiswa = function() {
-    if (confirm("Hapus semua data siswa?")) {
+    if(confirm("Hapus semua data siswa?")) {
         dataSiswa = [];
         localStorage.removeItem('sim_siswa');
         renderTabelSiswa();
         updateStats();
+        showToast('Data siswa dihapus!', 'info');
     }
 };
 
 window.renderTabelSiswa = function() {
-    const f = document.getElementById('filterKelasSiswa').value;
-    let opt = '<option value="ALL">Semua Rombel</option>';
+    const filter = document.getElementById('filterKelasSiswa').value;
+    let options = '<option value="ALL">-- Semua Rombel --</option>';
     new Set(dataSiswa.map(s => s.rombel)).forEach(r => {
-        opt += `<option value="${r}" ${f === r ? 'selected' : ''}>${r}</option>`;
+        options += `<option value="${r}" ${filter === r ? 'selected' : ''}>${r}</option>`;
     });
-    document.getElementById('filterKelasSiswa').innerHTML = opt;
+    document.getElementById('filterKelasSiswa').innerHTML = options;
     
-    let tb = '';
-    const filtered = f === "ALL" ? dataSiswa : dataSiswa.filter(s => s.rombel === f);
+    let html = '';
+    const filtered = filter === "ALL" ? dataSiswa : dataSiswa.filter(s => s.rombel === filter);
     filtered.forEach(s => {
-        tb += `<tr><td>${s.nisn}</td><td>${s.nama}</td><td><span class="badge ${s.jk === 'L' ? 'bg-primary' : 'bg-danger'}">${s.jk}</span></td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`;
+        html += `<tr>
+            <td>${s.nisn}</td>
+            <td>${s.nama}</td>
+            <td>${s.jk}</td>
+            <td>${s.kelas}</td>
+            <td>${s.rombel}</td>
+        </tr>`;
     });
-    
-    document.getElementById('tabelSiswaBody').innerHTML = tb || '<tr><td colspan="5" class="text-center text-muted">Data kosong</td></tr>';
+    document.getElementById('tabelSiswaBody').innerHTML = html || '<tr><td colspan="5" class="text-center py-4">Belum ada data siswa</td></tr>';
 };
 
-// ========== JADWAL ==========
+// ==========================================
+// SCHEDULE MANAGEMENT
+// ==========================================
 window.tambahJadwalLokal = function() {
-    const h = document.getElementById('jadwalHari').value;
-    const j = document.getElementById('jadwalJam').value;
-    const f = document.getElementById('jadwalFase').value;
-    const r = document.getElementById('jadwalRombel').value;
+    const hari = document.getElementById('jadwalHari').value;
+    const jam = document.getElementById('jadwalJam').value;
+    const fase = document.getElementById('jadwalFase').value;
+    const rombel = document.getElementById('jadwalRombel').value;
     
-    if (!j || !r) return alert("Jam & Rombel wajib diisi!");
+    if(!jam || !rombel) return showToast('Jam & Rombel wajib diisi!', 'warning');
     
-    dataJadwal.push({ hari: h, jam: j, fase: f, rombel: r });
+    dataJadwal.push({ hari, jam, fase, rombel });
     localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
     renderJadwal();
     updateStats();
+    showToast('Jadwal ditambahkan!', 'success');
     
     document.getElementById('jadwalJam').value = '';
     document.getElementById('jadwalRombel').value = '';
 };
 
 window.hapusJadwal = function(idx) {
-    if (confirm('Hapus?')) {
-        dataJadwal.splice(idx, 1);
-        localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
-        renderJadwal();
-        updateStats();
-    }
+    dataJadwal.splice(idx, 1);
+    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+    renderJadwal();
+    updateStats();
+    showToast('Jadwal dihapus!', 'info');
 };
 
 function renderJadwal() {
-    let tb = '';
-    dataJadwal.forEach((d, i) => {
-        tb += `<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td><span class="badge bg-primary">Fase ${d.fase}</span></td><td><span class="badge bg-success">${d.rombel}</span></td>
-        <td><button class="btn btn-outline-danger btn-sm" onclick="hapusJadwal(${i})"><i class="bi bi-trash"></i></button></td></tr>`;
-    });
-    document.getElementById('tabelJadwalBody').innerHTML = tb || '<tr><td colspan="5" class="text-center text-muted">Belum ada jadwal</td></tr>';
+    let html = '';
+    if (dataJadwal.length === 0) {
+        html = '<tr><td colspan="5" class="text-center py-4">Belum ada jadwal</td></tr>';
+    } else {
+        dataJadwal.forEach((d, i) => {
+            html += `<tr>
+                <td>${d.hari}</td>
+                <td>Jam Ke-${d.jam}</td>
+                <td><span class="badge bg-primary">Fase ${d.fase}</span></td>
+                <td>${d.rombel}</td>
+                <td><button class="btn btn-sm btn-danger" onclick="hapusJadwal(${i})"><i class="fas fa-trash"></i></button></td>
+            </tr>`;
+        });
+    }
+    document.getElementById('tabelJadwalBody').innerHTML = html;
 }
 
-// ========== HELPERS ==========
+// ==========================================
+// DROPDOWN HELPERS
+// ==========================================
 function populateDropdowns() {
-    let oj = '<option value="">-- Pilih Jadwal --</option>';
-    dataJadwal.forEach(d => oj += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - ${d.rombel}</option>`);
-    document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = oj);
+    let optJadwal = '<option value="">-- Pilih Jadwal/Rombel --</option>';
+    dataJadwal.forEach((d) => {
+        optJadwal += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - Rombel ${d.rombel}</option>`;
+    });
+    document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = optJadwal);
     
-    let ot = '<option value="">-- Pilih Materi --</option>';
-    dataCPTP.tps.forEach(t => ot += `<option value='${t.judul}'>Bab ${t.bab} - ${t.judul}</option>`);
-    document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = ot);
+    let optTP = '<option value="">-- Pilih Materi (TP) --</option>';
+    dataCPTP.tps.forEach(t => {
+        optTP += `<option value='${t.judul}'>Bab ${t.bab} - ${t.judul}</option>`;
+    });
+    document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = optTP);
 }
 
 function populateFaseRombelOptions(elementId) {
-    let set = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
-    let o = '';
-    set.forEach(fr => o += `<option value="${fr}">${fr}</option>`);
-    document.getElementById(elementId).innerHTML = o || '<option value="">Buat Jadwal Dulu</option>';
+    let setFr = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
+    let options = '';
+    setFr.forEach(fr => options += `<option value="${fr}">${fr}</option>`);
+    document.getElementById(elementId).innerHTML = options || '<option value="">Buat Jadwal Dulu</option>';
 }
 
-// ========== GENERATORS ==========
+// ==========================================
+// DOCUMENT GENERATORS
+// ==========================================
 window.generateTahunan = function() {
     const fr = document.getElementById('tFaseRombel').value;
     document.querySelectorAll('.vFaseRombel').forEach(el => el.innerText = fr);
     document.getElementById('vCPATP').innerText = dataCPTP.cp;
-
-    let hatp = '', hprota = '', hpromes = '';
-    dataCPTP.tps.forEach(t => {
-        hatp += `<tr><td>${t.bab}</td><td>Peserta didik mampu: ${t.judul}</td><td>${t.jp} JP</td></tr>`;
-        hprota += `<tr><td>Ganjil</td><td>Bab ${t.bab} - ${t.judul}</td><td>${t.jp}</td><td>-</td></tr>`;
-        hpromes += `<tr><td>Bab ${t.bab}: ${t.judul}</td><td>${t.jp}</td>${'<td></td>'.repeat(16)}</tr>`;
+    
+    let htmlAtp = '', htmlProta = '', htmlPromes = '';
+    let totalJP = 0;
+    
+    dataCPTP.tps.forEach((t, idx) => {
+        totalJP += parseInt(t.jp);
+        
+        htmlAtp += `<tr>
+            <td style="text-align: center;">${t.bab}</td>
+            <td>Peserta didik mampu memahami dan menerapkan: ${t.judul}</td>
+            <td style="text-align: center;">${t.jp} JP</td>
+        </tr>`;
+        
+        const semester = idx < Math.ceil(dataCPTP.tps.length / 2) ? 'Ganjil' : 'Genap';
+        htmlProta += `<tr>
+            <td style="text-align: center;">${semester}</td>
+            <td>Bab ${t.bab} - ${t.judul}</td>
+            <td style="text-align: center;">${t.jp}</td>
+            <td>Sesuai Kalender Akademik</td>
+        </tr>`;
+        
+        // Promes with weekly distribution
+        const weeksNeeded = Math.ceil(t.jp / 2);
+        let weekCells = '';
+        for (let w = 0; w < 24; w++) {
+            if (w < weeksNeeded) {
+                weekCells += `<td style="text-align: center; background: #e3f2fd;">✓</td>`;
+            } else {
+                weekCells += `<td></td>`;
+            }
+        }
+        htmlPromes += `<tr>
+            <td style="text-align: left;">Bab ${t.bab}: ${t.judul}</td>
+            <td style="text-align: center;">${t.jp}</td>
+            ${weekCells}
+        </tr>`;
     });
     
-    document.getElementById('tblAtpBody').innerHTML = hatp;
-    document.getElementById('tblProtaBody').innerHTML = hprota;
-    document.getElementById('tblPromesBody').innerHTML = hpromes;
+    // Add total row to ATP
+    htmlAtp += `<tr style="font-weight: bold; background: #f8f9fa;">
+        <td colspan="2" style="text-align: right;">Total Alokasi Waktu:</td>
+        <td style="text-align: center;">${totalJP} JP</td>
+    </tr>`;
     
-    alert("Data dimuat! Klik tombol cetak.");
-};
-
-window.generateModul = function() {
-    const j = document.getElementById('pSelectJadwal').value;
-    const tp = document.getElementById('pSelectTP').value;
-    
-    if (!j || !tp) return alert("Pilih Jadwal & Materi!");
-    
-    const jv = JSON.parse(j);
-    document.querySelectorAll('.vFaseRombel').forEach(e => e.innerText = `Fase ${jv.fase} / ${jv.rombel}`);
-    document.getElementById('outMateriModul').innerText = tp;
-    
-    alert("Modul siap! Klik Cetak.");
-};
-
-// ========== ABSENSI ==========
-window.loadAbsensi = function() {
-    const jVal = document.getElementById('selectJadwalAbsen').value;
-    if (!jVal) return alert("Pilih Jadwal!");
-    
-    const rmb = JSON.parse(jVal).rombel;
-    const sKelas = dataSiswa.filter(s => s.rombel === rmb);
-    
-    document.getElementById('areaAbsen').classList.remove('d-none');
-    
-    let h = '';
-    sKelas.forEach(s => {
-        h += `<div class="col-6 col-md-3"><div class="form-check p-2 bg-light rounded small">
-            <input type="checkbox" class="form-check-input absen-check" value="${s.nama}" id="a_${s.nisn}" checked>
-            <label class="form-check-label" for="a_${s.nisn}">${s.nama}</label>
-        </div></div>`;
-    });
-    
-    document.getElementById('listSiswaAbsen').innerHTML = h || '<div class="col-12 text-danger">Siswa kosong.</div>';
-};
-
-window.simpanJurnal = function() {
-    const jVal = JSON.parse(document.getElementById('selectJadwalAbsen').value);
-    const mt = document.getElementById('selectTPAbsen').value;
-    const boxes = document.querySelectorAll('.absen-check');
-    
-    let h = 0, abs = [];
-    boxes.forEach(b => { if (b.checked) h++; else abs.push(b.value); });
-    
-    document.getElementById('jurTanggal').innerText = new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
-    document.getElementById('jurRombel').innerText = jVal.rombel;
-    document.getElementById('jurMateri').innerText = mt;
-    document.getElementById('jurHadir').innerText = h;
-    document.getElementById('jurAbsen').innerText = abs.length;
-    document.getElementById('jurListAbsen').innerText = abs.length > 0 ? abs.join(", ") : "-";
-    
-    alert("Tersimpan! Klik Cetak Jurnal.");
-};
-
-// ========== PENILAIAN ==========
-window.renderKelasPenilaian = function() {
-    let o = '<option value="">-- Pilih Rombel --</option>';
-    new Set(dataSiswa.map(s => s.rombel)).forEach(k => o += `<option value="${k}">${k}</option>`);
-    document.getElementById('selectKelasNilai').innerHTML = o;
-};
-
-window.loadPenilaian = function() {
-    const rmb = document.getElementById('selectKelasNilai').value;
-    if (!rmb) return;
-    
-    document.getElementById('lblKelasNilai').innerText = rmb;
-    document.getElementById('lblTopikNilai').innerText = document.getElementById('topikNilai').value;
-    
-    let tb = '';
-    dataSiswa.filter(s => s.rombel === rmb).forEach((s, i) => {
-        let v = dataNilai[`${rmb}_${s.nisn}`] || '';
-        tb += `<tr><td>${i + 1}</td><td>${s.nisn}</td><td class="text-start">${s.nama}</td><td><span class="badge ${s.jk === 'L' ? 'bg-primary' : 'bg-danger'}">${s.jk}</span></td>
-        <td class="no-print"><input type="number" class="form-control form-control-sm input-nilai text-center" data-id="${s.nisn}" value="${v}" min="0" max="100"></td>
-        <td class="hide-on-print" style="display:none;">${v}</td></tr>`;
-    });
-    
-    tb += `<style>@media print { .input-nilai { display: none !important; } .hide-on-print { display: table-cell !important; } }</style>`;
-    
-    document.getElementById('tblNilaiBody').innerHTML = tb || '<tr><td colspan="5">Pilih Rombel.</td></tr>';
-    document.getElementById('docNilai').classList.remove('d-none');
-};
-
-window.simpanNilai = function() {
-    const rmb = document.getElementById('selectKelasNilai').value;
-    if (!rmb) return alert("Pilih rombel!");
-    
-    document.querySelectorAll('.input-nilai').forEach(el => {
-        dataNilai[`${rmb}_${el.getAttribute('data-id')}`] = el.value;
-    });
-    
-    localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
-    alert("Nilai Disimpan!");
-    loadPenilaian();
-};
-
-// ========== INITIALIZATION ==========
-window.onload = function() {
-    initGoogleSignIn();
-    checkDeviceActivation();
-    loadProfil();
-    renderTabelSiswa();
-    renderJadwal();
-    renderCPTP();
-    updateStats();
-    updateUserUI();
-    updateUIProfile();
-    
-    console.log("Device Code:", getDeviceCode());
-};
+    document.getElementById('tblAtpBody').innerHTML = htmlAtp;
+    document.getElementById('tblProtaBody').innerHTML = htmlProta;
