@@ -874,4 +874,351 @@ function populateDropdowns() {
 }
 
 function populateFaseRombelOptions(id) {
-    let set = new Set(dataJadwal.map(d => `Fase 
+    let set = new Set(dataJadwal.map(d => `Fase  colspan="2" style="text-align:right;">Total:</td><td style="text-align:center;">${totalJP} JP</td></tr>`;
+    
+    document.getElementById('docATP').innerHTML = `
+        <div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Sekolah</td><td width="2%">:</td><td>${p.sek||'...'}</td><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
+            <tr><td>Fase/Kelas</td><td>:</td><td>${fr}</td><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td></tr>
+        </table>
+        <p><b>Capaian Pembelajaran:</b><br>${dataCPTP.cp}</p>
+        <table class="doc-table"><thead><tr><th width="8%">Bab</th><th>Alur Tujuan Pembelajaran</th><th width="12%">JP</th></tr></thead><tbody>${atpBody}</tbody></table>
+        <div style="display:flex; justify-content:space-between; margin-top:40px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    
+    // PROTA
+    let protaBody = dataCPTP.tps.map((t, i) => `<tr><td style="text-align:center;">${i < dataCPTP.tps.length/2 ? 'Ganjil' : 'Genap'}</td><td>Bab ${t.bab} - ${t.judul}</td><td style="text-align:center;">${t.jp}</td><td>Sesuai Kalender</td></tr>`).join('');
+    
+    document.getElementById('docProta').innerHTML = `
+        <div class="doc-header">PROGRAM TAHUNAN (PROTA)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td><td width="15%">Fase/Kelas</td><td width="2%">:</td><td>${fr}</td></tr>
+            <tr><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td><td>Sekolah</td><td>:</td><td>${p.sek||'...'}</td></tr>
+        </table>
+        <table class="doc-table"><thead><tr><th width="12%">Semester</th><th>Tujuan Pembelajaran</th><th width="10%">JP</th><th width="18%">Keterangan</th></tr></thead><tbody>${protaBody}</tbody></table>
+        <div style="display:flex; justify-content:space-between; margin-top:40px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    
+    // PROMES
+    let weekCounter = 0;
+    let promesBody = dataCPTP.tps.map(t => {
+        const weeks = Math.ceil(parseInt(t.jp) / 2);
+        let cells = '';
+        for (let w = 0; w < 24; w++) {
+            cells += w >= weekCounter && w < weekCounter + weeks ? '<td style="text-align:center; background:#d4edda;">✓</td>' : '<td></td>';
+        }
+        weekCounter += weeks;
+        return `<tr><td style="text-align:left; font-size:8pt;">Bab ${t.bab}: ${t.judul}</td><td style="text-align:center;">${t.jp}</td>${cells}</tr>`;
+    }).join('');
+    
+    document.getElementById('docPromes').innerHTML = `
+        <div class="doc-header">PROGRAM SEMESTER (PROMES)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:10px; font-size:10pt;">
+            <tr><td>Sekolah: <b>${p.sek||'...'}</b></td><td>Mapel: <b>${mapel}</b></td><td>Fase: <b>${fr}</b></td><td>TA: <b>${p.thn||'...'}</b></td></tr>
+        </table>
+        <table class="doc-table" style="font-size:8pt;">
+            <thead>
+                <tr><th rowspan="2" width="22%">Tujuan Pembelajaran</th><th rowspan="2" width="5%">JP</th>
+                <th colspan="4">Juli</th><th colspan="4">Agustus</th><th colspan="4">September</th>
+                <th colspan="4">Oktober</th><th colspan="4">November</th><th colspan="4">Desember</th></tr>
+                <tr><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th>
+                <th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th></tr>
+            </thead>
+            <tbody>${promesBody}</tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:10pt;">
+            <div style="width:45%; text-align:center;">Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u></div>
+            <div style="width:45%; text-align:center;">Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u></div>
+        </div>`;
+    
+    showToast('Dokumen di-generate! Klik Cetak.', 'success');
+};
+
+// ==========================================
+// MODUL GENERATOR
+// ==========================================
+window.generateModul = function() {
+    const jadwalVal = document.getElementById('pSelectJadwal').value;
+    const tp = document.getElementById('pSelectTP').value;
+    if (!jadwalVal || !tp) return showToast('Pilih Jadwal & Materi!', 'warning');
+    
+    const j = JSON.parse(jadwalVal);
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
+    const faseRombel = `Fase ${j.fase} / ${j.jenjang} Kelas ${j.kelas}${j.rombel}`;
+    
+    document.getElementById('docModul').innerHTML = `
+        <div class="doc-header">MODUL AJAR<br>KURIKULUM MERDEKA</div>
+        <p><b>A. INFORMASI UMUM</b></p>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Penyusun</td><td width="2%">:</td><td><b>${p.gur||'...'}</b></td><td width="15%">Instansi</td><td width="2%">:</td><td>${p.sek||'...'}</td></tr>
+            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td><td>Fase / Kelas</td><td>:</td><td>${faseRombel}</td></tr>
+            <tr><td>Alokasi Waktu</td><td>:</td><td>2 x 35 Menit</td><td>Hari</td><td>:</td><td>${j.hari}</td></tr>
+        </table>
+        <p><b>B. CAPAIAN & TUJUAN PEMBELAJARAN</b></p>
+        <p style="text-align:justify; margin-bottom:15px;"><b>CP:</b> ${dataCPTP.cp || '...'}<br><br><b>TP:</b> Peserta didik mampu memahami <b>"${tp}"</b></p>
+        <p><b>C. PROFIL PELAJAR PANCASILA</b></p>
+        <p style="margin-bottom:15px;">Beriman, Berkebinekaan Global, Gotong Royong, Mandiri, Bernalar Kritis, Kreatif</p>
+        <p><b>D. KEGIATAN PEMBELAJARAN</b></p>
+        <table class="doc-table" style="margin-bottom:15px;">
+            <tr><th width="18%">Tahap</th><th>Deskripsi</th></tr>
+            <tr><td style="text-align:center;"><b>Pendahuluan</b><br>(10 Menit)</td>
+                <td><ol style="margin:0; padding-left:20px;"><li>Salam dan berdoa</li><li>Cek kehadiran</li><li>Apersepsi</li><li>Menyampaikan tujuan</li></ol></td></tr>
+            <tr><td style="text-align:center;"><b>Inti</b><br>(50 Menit)</td>
+                <td><ol style="margin:0; padding-left:20px;"><li>Menjelaskan materi <b>"${tp}"</b></li><li>Peserta didik mengamati dan mencatat</li><li>Diskusi kelompok</li><li>Mengerjakan LKPD</li><li>Presentasi</li></ol></td></tr>
+            <tr><td style="text-align:center;"><b>Penutup</b><br>(10 Menit)</td>
+                <td><ol style="margin:0; padding-left:20px;"><li>Kesimpulan bersama</li><li>Refleksi</li><li>Doa penutup</li></ol></td></tr>
+        </table>
+        <p><b>E. ASESMEN</b></p>
+        <table class="doc-table" style="margin-bottom:15px;">
+            <tr><th>Jenis</th><th>Teknik</th><th>Instrumen</th></tr>
+            <tr><td>Formatif</td><td>Observasi, LKPD</td><td>Lembar observasi</td></tr>
+            <tr><td>Sumatif</td><td>Tes tertulis</td><td>Soal tes</td></tr>
+        </table>
+        <div style="display:flex; justify-content:space-between; margin-top:40px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    
+    showToast('Modul dibuat! Klik Cetak.', 'success');
+};
+
+// ==========================================
+// ATTENDANCE & JOURNAL
+// ==========================================
+window.loadAbsensi = function() {
+    const jVal = document.getElementById('selectJadwalAbsen').value;
+    if (!jVal) return showToast('Pilih Jadwal!', 'warning');
+    
+    const j = JSON.parse(jVal);
+    const fullRombel = `${j.kelas}${j.rombel}`;
+    const siswaKelas = dataSiswa.filter(s => s.kelas === j.kelas || s.rombel === fullRombel || s.rombel === j.rombel);
+    
+    document.getElementById('areaAbsen').classList.remove('d-none');
+    
+    if (siswaKelas.length === 0) {
+        document.getElementById('listSiswaAbsen').innerHTML = '<div class="col-12 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Tidak ada siswa. Import data siswa dulu.</div>';
+        return;
+    }
+    
+    document.getElementById('listSiswaAbsen').innerHTML = siswaKelas.map((s, i) => 
+        `<div class="col-md-3 col-6"><div class="form-check p-2 border rounded">
+            <input type="checkbox" class="form-check-input absen-check" value="${s.nama}" id="abs${i}" checked>
+            <label class="form-check-label small" for="abs${i}">${s.nama}</label>
+        </div></div>`
+    ).join('');
+};
+
+window.simpanJurnal = function() {
+    const jVal = document.getElementById('selectJadwalAbsen').value;
+    const materi = document.getElementById('selectTPAbsen').value;
+    if (!jVal || !materi) return showToast('Lengkapi data!', 'warning');
+    
+    const j = JSON.parse(jVal);
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
+    
+    let hadir = 0, tidakHadir = [];
+    document.querySelectorAll('.absen-check').forEach(cb => {
+        if (cb.checked) hadir++;
+        else tidakHadir.push(cb.value);
+    });
+    
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const today = new Date();
+    const tgl = `${days[today.getDay()]}, ${today.toLocaleDateString('id-ID')}`;
+    
+    document.getElementById('docJurnal').innerHTML = `
+        <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN</div>
+        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="25%">Sekolah</td><td width="2%">:</td><td><b>${p.sek||'...'}</b></td></tr>
+            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td></tr>
+            <tr><td>Guru</td><td>:</td><td>${p.gur||'...'}</td></tr>
+        </table>
+        <table class="doc-table" style="text-align:center;">
+            <thead><tr><th>Hari/Tanggal</th><th>Kelas</th><th>Jam</th><th width="35%">Materi</th><th>Absensi</th><th>Catatan</th></tr></thead>
+            <tbody><tr>
+                <td>${tgl}</td>
+                <td>${j.jenjang} ${j.kelas}${j.rombel}</td>
+                <td>${j.jam}</td>
+                <td style="text-align:left;">${materi}</td>
+                <td style="text-align:left;">Hadir: <b>${hadir}</b><br>Tidak: <b>${tidakHadir.length}</b>${tidakHadir.length ? '<br><small class="text-danger">(' + tidakHadir.join(', ') + ')</small>' : ''}</td>
+                <td>Tuntas</td>
+            </tr></tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; margin-top:50px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    
+    showToast('Jurnal disimpan! Klik Cetak.', 'success');
+};
+
+// ==========================================
+// GRADING / PENILAIAN
+// ==========================================
+window.renderKelasPenilaian = function() {
+    let opts = '<option value="">Pilih</option>';
+    new Set(dataSiswa.map(s => s.rombel)).forEach(r => opts += `<option value="${r}">${r}</option>`);
+    document.getElementById('selectKelasNilai').innerHTML = opts;
+};
+
+window.loadPenilaian = function() {
+    const rombel = document.getElementById('selectKelasNilai').value;
+    if (!rombel) return;
+    
+    const topik = document.getElementById('topikNilai').value;
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
+    const siswa = dataSiswa.filter(s => s.rombel === rombel);
+    
+    let tbody = siswa.length ? siswa.map((s, i) => {
+        const nilai = dataNilai[`${rombel}_${s.nisn}`] || '';
+        return `<tr>
+            <td>${i + 1}</td>
+            <td>${s.nisn}</td>
+            <td style="text-align:left;">${s.nama}</td>
+            <td>${s.jk}</td>
+            <td class="no-print"><input type="number" class="form-control form-control-sm input-nilai text-center" data-id="${s.nisn}" value="${nilai}" min="0" max="100" style="width:70px; margin:0 auto;"></td>
+            <td class="d-none print-nilai">${nilai}</td>
+            <td class="d-none print-ket">${nilai >= 75 ? 'Tuntas' : (nilai ? 'Belum' : '-')}</td>
+        </tr>`;
+    }).join('') : '<tr><td colspan="6">Tidak ada siswa</td></tr>';
+    
+    document.getElementById('docNilai').innerHTML = `
+        <div class="doc-header">DAFTAR NILAI SISWA</div>
+        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="25%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
+            <tr><td>Kelas / Rombel</td><td>:</td><td><b>${rombel}</b></td></tr>
+            <tr><td>Topik</td><td>:</td><td><b>${topik}</b></td></tr>
+        </table>
+        <table class="doc-table" style="text-align:center;">
+            <thead><tr><th>No</th><th>NISN</th><th>Nama</th><th>JK</th><th>Nilai</th><th class="d-none print-ket">Ket</th></tr></thead>
+            <tbody>${tbody}</tbody>
+        </table>
+        <style>@media print { .no-print { display: none !important; } .print-nilai, .print-ket { display: table-cell !important; } }</style>
+        <div style="display:flex; justify-content:space-between; margin-top:50px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    
+    document.getElementById('docNilai').classList.remove('d-none');
+};
+
+window.simpanNilai = function() {
+    const rombel = document.getElementById('selectKelasNilai').value;
+    if (!rombel) return showToast('Pilih rombel!', 'warning');
+    
+    document.querySelectorAll('.input-nilai').forEach(el => {
+        dataNilai[`${rombel}_${el.dataset.id}`] = el.value;
+    });
+    localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
+    showToast('Nilai tersimpan!', 'success');
+    loadPenilaian();
+};
+
+// ==========================================
+// PRINT
+// ==========================================
+window.triggerPrint = function(sourceId, pdfName, orientation) {
+    updateUIProfile();
+    document.title = `${pdfName}_${Date.now()}`;
+    
+    document.querySelectorAll('.print-view').forEach(el => {
+        el.classList.add('d-none');
+        el.classList.remove('print-active');
+    });
+    
+    const target = document.getElementById(sourceId);
+    if (!target || !target.innerHTML.trim()) {
+        showToast('Generate dokumen dulu!', 'warning');
+        return;
+    }
+    
+    target.classList.remove('d-none');
+    target.classList.add('print-active');
+    
+    let style = document.getElementById('printOrientationStyle');
+    if (!style) {
+        style = document.createElement('style');
+        style.id = 'printOrientationStyle';
+        document.head.appendChild(style);
+    }
+    style.textContent = `@media print { @page { size: ${orientation}; } }`;
+    
+    setTimeout(() => {
+        window.print();
+        setTimeout(() => target.classList.remove('print-active'), 500);
+    }, 300);
+};
+
+// ==========================================
+// UTILITIES
+// ==========================================
+window.copyToClipboard = function(id) {
+    const el = document.getElementById(id);
+    el.select();
+    navigator.clipboard.writeText(el.value);
+    showToast('Disalin!', 'success');
+};
+
+function showToast(message, type = 'info') {
+    document.querySelectorAll('.toast-notification').forEach(t => t.remove());
+    
+    const colors = {
+        success: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+        danger: 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)',
+        warning: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        info: 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    };
+    
+    const icons = { success: 'fa-check-circle', danger: 'fa-times-circle', warning: 'fa-exclamation-circle', info: 'fa-info-circle' };
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `<i class="fas ${icons[type]} me-2"></i>${message}`;
+    toast.style.cssText = `position:fixed;top:20px;right:20px;padding:12px 20px;background:${colors[type]};color:white;border-radius:10px;box-shadow:0 10px 40px rgba(0,0,0,0.2);z-index:9999;font-weight:500;font-size:0.9rem;animation:toastIn 0.3s ease;max-width:300px;`;
+    
+    if (!document.getElementById('toastStyle')) {
+        const s = document.createElement('style');
+        s.id = 'toastStyle';
+        s.textContent = '@keyframes toastIn{from{transform:translateX(100%);opacity:0}to{transform:translateX(0);opacity:1}}@keyframes toastOut{from{transform:translateX(0);opacity:1}to{transform:translateX(100%);opacity:0}}';
+        document.head.appendChild(s);
+    }
+    
+    document.body.appendChild(toast);
+    setTimeout(() => {
+        toast.style.animation = 'toastOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// Keyboard shortcuts
+document.addEventListener('keydown', e => {
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        showToast('Data tersimpan otomatis!', 'info');
+    }
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.show').forEach(m => bootstrap.Modal.getInstance(m)?.hide());
+    }
+});
+
+// Window resize
+window.addEventListener('resize', () => {
+    if (window.innerWidth >= 992) {
+        document.getElementById('sidebarMenu').classList.remove('show');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+    }
+});
+
+console.log('🎓 SIM Kurikulum Merdeka Pro v2.1');
+console.log('📱 Device:', deviceId);
+console.log('✅ Validasi Jadwal Anti Bentrok Aktif');
+
