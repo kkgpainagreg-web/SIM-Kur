@@ -5,322 +5,1505 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>SIM Kurikulum Merdeka Terpadu</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
-    
     <script src="data_default.js"></script>
 
     <style>
-        body { background-color: #f4f6f9; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .sidebar { min-height: 100vh; background-color: #1a252f; color: white; padding-top: 20px;}
-        .sidebar .nav-link { color: #bdc3c7; cursor: pointer; margin-bottom: 5px; font-weight: 500; font-size: 0.9rem; }
-        .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #2c3e50; border-radius: 5px; }
-        .content-area { padding: 20px; height: 100vh; overflow-y: auto; }
-        
-        .document-page { background: white; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; color: black;}
-        .doc-header { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 15px; text-transform: uppercase; line-height: 1.3; }
-        table.doc-table { width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 15px; }
-        table.doc-table th, table.doc-table td { border: 1px solid black; padding: 8px; vertical-align: middle; }
-        table.doc-table th { background-color: #f8f9fa; text-align: center; font-weight: bold; }
-        table.identity-table { width: 100%; margin-bottom: 15px; font-size: 11pt; }
-        table.identity-table td { padding: 4px; vertical-align: top; }
-        .signature-area { width: 100%; margin-top: 40px; display: table; page-break-inside: avoid; }
-        .signature-box { display: table-cell; width: 50%; text-align: center; font-size: 11pt; }
-        .signature-name { text-decoration: underline; font-weight: bold; margin-top: 75px; }
+        :root {
+            --primary-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            --secondary-gradient: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            --danger-gradient: linear-gradient(135deg, #eb3349 0%, #f45c43 100%);
+            --warning-gradient: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            --dark-gradient: linear-gradient(135deg, #0c0c0c 0%, #1a1a2e 50%, #16213e 100%);
+            --sidebar-bg: linear-gradient(180deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%);
+            --card-shadow: 0 10px 40px rgba(0,0,0,0.1);
+            --hover-shadow: 0 20px 60px rgba(0,0,0,0.15);
+        }
 
+        * { transition: all 0.3s ease; }
+        
+        body { 
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            min-height: 100vh;
+        }
+
+        /* Sidebar Styles */
+        .sidebar {
+            min-height: 100vh;
+            background: var(--sidebar-bg);
+            color: white;
+            padding: 0;
+            position: fixed;
+            left: 0;
+            top: 0;
+            width: 260px;
+            z-index: 1000;
+            overflow-y: auto;
+            box-shadow: 5px 0 30px rgba(0,0,0,0.3);
+        }
+
+        .sidebar-header {
+            background: var(--primary-gradient);
+            padding: 25px 20px;
+            text-align: center;
+            border-bottom: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .sidebar-header img {
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+            border: 3px solid rgba(255,255,255,0.3);
+            padding: 3px;
+            background: white;
+        }
+
+        .sidebar-header h6 {
+            margin-top: 12px;
+            font-weight: 700;
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .sidebar .nav-link {
+            color: rgba(255,255,255,0.7);
+            padding: 14px 20px;
+            margin: 3px 12px;
+            border-radius: 10px;
+            font-weight: 500;
+            font-size: 0.9rem;
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .sidebar .nav-link i {
+            font-size: 1.2rem;
+            width: 25px;
+            text-align: center;
+        }
+
+        .sidebar .nav-link:hover {
+            background: rgba(255,255,255,0.1);
+            color: white;
+            transform: translateX(5px);
+        }
+
+        .sidebar .nav-link.active {
+            background: var(--primary-gradient);
+            color: white;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .nav-divider {
+            height: 1px;
+            background: rgba(255,255,255,0.1);
+            margin: 15px 20px;
+        }
+
+        .nav-section-title {
+            color: rgba(255,255,255,0.4);
+            font-size: 0.7rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            padding: 10px 20px 5px;
+            font-weight: 600;
+        }
+
+        /* Premium Badge */
+        .premium-badge {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: auto;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .free-badge {
+            background: var(--secondary-gradient);
+            font-size: 0.6rem;
+            padding: 2px 8px;
+            border-radius: 20px;
+            margin-left: auto;
+            font-weight: 700;
+        }
+
+        /* Content Area */
+        .content-area {
+            margin-left: 260px;
+            padding: 30px;
+            min-height: 100vh;
+        }
+
+        /* Modern Cards */
+        .modern-card {
+            background: white;
+            border-radius: 20px;
+            box-shadow: var(--card-shadow);
+            border: none;
+            overflow: hidden;
+        }
+
+        .modern-card:hover {
+            box-shadow: var(--hover-shadow);
+            transform: translateY(-5px);
+        }
+
+        .card-header-gradient {
+            background: var(--primary-gradient);
+            color: white;
+            padding: 20px 25px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .card-header-success {
+            background: var(--secondary-gradient);
+        }
+
+        .card-header-danger {
+            background: var(--danger-gradient);
+        }
+
+        .card-header-warning {
+            background: var(--warning-gradient);
+        }
+
+        /* Stats Cards */
+        .stats-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: var(--card-shadow);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stats-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: var(--primary-gradient);
+        }
+
+        .stats-card.success::before { background: var(--secondary-gradient); }
+        .stats-card.warning::before { background: var(--warning-gradient); }
+        .stats-card.danger::before { background: var(--danger-gradient); }
+
+        .stats-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 15px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 15px;
+            font-size: 1.8rem;
+            color: white;
+        }
+
+        .stats-icon.primary { background: var(--primary-gradient); }
+        .stats-icon.success { background: var(--secondary-gradient); }
+        .stats-icon.warning { background: var(--warning-gradient); }
+        .stats-icon.danger { background: var(--danger-gradient); }
+
+        .stats-number {
+            font-size: 2rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        /* Buttons */
+        .btn-gradient-primary {
+            background: var(--primary-gradient);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-gradient-primary:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(102, 126, 234, 0.5);
+            color: white;
+        }
+
+        .btn-gradient-success {
+            background: var(--secondary-gradient);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(17, 153, 142, 0.4);
+        }
+
+        .btn-gradient-danger {
+            background: var(--danger-gradient);
+            border: none;
+            color: white;
+            padding: 12px 25px;
+            border-radius: 10px;
+            font-weight: 600;
+            box-shadow: 0 5px 20px rgba(235, 51, 73, 0.4);
+        }
+
+        /* Form Controls */
+        .form-control, .form-select {
+            border-radius: 10px;
+            border: 2px solid #e9ecef;
+            padding: 12px 15px;
+            font-size: 0.95rem;
+        }
+
+        .form-control:focus, .form-select:focus {
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.15);
+        }
+
+        /* Tables */
+        .modern-table {
+            border-radius: 15px;
+            overflow: hidden;
+            box-shadow: var(--card-shadow);
+        }
+
+        .modern-table thead {
+            background: var(--primary-gradient);
+            color: white;
+        }
+
+        .modern-table th {
+            padding: 15px;
+            font-weight: 600;
+            border: none;
+        }
+
+        .modern-table td {
+            padding: 12px 15px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .modern-table tbody tr:hover {
+            background: rgba(102, 126, 234, 0.05);
+        }
+
+        /* Document Preview */
+        .document-page {
+            background: white;
+            padding: 50px;
+            box-shadow: var(--card-shadow);
+            border-radius: 10px;
+            margin-bottom: 20px;
+            font-family: 'Times New Roman', Times, serif;
+            color: black;
+        }
+
+        .doc-header {
+            text-align: center;
+            font-weight: bold;
+            font-size: 14pt;
+            margin-bottom: 15px;
+            text-transform: uppercase;
+            line-height: 1.3;
+        }
+
+        table.doc-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 11pt;
+            margin-bottom: 15px;
+        }
+
+        table.doc-table th, table.doc-table td {
+            border: 1px solid black;
+            padding: 8px;
+            vertical-align: middle;
+        }
+
+        table.doc-table th {
+            background-color: #f8f9fa;
+            text-align: center;
+            font-weight: bold;
+        }
+
+        table.identity-table {
+            width: 100%;
+            margin-bottom: 15px;
+            font-size: 11pt;
+        }
+
+        table.identity-table td {
+            padding: 4px;
+            vertical-align: top;
+        }
+
+        .signature-area {
+            width: 100%;
+            margin-top: 40px;
+            display: table;
+            page-break-inside: avoid;
+        }
+
+        .signature-box {
+            display: table-cell;
+            width: 50%;
+            text-align: center;
+            font-size: 11pt;
+        }
+
+        .signature-name {
+            text-decoration: underline;
+            font-weight: bold;
+            margin-top: 75px;
+        }
+
+        /* Premium Lock Overlay */
+        .premium-lock {
+            position: relative;
+        }
+
+        .premium-lock::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(255,255,255,0.9);
+            backdrop-filter: blur(5px);
+            z-index: 10;
+            border-radius: inherit;
+        }
+
+        .premium-lock-content {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 11;
+            text-align: center;
+            padding: 30px;
+        }
+
+        /* Upgrade Modal */
+        .upgrade-modal .modal-content {
+            border-radius: 25px;
+            border: none;
+            overflow: hidden;
+        }
+
+        .upgrade-modal .modal-header {
+            background: var(--warning-gradient);
+            color: white;
+            border: none;
+            padding: 30px;
+        }
+
+        .upgrade-modal .modal-body {
+            padding: 40px;
+        }
+
+        .price-tag {
+            font-size: 3rem;
+            font-weight: 800;
+            background: var(--primary-gradient);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+        }
+
+        .feature-list li {
+            padding: 10px 0;
+            border-bottom: 1px solid #f0f0f0;
+        }
+
+        .feature-list li i {
+            color: #38ef7d;
+            margin-right: 10px;
+        }
+
+        /* Admin Panel */
+        .admin-login-card {
+            max-width: 450px;
+            margin: 100px auto;
+        }
+
+        /* WhatsApp Button */
+        .btn-whatsapp {
+            background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            border-radius: 50px;
+            font-weight: 700;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 30px rgba(37, 211, 102, 0.4);
+        }
+
+        .btn-whatsapp:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 40px rgba(37, 211, 102, 0.5);
+            color: white;
+        }
+
+        /* Animations */
+        @keyframes fadeIn {
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .animate-fadeIn {
+            animation: fadeIn 0.5s ease forwards;
+        }
+
+        @keyframes pulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+
+        .animate-pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* Responsive */
+        @media (max-width: 991px) {
+            .sidebar {
+                width: 70px;
+                overflow: visible;
+            }
+            .sidebar .nav-link span,
+            .sidebar-header h6,
+            .nav-section-title,
+            .premium-badge,
+            .free-badge {
+                display: none;
+            }
+            .sidebar .nav-link {
+                justify-content: center;
+                padding: 15px;
+            }
+            .content-area {
+                margin-left: 70px;
+            }
+        }
+
+        /* Print Styles */
         @media print {
             @page { margin: 15mm; }
-            body { background-color: white !important; margin: 0; padding: 0; }
+            body { background: white !important; margin: 0; padding: 0; }
             .no-print, .sidebar { display: none !important; }
-            .content-area { width: 100% !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
-            .document-page { box-shadow: none !important; margin: 0 !important; padding: 0 !important; border: none !important; }
+            .content-area { width: 100% !important; margin: 0 !important; padding: 0 !important; }
+            .document-page { box-shadow: none !important; margin: 0 !important; padding: 0 !important; border-radius: 0 !important; }
             .hide-on-print { display: none !important; }
             table.doc-table th { -webkit-print-color-adjust: exact; background-color: #e9ecef !important; }
-            .landscape-print { @page { size: landscape; } }
-            .portrait-print { @page { size: portrait; } }
         }
     </style>
 </head>
 <body>
 
-    <div id="mainApp" class="container-fluid">
-        <div class="row">
-            <div class="col-md-2 sidebar flex-column no-print">
-                <div class="text-center mb-3">
-                    <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="rounded-circle mb-2 bg-secondary" width="50" height="50">
-                    <div id="userName" class="small fw-bold">GURU PRO</div>
+    <!-- Admin Login Modal -->
+    <div class="modal fade" id="adminLoginModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content modern-card">
+                <div class="card-header-gradient text-center py-4">
+                    <i class="bi bi-shield-lock" style="font-size: 3rem;"></i>
+                    <h4 class="mt-2 mb-0">Admin Panel Login</h4>
                 </div>
-                <hr class="bg-light">
-                <nav class="nav flex-column">
-                    <a class="nav-link active" onclick="showTab('tabDashboard')">🏠 Dashboard</a>
-                    <a class="nav-link text-warning" onclick="showTab('tabProfil')">🏫 Profil & Instansi</a>
-                    <a class="nav-link text-info" onclick="showTab('tabCPTP')">🎯 Setup CP & TP</a>
-                    <a class="nav-link" onclick="showTab('tabSiswa')">👥 Data Siswa (CSV)</a>
-                    <a class="nav-link" onclick="showTab('tabJadwal')">📅 Jadwal Mengajar</a>
-                    <a class="nav-link" onclick="showTab('tabTahunan')">📁 Prota, Promes, ATP</a>
-                    <a class="nav-link" onclick="showTab('tabPerangkat')">📖 Modul & LKPD</a>
-                    <a class="nav-link" onclick="showTab('tabPelaksanaan')">📋 Absen & Jurnal</a>
-                    <a class="nav-link" onclick="showTab('tabPenilaian')">📈 Rekap Penilaian</a>
-                    <hr class="bg-light my-2">
-                    <a class="nav-link text-success fw-bold" onclick="showTab('tabPanduan')">📖 BUKU PANDUAN</a>
-                    <a class="nav-link text-primary fw-bold" onclick="showTab('tabAI')">🤖 ASISTEN AI (PROMPT)</a>
+                <div class="modal-body p-4">
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Email Admin</label>
+                        <input type="email" id="adminEmail" class="form-control" placeholder="Masukkan email admin">
+                    </div>
+                    <div class="mb-3">
+                        <label class="form-label fw-bold">Password</label>
+                        <input type="password" id="adminPassword" class="form-control" placeholder="Masukkan password">
+                    </div>
+                    <button class="btn btn-gradient-primary w-100" onclick="loginAdmin()">
+                        <i class="bi bi-box-arrow-in-right me-2"></i>Login
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Upgrade Modal -->
+    <div class="modal fade upgrade-modal" id="upgradeModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered modal-lg">
+            <div class="modal-content">
+                <div class="modal-header text-center flex-column">
+                    <i class="bi bi-gem animate-pulse" style="font-size: 4rem;"></i>
+                    <h3 class="mt-3 mb-0">Upgrade ke Premium</h3>
+                    <p class="mb-0 opacity-75">Akses semua fitur tanpa batas!</p>
+                </div>
+                <div class="modal-body">
+                    <div class="row">
+                        <div class="col-md-6">
+                            <h5 class="fw-bold mb-3">Fitur Premium:</h5>
+                            <ul class="list-unstyled feature-list">
+                                <li><i class="bi bi-check-circle-fill"></i> Modul Ajar Generator</li>
+                                <li><i class="bi bi-check-circle-fill"></i> LKPD Generator</li>
+                                <li><i class="bi bi-check-circle-fill"></i> Jurnal & Absensi</li>
+                                <li><i class="bi bi-check-circle-fill"></i> Rekap Penilaian</li>
+                                <li><i class="bi bi-check-circle-fill"></i> Export ke PDF</li>
+                                <li><i class="bi bi-check-circle-fill"></i> Asisten AI Prompts</li>
+                                <li><i class="bi bi-check-circle-fill"></i> Update Seumur Hidup</li>
+                            </ul>
+                        </div>
+                        <div class="col-md-6 text-center">
+                            <p class="text-muted mb-1">Harga Spesial</p>
+                            <div class="price-tag" id="displayPrice">Rp 99.000</div>
+                            <p class="text-muted">Sekali bayar, akses selamanya!</p>
+                            
+                            <div class="card p-3 bg-light mt-3">
+                                <h6 class="fw-bold">Transfer ke:</h6>
+                                <p class="mb-1" id="displayBank">BCA - 1234567890</p>
+                                <p class="mb-0 fw-bold" id="displayAccountName">a.n. Admin SIM</p>
+                            </div>
+
+                            <a href="#" id="waUpgradeBtn" class="btn btn-whatsapp mt-4" target="_blank">
+                                <i class="bi bi-whatsapp"></i>
+                                Hubungi via WhatsApp
+                            </a>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer justify-content-center border-0 pb-4">
+                    <button type="button" class="btn btn-light px-4" data-bs-dismiss="modal">Nanti Saja</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="mainApp" class="container-fluid p-0">
+        <div class="row g-0">
+            <!-- Sidebar -->
+            <div class="sidebar no-print" id="sidebarNav">
+                <div class="sidebar-header">
+                    <img src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ccircle cx='50' cy='50' r='45' fill='%23667eea'/%3E%3Ctext x='50' y='60' text-anchor='middle' fill='white' font-size='40' font-weight='bold'%3EK%3C/text%3E%3C/svg%3E" alt="Logo">
+                    <h6>SIM Kurikulum</h6>
+                    <small class="opacity-75" id="userRole">Versi Gratis</small>
+                </div>
+                
+                <nav class="nav flex-column py-3">
+                    <div class="nav-section-title">Menu Utama</div>
+                    <a class="nav-link active" onclick="showTab('tabDashboard')">
+                        <i class="bi bi-speedometer2"></i>
+                        <span>Dashboard</span>
+                    </a>
+                    <a class="nav-link" onclick="showTab('tabProfil')">
+                        <i class="bi bi-building"></i>
+                        <span>Profil & Instansi</span>
+                        <span class="free-badge">FREE</span>
+                    </a>
+                    <a class="nav-link" onclick="showTab('tabCPTP')">
+                        <i class="bi bi-bullseye"></i>
+                        <span>Setup CP & TP</span>
+                        <span class="free-badge">FREE</span>
+                    </a>
+                    
+                    <div class="nav-divider"></div>
+                    <div class="nav-section-title">Data & Jadwal</div>
+                    
+                    <a class="nav-link" onclick="showTab('tabSiswa')">
+                        <i class="bi bi-people"></i>
+                        <span>Data Siswa</span>
+                        <span class="free-badge">FREE</span>
+                    </a>
+                    <a class="nav-link" onclick="showTab('tabJadwal')">
+                        <i class="bi bi-calendar3"></i>
+                        <span>Jadwal Mengajar</span>
+                        <span class="free-badge">FREE</span>
+                    </a>
+                    
+                    <div class="nav-divider"></div>
+                    <div class="nav-section-title">Perangkat Ajar</div>
+                    
+                    <a class="nav-link" onclick="showTab('tabTahunan')">
+                        <i class="bi bi-folder2-open"></i>
+                        <span>ATP & Prota</span>
+                        <span class="free-badge">FREE</span>
+                    </a>
+                    <a class="nav-link" onclick="checkPremium('tabPerangkat')">
+                        <i class="bi bi-book"></i>
+                        <span>Modul & LKPD</span>
+                        <span class="premium-badge">PRO</span>
+                    </a>
+                    <a class="nav-link" onclick="checkPremium('tabPelaksanaan')">
+                        <i class="bi bi-journal-check"></i>
+                        <span>Absen & Jurnal</span>
+                        <span class="premium-badge">PRO</span>
+                    </a>
+                    <a class="nav-link" onclick="checkPremium('tabPenilaian')">
+                        <i class="bi bi-graph-up"></i>
+                        <span>Rekap Penilaian</span>
+                        <span class="premium-badge">PRO</span>
+                    </a>
+                    
+                    <div class="nav-divider"></div>
+                    <div class="nav-section-title">Bantuan</div>
+                    
+                    <a class="nav-link" onclick="showTab('tabPanduan')">
+                        <i class="bi bi-question-circle"></i>
+                        <span>Buku Panduan</span>
+                    </a>
+                    <a class="nav-link" onclick="checkPremium('tabAI')">
+                        <i class="bi bi-robot"></i>
+                        <span>Asisten AI</span>
+                        <span class="premium-badge">PRO</span>
+                    </a>
+                    
+                    <div class="nav-divider"></div>
+                    
+                    <a class="nav-link text-warning" onclick="showAdminLogin()">
+                        <i class="bi bi-gear"></i>
+                        <span>Admin Panel</span>
+                    </a>
                 </nav>
             </div>
 
-            <div class="col-md-10 content-area" id="mainContentArea">
+            <!-- Content Area -->
+            <div class="content-area" id="mainContentArea">
                 
-                <div id="tabDashboard" class="tab-content">
-                    <h3 class="mb-4">Sistem Manajemen Kurikulum Merdeka Universal</h3>
-                    <div class="alert alert-success shadow-sm">
-                        <h5>Aplikasi Terintegrasi (Mendukung Semua Mapel)</h5>
-                        <p>1. <b>File Terpisah:</b> Data Default PAI (Kelas 1-6) sudah dipisah ke file <code>data_default.js</code> agar mudah diedit.<br>
-                        2. <b>Buku Panduan Baru:</b> Klik menu "BUKU PANDUAN" untuk cara lengkap input data CP & TP.<br>
-                        3. <b>Asisten AI:</b> Kami menyediakan *prompt* otomatis di menu "ASISTEN AI" untuk mempermudah Anda membuat dokumen lewat ChatGPT.</p>
+                <!-- Dashboard Tab -->
+                <div id="tabDashboard" class="tab-content animate-fadeIn">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="fw-bold mb-1">Dashboard</h2>
+                            <p class="text-muted mb-0">Selamat datang di SIM Kurikulum Merdeka</p>
+                        </div>
+                        <button class="btn btn-gradient-primary" onclick="showUpgradeModal()">
+                            <i class="bi bi-gem me-2"></i>Upgrade Premium
+                        </button>
+                    </div>
+
+                    <!-- Stats Cards -->
+                    <div class="row g-4 mb-4">
+                        <div class="col-md-3">
+                            <div class="stats-card">
+                                <div class="stats-icon primary"><i class="bi bi-people"></i></div>
+                                <div class="stats-number" id="statSiswa">0</div>
+                                <div class="text-muted">Total Siswa</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card success">
+                                <div class="stats-icon success"><i class="bi bi-calendar-check"></i></div>
+                                <div class="stats-number" id="statJadwal">0</div>
+                                <div class="text-muted">Jadwal Mengajar</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card warning">
+                                <div class="stats-icon warning"><i class="bi bi-book"></i></div>
+                                <div class="stats-number" id="statTP">0</div>
+                                <div class="text-muted">Tujuan Pembelajaran</div>
+                            </div>
+                        </div>
+                        <div class="col-md-3">
+                            <div class="stats-card danger">
+                                <div class="stats-icon danger"><i class="bi bi-mortarboard"></i></div>
+                                <div class="stats-number" id="statRombel">0</div>
+                                <div class="text-muted">Rombel Aktif</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Info Cards -->
+                    <div class="row g-4">
+                        <div class="col-md-8">
+                            <div class="modern-card">
+                                <div class="card-header-gradient">
+                                    <i class="bi bi-info-circle me-2"></i>Tentang Aplikasi
+                                </div>
+                                <div class="card-body p-4">
+                                    <h5 class="fw-bold">Sistem Manajemen Kurikulum Merdeka Universal</h5>
+                                    <p class="text-muted">Aplikasi terintegrasi untuk membantu guru mengelola perangkat pembelajaran sesuai Kurikulum Merdeka.</p>
+                                    
+                                    <div class="row g-3 mt-3">
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="bi bi-check-circle-fill text-success me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>Gratis Selamanya</strong>
+                                                    <div class="small text-muted">Jadwal, ATP, Prota, Data Siswa</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-6">
+                                            <div class="d-flex align-items-center p-3 bg-light rounded-3">
+                                                <i class="bi bi-gem text-primary me-3" style="font-size: 1.5rem;"></i>
+                                                <div>
+                                                    <strong>Premium</strong>
+                                                    <div class="small text-muted">Modul, Penilaian, AI, dll</div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <div class="modern-card h-100">
+                                <div class="card-header-gradient card-header-success">
+                                    <i class="bi bi-lightning me-2"></i>Quick Actions
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="d-grid gap-2">
+                                        <button class="btn btn-outline-primary" onclick="showTab('tabProfil')">
+                                            <i class="bi bi-pencil me-2"></i>Edit Profil
+                                        </button>
+                                        <button class="btn btn-outline-success" onclick="showTab('tabSiswa')">
+                                            <i class="bi bi-upload me-2"></i>Import Siswa
+                                        </button>
+                                        <button class="btn btn-outline-info" onclick="showTab('tabCPTP')">
+                                            <i class="bi bi-bullseye me-2"></i>Setup TP
+                                        </button>
+                                        <button class="btn btn-outline-danger" onclick="showTab('tabTahunan')">
+                                            <i class="bi bi-printer me-2"></i>Cetak ATP
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="tabPanduan" class="tab-content d-none no-print">
-                    <h3 class="mb-3">📖 Buku Panduan Penggunaan Aplikasi</h3>
-                    <div class="card p-4 shadow-sm" style="line-height: 1.7;">
-                        <h5 class="fw-bold text-primary">1. Cara Memasukkan CP dan TP (Bagi Guru Non-PAI / Kelas Lain)</h5>
-                        <ul>
-                            <li>Buka menu <b>Setup CP & TP</b>.</li>
-                            <li>Ketikkan narasi lengkap Capaian Pembelajaran (CP) untuk fase yang Anda ajar.</li>
-                            <li>Pada tabel Tujuan Pembelajaran, klik tombol <b>➕ Tambah Bab/Materi</b>.</li>
-                            <li>Masukkan Nomor Bab, Judul Materi/Tujuan Pembelajaran secara spesifik, dan Alokasi Waktu (JP).</li>
-                            <li>Setelah semua materi terisi, klik <b>💾 Simpan Data CP & TP</b>. Data ini akan otomatis masuk saat Anda mencetak ATP, Prota, Promes, dan Modul.</li>
-                            <li><i>Catatan: Jika Anda Guru PAI SD, Anda cukup memilih kelas di dropdown "Muat Data Default PAI SD" lalu klik Load.</i></li>
-                        </ul>
+                <!-- Admin Panel Tab -->
+                <div id="tabAdmin" class="tab-content d-none animate-fadeIn">
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <h2 class="fw-bold mb-1"><i class="bi bi-shield-lock me-2"></i>Admin Panel</h2>
+                            <p class="text-muted mb-0">Kelola pengaturan aplikasi</p>
+                        </div>
+                        <button class="btn btn-outline-danger" onclick="logoutAdmin()">
+                            <i class="bi bi-box-arrow-right me-2"></i>Logout Admin
+                        </button>
+                    </div>
 
-                        <h5 class="fw-bold text-primary mt-3">2. Cara Input Data Siswa via CSV</h5>
-                        <ul>
-                            <li>Siapkan Microsoft Excel. Buat 5 kolom di baris paling atas persis dengan tulisan berikut (huruf kecil): <b>nisn, nama, jk, kelas, rombel</b>.</li>
-                            <li>Isi data siswa di bawahnya. Contoh baris 2: <code>001234, Budi Santoso, L, 3, 3A</code>.</li>
-                            <li>Pilih <i>File -> Save As -> Pilih format CSV (Comma delimited) (*.csv)</i>.</li>
-                            <li>Buka aplikasi ini, masuk ke tab <b>Data Siswa (CSV)</b>. Upload file CSV tersebut. Aplikasi akan otomatis menyusun siswa berdasarkan rombelnya.</li>
-                        </ul>
+                    <div class="row g-4">
+                        <!-- Admin Settings -->
+                        <div class="col-md-6">
+                            <div class="modern-card">
+                                <div class="card-header-gradient">
+                                    <i class="bi bi-gear me-2"></i>Pengaturan Harga & Kontak
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Harga Premium (Rp)</label>
+                                        <input type="number" id="adminPrice" class="form-control" placeholder="99000">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Nomor WhatsApp</label>
+                                        <input type="text" id="adminWA" class="form-control" placeholder="6281234567890">
+                                        <small class="text-muted">Format: 62xxx tanpa + atau 0</small>
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Nama Bank</label>
+                                        <input type="text" id="adminBank" class="form-control" placeholder="BCA">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Nomor Rekening</label>
+                                        <input type="text" id="adminRekening" class="form-control" placeholder="1234567890">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Atas Nama Rekening</label>
+                                        <input type="text" id="adminNamaRek" class="form-control" placeholder="Nama Pemilik">
+                                    </div>
+                                    <button class="btn btn-gradient-primary w-100" onclick="saveAdminSettings()">
+                                        <i class="bi bi-save me-2"></i>Simpan Pengaturan
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
 
-                        <h5 class="fw-bold text-primary mt-3">3. Cara Mengatasi Hasil Cetak (PDF) yang Terpotong / Blank</h5>
-                        <ul>
-                            <li>Sistem ini menggunakan CSS Print khusus. Klik tombol <b>Cetak</b> yang ada di dalam aplikasi (bukan Ctrl+P dari browser).</li>
-                            <li>Pada jendela *Print Preview* browser (Chrome/Edge), pastikan setelan <b>Layout</b> sesuai dengan yang direkomendasikan aplikasi (Portrait untuk Modul, Landscape untuk Promes).</li>
-                            <li>Pastikan opsi <b>"Background graphics"</b> atau <b>"Cetak latar belakang"</b> dalam keadaan <b>Dicentang (Aktif)</b> agar warna tabel muncul.</li>
-                            <li>Ubah opsi Margins ke <b>Default</b> atau <b>None</b>.</li>
-                        </ul>
+                        <!-- Admin Credentials -->
+                        <div class="col-md-6">
+                            <div class="modern-card">
+                                <div class="card-header-gradient card-header-warning">
+                                    <i class="bi bi-key me-2"></i>Ubah Kredensial Admin
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Email Admin</label>
+                                        <input type="email" id="adminNewEmail" class="form-control">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Password Baru</label>
+                                        <input type="password" id="adminNewPassword" class="form-control" placeholder="Kosongkan jika tidak diubah">
+                                    </div>
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Konfirmasi Password</label>
+                                        <input type="password" id="adminConfirmPassword" class="form-control">
+                                    </div>
+                                    <button class="btn btn-gradient-danger w-100" onclick="updateAdminCredentials()">
+                                        <i class="bi bi-shield-check me-2"></i>Update Kredensial
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- User Premium Management -->
+                            <div class="modern-card mt-4">
+                                <div class="card-header-gradient card-header-success">
+                                    <i class="bi bi-person-check me-2"></i>Aktivasi User Premium
+                                </div>
+                                <div class="card-body p-4">
+                                    <div class="mb-3">
+                                        <label class="form-label fw-bold">Kode Aktivasi User</label>
+                                        <input type="text" id="userActivationCode" class="form-control" placeholder="Masukkan kode dari user">
+                                    </div>
+                                    <button class="btn btn-gradient-success w-100" onclick="activateUserPremium()">
+                                        <i class="bi bi-check2-circle me-2"></i>Aktifkan Premium
+                                    </button>
+                                    <hr>
+                                    <div class="small text-muted">
+                                        <strong>Kode Perangkat User Ini:</strong>
+                                        <div class="bg-light p-2 rounded mt-2 font-monospace" id="deviceCode">Loading...</div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="tabAI" class="tab-content d-none no-print">
-                    <h3 class="mb-3">🤖 Asisten AI (Koleksi Prompt)</h3>
-                    <p class="text-muted">Gunakan *prompt* (perintah) di bawah ini lalu salin ke <b>ChatGPT</b>, <b>Gemini</b>, atau <b>Claude</b> untuk membantu Anda membuat data yang dibutuhkan aplikasi ini dengan sangat cepat.</p>
+                <!-- Panduan Tab -->
+                <div id="tabPanduan" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-book me-2"></i>Buku Panduan</h2>
                     
-                    <div class="row g-3">
+                    <div class="modern-card">
+                        <div class="card-body p-4" style="line-height: 1.8;">
+                            <div class="accordion" id="accordionPanduan">
+                                <div class="accordion-item border-0 mb-3">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button bg-light rounded-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse1">
+                                            <i class="bi bi-1-circle-fill text-primary me-3"></i>
+                                            Cara Memasukkan CP dan TP
+                                        </button>
+                                    </h2>
+                                    <div id="collapse1" class="accordion-collapse collapse show" data-bs-parent="#accordionPanduan">
+                                        <div class="accordion-body">
+                                            <ul>
+                                                <li>Buka menu <b>Setup CP & TP</b>.</li>
+                                                <li>Ketikkan narasi lengkap Capaian Pembelajaran (CP) untuk fase yang Anda ajar.</li>
+                                                <li>Pada tabel Tujuan Pembelajaran, klik tombol <b>➕ Tambah Bab/Materi</b>.</li>
+                                                <li>Masukkan Nomor Bab, Judul Materi/Tujuan Pembelajaran secara spesifik, dan Alokasi Waktu (JP).</li>
+                                                <li>Setelah semua materi terisi, klik <b>💾 Simpan Data CP & TP</b>.</li>
+                                                <li><i class="text-success">Catatan: Jika Anda Guru PAI SD, cukup pilih kelas di dropdown lalu klik Load.</i></li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <div class="accordion-item border-0 mb-3">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed bg-light rounded-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse2">
+                                            <i class="bi bi-2-circle-fill text-success me-3"></i>
+                                            Cara Input Data Siswa via CSV
+                                        </button>
+                                    </h2>
+                                    <div id="collapse2" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
+                                        <div class="accordion-body">
+                                            <ul>
+                                                <li>Siapkan Microsoft Excel. Buat 5 kolom: <code>nisn, nama, jk, kelas, rombel</code>.</li>
+                                                <li>Isi data siswa. Contoh: <code>001234, Budi Santoso, L, 3, 3A</code>.</li>
+                                                <li>Save As → pilih format <b>CSV (Comma delimited)</b>.</li>
+                                                <li>Upload di tab <b>Data Siswa</b>.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="accordion-item border-0">
+                                    <h2 class="accordion-header">
+                                        <button class="accordion-button collapsed bg-light rounded-3 fw-bold" type="button" data-bs-toggle="collapse" data-bs-target="#collapse3">
+                                            <i class="bi bi-3-circle-fill text-warning me-3"></i>
+                                            Tips Cetak PDF yang Benar
+                                        </button>
+                                    </h2>
+                                    <div id="collapse3" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
+                                        <div class="accordion-body">
+                                            <ul>
+                                                <li>Klik tombol <b>Cetak</b> di dalam aplikasi.</li>
+                                                <li>Pastikan <b>"Background graphics"</b> dicentang.</li>
+                                                <li>Ubah Margins ke <b>Default</b> atau <b>None</b>.</li>
+                                                <li>Pilih <b>Save as PDF</b> untuk menyimpan.</li>
+                                            </ul>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- AI Tab -->
+                <div id="tabAI" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-robot me-2"></i>Asisten AI (Koleksi Prompt)</h2>
+                    <p class="text-muted mb-4">Salin prompt berikut ke ChatGPT, Gemini, atau Claude untuk membuat konten dengan cepat.</p>
+                    
+                    <div class="row g-4">
                         <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-primary h-100">
-                                <h6 class="fw-bold text-primary">Prompt 1: Membuat Data CSV Siswa</h6>
-                                <textarea id="prompt1" class="form-control mb-2 bg-light" rows="5" readonly>Buatkan data siswa dummy (palsu) sebanyak 20 siswa. Formatnya WAJIB menggunakan tabel text CSV (dipisahkan koma). Baris pertama harus persis: nisn,nama,jk,kelas,rombel. Contoh pengisian: 00123,Budi,L,4,4A. Buatlah untuk kelas 4 rombel 4A.</textarea>
-                                <button class="btn btn-outline-primary btn-sm w-100" onclick="copyToClipboard('prompt1')">📋 Salin Prompt</button>
+                            <div class="modern-card h-100">
+                                <div class="card-header-gradient">
+                                    <i class="bi bi-file-earmark-spreadsheet me-2"></i>Prompt 1: Data CSV Siswa
+                                </div>
+                                <div class="card-body p-4">
+                                    <textarea id="prompt1" class="form-control bg-light mb-3" rows="4" readonly>Buatkan data siswa dummy sebanyak 20 siswa. Format CSV dengan header: nisn,nama,jk,kelas,rombel. Contoh: 00123,Budi,L,4,4A. Buatlah untuk kelas 4 rombel 4A.</textarea>
+                                    <button class="btn btn-gradient-primary w-100" onclick="copyToClipboard('prompt1')">
+                                        <i class="bi bi-clipboard me-2"></i>Salin Prompt
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-success h-100">
-                                <h6 class="fw-bold text-success">Prompt 2: Menyusun TP Kurikulum Merdeka</h6>
-                                <textarea id="prompt2" class="form-control mb-2 bg-light" rows="5" readonly>Saya adalah Guru mata pelajaran [SEBUTKAN MAPEL] untuk Fase [SEBUTKAN FASE/KELAS]. Tolong buatkan rincian Tujuan Pembelajaran (TP) per Bab untuk 1 Semester. Sajikan dalam format Tabel dengan kolom: Bab, Judul Tujuan Pembelajaran, dan Alokasi Waktu (JP). Total JP 1 semester adalah 72 JP.</textarea>
-                                <button class="btn btn-outline-success btn-sm w-100" onclick="copyToClipboard('prompt2')">📋 Salin Prompt</button>
+                            <div class="modern-card h-100">
+                                <div class="card-header-gradient card-header-success">
+                                    <i class="bi bi-list-check me-2"></i>Prompt 2: Menyusun TP
+                                </div>
+                                <div class="card-body p-4">
+                                    <textarea id="prompt2" class="form-control bg-light mb-3" rows="4" readonly>Saya Guru [MAPEL] untuk Fase [FASE]. Buatkan rincian Tujuan Pembelajaran per Bab untuk 1 Semester dalam format tabel: Bab, Judul TP, Alokasi JP. Total 72 JP.</textarea>
+                                    <button class="btn btn-gradient-success w-100" onclick="copyToClipboard('prompt2')">
+                                        <i class="bi bi-clipboard me-2"></i>Salin Prompt
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-info h-100">
-                                <h6 class="fw-bold text-info">Prompt 3: Referensi Modul Ajar (Skenario Inti)</h6>
-                                <textarea id="prompt3" class="form-control mb-2 bg-light" rows="5" readonly>Buatkan skenario Kegiatan Inti pembelajaran selama 110 menit untuk mata pelajaran [MAPEL] kelas [KELAS] dengan topik materi: [NAMA MATERI]. Skenario harus dipecah menjadi 4 langkah dan secara eksplisit mengintegrasikan nilai-nilai: Kemandirian, Penalaran Kritis, dan Kolaborasi.</textarea>
-                                <button class="btn btn-outline-info btn-sm w-100" onclick="copyToClipboard('prompt3')">📋 Salin Prompt</button>
+                            <div class="modern-card h-100">
+                                <div class="card-header-gradient card-header-warning">
+                                    <i class="bi bi-book me-2"></i>Prompt 3: Skenario Modul
+                                </div>
+                                <div class="card-body p-4">
+                                    <textarea id="prompt3" class="form-control bg-light mb-3" rows="4" readonly>Buatkan skenario Kegiatan Inti pembelajaran 110 menit untuk [MAPEL] kelas [KELAS] topik: [MATERI]. Integrasikan nilai Kemandirian, Penalaran Kritis, dan Kolaborasi.</textarea>
+                                    <button class="btn btn-gradient-danger w-100" onclick="copyToClipboard('prompt3')">
+                                        <i class="bi bi-clipboard me-2"></i>Salin Prompt
+                                    </button>
+                                </div>
                             </div>
                         </div>
                         <div class="col-md-6">
-                            <div class="card p-3 shadow-sm border-warning h-100">
-                                <h6 class="fw-bold text-warning">Prompt 4: Membuat Soal untuk LKPD / Penilaian</h6>
-                                <textarea id="prompt4" class="form-control mb-2 bg-light" rows="5" readonly>Buatkan 5 soal Pilihan Ganda dan 2 soal Uraian HOTS beserta kunci jawabannya untuk mata pelajaran [MAPEL] Kelas [KELAS] dengan topik: [NAMA MATERI]. Soal harus memicu penalaran kritis siswa.</textarea>
-                                <button class="btn btn-outline-warning btn-sm w-100" onclick="copyToClipboard('prompt4')">📋 Salin Prompt</button>
+                            <div class="modern-card h-100">
+                                <div class="card-header-gradient card-header-danger">
+                                    <i class="bi bi-patch-question me-2"></i>Prompt 4: Soal HOTS
+                                </div>
+                                <div class="card-body p-4">
+                                    <textarea id="prompt4" class="form-control bg-light mb-3" rows="4" readonly>Buatkan 5 soal Pilihan Ganda dan 2 soal Uraian HOTS beserta kunci jawaban untuk [MAPEL] Kelas [KELAS] topik: [MATERI]. Soal harus memicu penalaran kritis.</textarea>
+                                    <button class="btn btn-gradient-primary w-100" onclick="copyToClipboard('prompt4')">
+                                        <i class="bi bi-clipboard me-2"></i>Salin Prompt
+                                    </button>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="tabProfil" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Profil Instansi & Mapel</h3>
-                    <div class="card p-4 shadow-sm border-warning">
-                        <div class="row g-3">
-                            <div class="col-md-4"><label class="fw-bold small">Mata Pelajaran <span class="text-danger">*</span></label><input type="text" id="profMapel" class="form-control" value="Pendidikan Agama Islam"></div>
-                            <div class="col-md-4"><label class="fw-bold small">NPSN Sekolah</label><input type="number" id="profNpsn" class="form-control" placeholder="12345678"></div>
-                            <div class="col-md-4"><label class="fw-bold small">Nama Sekolah</label><input type="text" id="profSekolah" class="form-control" placeholder="SDN 1 ..."></div>
-                            <div class="col-md-6"><label class="fw-bold small">Kepala Sekolah</label><input type="text" id="profKepsek" class="form-control"></div>
-                            <div class="col-md-6"><label class="fw-bold small">NIP Kepsek</label><input type="text" id="profNipKepsek" class="form-control"></div>
-                            <div class="col-md-4"><label class="fw-bold small">Nama Guru Pengampu</label><input type="text" id="profGuru" class="form-control"></div>
-                            <div class="col-md-4"><label class="fw-bold small">NIP Guru</label><input type="text" id="profNipGuru" class="form-control"></div>
-                            <div class="col-md-4"><label class="fw-bold small">Tahun Ajaran</label><input type="text" id="profTahun" class="form-control" value="2025/2026"></div>
-                            <div class="col-md-12"><label class="fw-bold small">Tempat, Tgl Pengesahan</label><input type="text" id="profTanggal" class="form-control" placeholder="Jakarta, 15 Juli 2025"></div>
-                            <div class="col-md-12 mt-3"><button class="btn btn-warning fw-bold" onclick="simpanProfil()">💾 Simpan Profil</button></div>
+                <!-- Profil Tab -->
+                <div id="tabProfil" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-building me-2"></i>Profil & Instansi</h2>
+                    
+                    <div class="modern-card">
+                        <div class="card-header-gradient card-header-warning">
+                            <i class="bi bi-pencil-square me-2"></i>Edit Data Profil
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Mata Pelajaran <span class="text-danger">*</span></label>
+                                    <input type="text" id="profMapel" class="form-control" value="Pendidikan Agama Islam">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">NPSN Sekolah</label>
+                                    <input type="number" id="profNpsn" class="form-control" placeholder="12345678">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Nama Sekolah</label>
+                                    <input type="text" id="profSekolah" class="form-control" placeholder="SDN 1 ...">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">Kepala Sekolah</label>
+                                    <input type="text" id="profKepsek" class="form-control">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label fw-bold">NIP Kepsek</label>
+                                    <input type="text" id="profNipKepsek" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Nama Guru Pengampu</label>
+                                    <input type="text" id="profGuru" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">NIP Guru</label>
+                                    <input type="text" id="profNipGuru" class="form-control">
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label fw-bold">Tahun Ajaran</label>
+                                    <input type="text" id="profTahun" class="form-control" value="2025/2026">
+                                </div>
+                                <div class="col-md-12">
+                                    <label class="form-label fw-bold">Tempat, Tgl Pengesahan</label>
+                                    <input type="text" id="profTanggal" class="form-control" placeholder="Jakarta, 15 Juli 2025">
+                                </div>
+                                <div class="col-md-12 mt-3">
+                                    <button class="btn btn-gradient-primary btn-lg" onclick="simpanProfil()">
+                                        <i class="bi bi-save me-2"></i>Simpan Profil
+                                    </button>
+                                </div>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="tabCPTP" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Setup Capaian & Tujuan Pembelajaran</h3>
-                    <div class="card p-3 mb-3 bg-light border-primary border-2">
-                        <label class="fw-bold text-primary">📚 Muat Data Default PAI SD (Dari File <code>data_default.js</code>)</label>
-                        <div class="input-group mt-2">
-                            <select id="loadDefaultKls" class="form-select w-50">
-                                <option value="1">Kelas 1 (Fase A)</option><option value="2">Kelas 2 (Fase A)</option>
-                                <option value="3">Kelas 3 (Fase B)</option><option value="4">Kelas 4 (Fase B)</option>
-                                <option value="5">Kelas 5 (Fase C)</option><option value="6">Kelas 6 (Fase C)</option>
-                            </select>
-                            <button class="btn btn-primary" onclick="loadDefaultPAI()">📥 Load Data</button>
+                <!-- CP & TP Tab -->
+                <div id="tabCPTP" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-bullseye me-2"></i>Setup Capaian & Tujuan Pembelajaran</h2>
+                    
+                    <div class="modern-card mb-4">
+                        <div class="card-header-gradient">
+                            <i class="bi bi-database me-2"></i>Muat Data Default PAI SD
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="input-group">
+                                <select id="loadDefaultKls" class="form-select">
+                                    <option value="1">Kelas 1 (Fase A)</option>
+                                    <option value="2">Kelas 2 (Fase A)</option>
+                                    <option value="3">Kelas 3 (Fase B)</option>
+                                    <option value="4">Kelas 4 (Fase B)</option>
+                                    <option value="5">Kelas 5 (Fase C)</option>
+                                    <option value="6">Kelas 6 (Fase C)</option>
+                                </select>
+                                <button class="btn btn-gradient-primary" onclick="loadDefaultPAI()">
+                                    <i class="bi bi-download me-2"></i>Load Data
+                                </button>
+                            </div>
                         </div>
                     </div>
 
-                    <div class="card p-4 shadow-sm border-info">
-                        <div class="mb-3">
-                            <label class="fw-bold">Capaian Pembelajaran (CP) Keseluruhan Fase:</label>
-                            <textarea id="inputCP" class="form-control" rows="3" placeholder="Masukkan narasi CP..."></textarea>
+                    <div class="modern-card">
+                        <div class="card-header-gradient card-header-success">
+                            <i class="bi bi-pencil me-2"></i>Input Manual CP & TP
                         </div>
-                        <label class="fw-bold mb-2">Daftar Tujuan Pembelajaran (TP) / Materi Per Bab:</label>
-                        <table class="table table-bordered">
-                            <thead class="table-light"><tr><th width="10%">Bab Ke-</th><th width="75%">Tujuan Pembelajaran (Topik Materi)</th><th width="15%">Alokasi JP</th></tr></thead>
-                            <tbody id="bodyInputTP"></tbody>
-                        </table>
-                        <div class="d-flex justify-content-between">
-                            <button class="btn btn-outline-primary btn-sm" onclick="tambahBarisTP()">➕ Tambah Bab/Materi</button>
-                            <button class="btn btn-info fw-bold" onclick="simpanCPTP()">💾 Simpan Data CP & TP</button>
+                        <div class="card-body p-4">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold">Capaian Pembelajaran (CP):</label>
+                                <textarea id="inputCP" class="form-control" rows="3" placeholder="Masukkan narasi CP..."></textarea>
+                            </div>
+                            
+                            <label class="form-label fw-bold mb-3">Daftar Tujuan Pembelajaran (TP):</label>
+                            <div class="table-responsive">
+                                <table class="table modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th width="10%">Bab</th>
+                                            <th width="75%">Tujuan Pembelajaran</th>
+                                            <th width="15%">JP</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="bodyInputTP"></tbody>
+                                </table>
+                            </div>
+                            
+                            <div class="d-flex justify-content-between mt-3">
+                                <button class="btn btn-outline-primary" onclick="tambahBarisTP()">
+                                    <i class="bi bi-plus-circle me-2"></i>Tambah Bab
+                                </button>
+                                <button class="btn btn-gradient-success" onclick="simpanCPTP()">
+                                    <i class="bi bi-save me-2"></i>Simpan CP & TP
+                                </button>
+                            </div>
                         </div>
                     </div>
                 </div>
 
-                <div id="tabSiswa" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Import Data Siswa Terintegrasi</h3>
-                    <div class="alert alert-warning small fw-bold">Wajib: Header CSV harus (huruf kecil semua): <code>nisn, nama, jk, kelas, rombel</code></div>
-                    <div class="card p-3 mb-4 shadow-sm border-primary">
-                        <input type="file" id="fileCsvSiswa" class="form-control mb-2" accept=".csv">
-                        <button class="btn btn-primary w-100" onclick="importSiswaLokal()">📁 Upload File CSV</button>
-                    </div>
-
-                    <div class="d-flex justify-content-between mb-2">
-                        <select id="filterKelasSiswa" class="form-select w-25" onchange="renderTabelSiswa()"></select>
-                        <button class="btn btn-danger btn-sm" onclick="clearDataSiswa()">Hapus Semua Siswa</button>
-                    </div>
-                    <table class="table table-bordered bg-white shadow-sm">
-                        <thead class="table-dark"><tr><th>NISN</th><th>Nama Siswa</th><th>JK</th><th>Kelas</th><th>Rombel</th></tr></thead>
-                        <tbody id="tabelSiswaBody"></tbody>
-                    </table>
-                </div>
-
-                <div id="tabJadwal" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Jadwal Mengajar Anda</h3>
-                    <div class="card p-3 shadow-sm mb-3">
-                        <div class="row g-2">
-                            <div class="col-md-2"><select id="jadwalHari" class="form-select"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option></select></div>
-                            <div class="col-md-2"><input type="number" id="jadwalJam" class="form-control" placeholder="Jam Ke-"></div>
-                            <div class="col-md-3"><select id="jadwalFase" class="form-select"><option value="A">Fase A</option><option value="B">Fase B</option><option value="C">Fase C</option><option value="D">Fase D (SMP)</option></select></div>
-                            <div class="col-md-3"><input type="text" id="jadwalRombel" class="form-control" placeholder="Rombel (Cth: 3A)"></div>
-                            <div class="col-md-2"><button class="btn btn-success w-100" onclick="tambahJadwalLokal()">Tambah</button></div>
+                <!-- Siswa Tab -->
+                <div id="tabSiswa" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-people me-2"></i>Data Siswa</h2>
+                    
+                    <div class="modern-card mb-4">
+                        <div class="card-header-gradient">
+                            <i class="bi bi-upload me-2"></i>Import dari CSV
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="alert alert-warning d-flex align-items-center">
+                                <i class="bi bi-info-circle-fill me-2"></i>
+                                Header CSV wajib: <code class="mx-2">nisn, nama, jk, kelas, rombel</code>
+                            </div>
+                            <input type="file" id="fileCsvSiswa" class="form-control mb-3" accept=".csv">
+                            <button class="btn btn-gradient-primary w-100" onclick="importSiswaLokal()">
+                                <i class="bi bi-cloud-upload me-2"></i>Upload File CSV
+                            </button>
                         </div>
                     </div>
-                    <table class="table table-striped bg-white shadow-sm"><thead class="table-dark"><tr><th>Hari</th><th>Jam</th><th>Fase</th><th>Rombel</th><th>Aksi</th></tr></thead><tbody id="tabelJadwalBody"></tbody></table>
+
+                    <div class="modern-card">
+                        <div class="card-body p-4">
+                            <div class="d-flex justify-content-between align-items-center mb-3">
+                                <select id="filterKelasSiswa" class="form-select w-auto" onchange="renderTabelSiswa()"></select>
+                                <button class="btn btn-outline-danger" onclick="clearDataSiswa()">
+                                    <i class="bi bi-trash me-2"></i>Hapus Semua
+                                </button>
+                            </div>
+                            <div class="table-responsive">
+                                <table class="table modern-table">
+                                    <thead>
+                                        <tr>
+                                            <th>NISN</th>
+                                            <th>Nama Siswa</th>
+                                            <th>JK</th>
+                                            <th>Kelas</th>
+                                            <th>Rombel</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelSiswaBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
                 </div>
 
-                <div id="tabTahunan" class="tab-content d-none">
-                     <div class="no-print card p-3 shadow-sm mb-3 border-primary">
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-4"><label class="small fw-bold">Pilih Fase & Rombel</label><select id="tFaseRombel" class="form-select"></select></div>
-                            <div class="col-md-2"><button class="btn btn-primary w-100" onclick="generateTahunan()">Load Data</button></div>
-                            <div class="col-md-6 text-end">
-                                <button class="btn btn-danger" onclick="triggerPrint('docATP', 'ATP', 'landscape')">Cetak ATP</button>
-                                <button class="btn btn-danger" onclick="triggerPrint('docProta', 'Prota', 'portrait')">Cetak Prota</button>
-                                <button class="btn btn-danger" onclick="triggerPrint('docPromes', 'Promes', 'landscape')">Cetak Promes</button>
+                <!-- Jadwal Tab -->
+                <div id="tabJadwal" class="tab-content d-none no-print animate-fadeIn">
+                    <h2 class="fw-bold mb-4"><i class="bi bi-calendar3 me-2"></i>Jadwal Mengajar</h2>
+                    
+                    <div class="modern-card mb-4">
+                        <div class="card-header-gradient card-header-success">
+                            <i class="bi bi-plus-circle me-2"></i>Tambah Jadwal
+                        </div>
+                        <div class="card-body p-4">
+                            <div class="row g-3">
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Hari</label>
+                                    <select id="jadwalHari" class="form-select">
+                                        <option>Senin</option>
+                                        <option>Selasa</option>
+                                        <option>Rabu</option>
+                                        <option>Kamis</option>
+                                        <option>Jumat</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-2">
+                                    <label class="form-label fw-bold">Jam Ke-</label>
+                                    <input type="number" id="jadwalJam" class="form-control" placeholder="1">
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Fase</label>
+                                    <select id="jadwalFase" class="form-select">
+                                        <option value="A">Fase A (Kelas 1-2)</option>
+                                        <option value="B">Fase B (Kelas 3-4)</option>
+                                        <option value="C">Fase C (Kelas 5-6)</option>
+                                        <option value="D">Fase D (SMP)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-3">
+                                    <label class="form-label fw-bold">Rombel</label>
+                                    <input type="text" id="jadwalRombel" class="form-control" placeholder="3A">
+                                </div>
+                                <div class="col-md-2 d-flex align-items-end">
+                                    <button class="btn btn-gradient-success w-100" onclick="tambahJadwalLokal()">
+                                        <i class="bi bi-plus me-1"></i>Tambah
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="modern-card">
+                        <div class="card-body p-0">
+                            <div class="table-responsive">
+                                <table class="table modern-table mb-0">
+                                    <thead>
+                                        <tr>
+                                            <th>Hari</th>
+                                            <th>Jam</th>
+                                            <th>Fase</th>
+                                            <th>Rombel</th>
+                                            <th width="100">Aksi</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="tabelJadwalBody"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Tahunan Tab (ATP, Prota, Promes) -->
+                <div id="tabTahunan" class="tab-content d-none animate-fadeIn">
+                    <div class="no-print">
+                        <h2 class="fw-bold mb-4"><i class="bi bi-folder2-open me-2"></i>Program Tahunan & ATP</h2>
+                        
+                        <div class="modern-card mb-4">
+                            <div class="card-body p-4">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Pilih Fase & Rombel</label>
+                                        <select id="tFaseRombel" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-primary w-100" onclick="generateTahunan()">
+                                            <i class="bi bi-arrow-repeat me-1"></i>Load
+                                        </button>
+                                    </div>
+                                    <div class="col-md-6 text-end">
+                                        <button class="btn btn-gradient-danger me-2" onclick="triggerPrint('docATP', 'ATP', 'landscape')">
+                                            <i class="bi bi-printer me-1"></i>ATP
+                                        </button>
+                                        <button class="btn btn-gradient-danger me-2" onclick="triggerPrint('docProta', 'Prota', 'portrait')">
+                                            <i class="bi bi-printer me-1"></i>Prota
+                                        </button>
+                                        <button class="btn btn-gradient-danger" onclick="triggerPrint('docPromes', 'Promes', 'landscape')">
+                                            <i class="bi bi-printer me-1"></i>Promes
+                                        </button>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
                     
+                    <!-- Document ATP -->
                     <div id="docATP" class="document-page print-view d-none">
                         <div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)</div>
-                        <table class="identity-table mb-3"><tr><td width="15%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr><tr><td>Fase / Rombel</td><td>:</td><td class="vFaseRombel"></td><td>Tahun Ajaran</td><td>:</td><td class="vTahun"></td></tr></table>
+                        <table class="identity-table mb-3">
+                            <tr>
+                                <td width="15%">Sekolah</td><td>:</td><td class="vSekolah"></td>
+                                <td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td>
+                            </tr>
+                            <tr>
+                                <td>Fase / Rombel</td><td>:</td><td class="vFaseRombel"></td>
+                                <td>Tahun Ajaran</td><td>:</td><td class="vTahun"></td>
+                            </tr>
+                        </table>
                         <div class="mb-2"><b>Capaian Pembelajaran:</b> <span id="vCPATP"></span></div>
-                        <table class="doc-table"><tr><th width="10%">Bab</th><th width="75%">Alur Tujuan Pembelajaran (Materi)</th><th width="15%">Alokasi JP</th></tr><tbody id="tblAtpBody"></tbody></table>
-                        <div class="signature-area"><div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div>NIP. <span class="vNipKepsek"></span></div><div class="signature-box"><span class="vTanggal"></span><br>Guru <span class="vMapel"></span><div class="signature-name vGuru"></div>NIP. <span class="vNipGuru"></span></div></div>
+                        <table class="doc-table">
+                            <tr><th width="10%">Bab</th><th width="75%">Alur Tujuan Pembelajaran</th><th width="15%">Alokasi JP</th></tr>
+                            <tbody id="tblAtpBody"></tbody>
+                        </table>
+                        <div class="signature-area">
+                            <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div>NIP. <span class="vNipKepsek"></span></div>
+                            <div class="signature-box"><span class="vTanggal"></span><br>Guru <span class="vMapel"></span><div class="signature-name vGuru"></div>NIP. <span class="vNipGuru"></span></div>
+                        </div>
                     </div>
 
+                    <!-- Document Prota -->
                     <div id="docProta" class="document-page print-view d-none">
                         <div class="doc-header">PROGRAM TAHUNAN (PROTA)</div>
-                        <table class="identity-table mb-3"><tr><td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td><td width="15%">Fase/Rombel</td><td>:</td><td class="vFaseRombel"></td></tr></table>
-                        <table class="doc-table"><tr><th>Semester</th><th>Bab / Tujuan Pembelajaran</th><th>Alokasi JP</th><th>Keterangan</th></tr><tbody id="tblProtaBody"></tbody></table>
-                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                        <table class="identity-table mb-3">
+                            <tr>
+                                <td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td>
+                                <td width="15%">Fase/Rombel</td><td>:</td><td class="vFaseRombel"></td>
+                            </tr>
+                        </table>
+                        <table class="doc-table">
+                            <tr><th>Semester</th><th>Bab / Tujuan Pembelajaran</th><th>Alokasi JP</th><th>Keterangan</th></tr>
+                            <tbody id="tblProtaBody"></tbody>
+                        </table>
+                        <div class="signature-area">
+                            <div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div>
+                            <div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div>
+                        </div>
                     </div>
 
+                    <!-- Document Promes -->
                     <div id="docPromes" class="document-page print-view d-none">
                         <div class="doc-header">PROGRAM SEMESTER (PROMES)</div>
-                        <table class="identity-table mb-2"><tr><td width="10%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="10%">Mapel</td><td>:</td><td class="vMapel"></td></tr></table>
-                        <table class="doc-table" style="font-size: 9pt;"><tr><th rowspan="2">Tujuan Pembelajaran / Materi</th><th rowspan="2">JP</th><th colspan="4">Juli</th><th colspan="4">Agustus</th><th colspan="4">September</th><th colspan="4">Oktober</th></tr><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tbody id="tblPromesBody"></tbody></table>
-                        <div class="signature-area mt-4"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                        <table class="identity-table mb-2">
+                            <tr>
+                                <td width="10%">Sekolah</td><td>:</td><td class="vSekolah"></td>
+                                <td width="10%">Mapel</td><td>:</td><td class="vMapel"></td>
+                            </tr>
+                        </table>
+                        <table class="doc-table" style="font-size: 9pt;">
+                            <tr>
+                                <th rowspan="2">Tujuan Pembelajaran</th><th rowspan="2">JP</th>
+                                <th colspan="4">Juli</th><th colspan="4">Agustus</th>
+                                <th colspan="4">September</th><th colspan="4">Oktober</th>
+                            </tr>
+                            <tr>
+                                <th>1</th><th>2</th><th>3</th><th>4</th>
+                                <th>1</th><th>2</th><th>3</th><th>4</th>
+                                <th>1</th><th>2</th><th>3</th><th>4</th>
+                                <th>1</th><th>2</th><th>3</th><th>4</th>
+                            </tr>
+                            <tbody id="tblPromesBody"></tbody>
+                        </table>
+                        <div class="signature-area mt-4">
+                            <div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div>
+                            <div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="tabPerangkat" class="tab-content d-none">
-                     <div class="no-print card p-3 shadow-sm mb-3 border-success">
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-4"><label class="small fw-bold">Jadwal Mengajar</label><select id="pSelectJadwal" class="form-select"></select></div>
-                            <div class="col-md-4"><label class="small fw-bold">Pilih Materi (Sesuai TP)</label><select id="pSelectTP" class="form-select"></select></div>
-                            <div class="col-md-2"><button class="btn btn-success w-100" onclick="generateModul()">Buat Data</button></div>
-                            <div class="col-md-2"><button class="btn btn-danger w-100" onclick="triggerPrint('docModul', 'Modul', 'portrait')">Cetak Modul</button></div>
+                <!-- Perangkat Tab (Premium) -->
+                <div id="tabPerangkat" class="tab-content d-none animate-fadeIn">
+                    <div class="no-print">
+                        <h2 class="fw-bold mb-4"><i class="bi bi-book me-2"></i>Modul Ajar & LKPD</h2>
+                        
+                        <div class="modern-card mb-4">
+                            <div class="card-body p-4">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Jadwal Mengajar</label>
+                                        <select id="pSelectJadwal" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Pilih Materi (TP)</label>
+                                        <select id="pSelectTP" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-success w-100" onclick="generateModul()">
+                                            <i class="bi bi-gear me-1"></i>Buat
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docModul', 'Modul', 'portrait')">
+                                            <i class="bi bi-printer me-1"></i>Cetak
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
+                    
                     <div id="docModul" class="document-page print-view d-none">
                         <div class="doc-header">MODUL AJAR KURIKULUM MERDEKA</div>
                         <b>A. INFORMASI UMUM</b>
                         <table class="identity-table mt-2 mb-3">
                             <tr><td width="20%">Penyusun</td><td>:</td><td class="vGuru fw-bold"></td><td width="15%">Instansi</td><td>:</td><td class="vSekolah"></td></tr>
-                            <tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td><td>Fase / Rombel</td><td>:</td><td><span class="vFaseRombel"></span></td></tr>
+                            <tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td><td>Fase / Rombel</td><td>:</td><td class="vFaseRombel"></td></tr>
                         </table>
                         <b>B. CAPAIAN & TUJUAN PEMBELAJARAN</b>
                         <p class="mb-3 text-justify">Peserta didik mampu memahami dan menguasai materi tentang: <b><span id="outMateriModul">...</span></b>.</p>
                         <b>C. KEGIATAN PEMBELAJARAN</b>
                         <table class="doc-table mt-2">
-                            <tr><th width="20%">Tahap</th><th>Deskripsi Kegiatan & Profil Lulusan</th></tr>
-                            <tr><td><b>Pendahuluan</b><br>(15 Menit)</td><td>1. Berdoa <i>(Keimanan)</i>.<br>2. Cek kebersihan <i>(Kesehatan)</i> dan presensi.<br>3. Apersepsi materi.</td></tr>
-                            <tr><td><b>Inti</b><br>(110 Menit)</td><td>1. Penjelasan materi.<br>2. Diskusi kelompok peserta didik <i>(Kolaborasi, Komunikasi)</i>.<br>3. Pengerjaan LKPD / Problem Solving <i>(Penalaran Kritis, Kreativitas, Kemandirian)</i>.</td></tr>
-                            <tr><td><b>Penutup</b><br>(15 Menit)</td><td>1. Kesimpulan bersama <i>(Kewargaan)</i>.<br>2. Doa penutup.</td></tr>
+                            <tr><th width="20%">Tahap</th><th>Deskripsi Kegiatan</th></tr>
+                            <tr><td><b>Pendahuluan</b><br>(15 Menit)</td><td>1. Berdoa <i>(Keimanan)</i>.<br>2. Cek kebersihan dan presensi.<br>3. Apersepsi materi.</td></tr>
+                            <tr><td><b>Inti</b><br>(110 Menit)</td><td>1. Penjelasan materi.<br>2. Diskusi kelompok <i>(Kolaborasi, Komunikasi)</i>.<br>3. Pengerjaan LKPD <i>(Penalaran Kritis, Kreativitas)</i>.</td></tr>
+                            <tr><td><b>Penutup</b><br>(15 Menit)</td><td>1. Kesimpulan bersama.<br>2. Doa penutup.</td></tr>
                         </table>
-                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
-                    </div>
-                </div>
-
-                <div id="tabPelaksanaan" class="tab-content d-none">
-                    <div class="no-print card p-3 shadow-sm mb-3 border-danger">
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-4"><label class="small fw-bold">Jadwal Hari Ini</label><select id="selectJadwalAbsen" class="form-select"></select></div>
-                            <div class="col-md-4"><label class="small fw-bold">Pilih Materi (TP)</label><select id="selectTPAbsen" class="form-select"></select></div>
-                            <div class="col-md-2"><button class="btn btn-danger w-100" onclick="loadAbsensi()">Mulai Absen</button></div>
-                            <div class="col-md-2 text-end"><button class="btn btn-outline-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">Cetak Jurnal</button></div>
+                        <div class="signature-area">
+                            <div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div>
+                            <div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div>
                         </div>
                     </div>
-                    <div id="areaAbsen" class="d-none no-print mb-4 p-3 bg-white border rounded shadow-sm">
-                        <div id="listSiswaAbsen" class="row mt-2"></div><button class="btn btn-primary mt-3" onclick="simpanJurnal()">Simpan ke Jurnal</button>
+                </div>
+
+                <!-- Pelaksanaan Tab (Premium) -->
+                <div id="tabPelaksanaan" class="tab-content d-none animate-fadeIn">
+                    <div class="no-print">
+                        <h2 class="fw-bold mb-4"><i class="bi bi-journal-check me-2"></i>Absensi & Jurnal</h2>
+                        
+                        <div class="modern-card mb-4">
+                            <div class="card-body p-4">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Jadwal Hari Ini</label>
+                                        <select id="selectJadwalAbsen" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Pilih Materi (TP)</label>
+                                        <select id="selectTPAbsen" class="form-select"></select>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-primary w-100" onclick="loadAbsensi()">
+                                            <i class="bi bi-check2-all me-1"></i>Absen
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">
+                                            <i class="bi bi-printer me-1"></i>Cetak
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div id="areaAbsen" class="modern-card d-none mb-4">
+                            <div class="card-header-gradient card-header-success">
+                                <i class="bi bi-people me-2"></i>Daftar Hadir Siswa
+                            </div>
+                            <div class="card-body p-4">
+                                <div id="listSiswaAbsen" class="row g-2"></div>
+                                <button class="btn btn-gradient-primary mt-3" onclick="simpanJurnal()">
+                                    <i class="bi bi-save me-2"></i>Simpan ke Jurnal
+                                </button>
+                            </div>
+                        </div>
                     </div>
+                    
                     <div id="docJurnal" class="document-page print-view d-none">
                         <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN</div>
-                        <table class="identity-table" style="width: 50%;"><tr><td width="30%">Nama Sekolah</td><td>:</td><td class="vSekolah fw-bold"></td></tr><tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr><tr><td>Nama Guru</td><td>:</td><td class="vGuru"></td></tr></table>
-                        <table class="doc-table mt-2 text-center">
-                            <thead><tr><th width="15%">Hari/Tgl</th><th width="10%">Rombel</th><th width="35%">Materi / Tujuan Pembelajaran</th><th width="20%">Absensi Siswa</th><th width="20%">Catatan Guru</th></tr></thead>
-                            <tbody><tr><td id="jurTanggal"></td><td id="jurRombel"></td><td id="jurMateri" class="text-start"></td><td class="text-start">Hadir: <span id="jurHadir">0</span><br>Absen: <span id="jurAbsen">0</span><br><div id="jurListAbsen" class="small"></div></td><td>Tuntas</td></tr></tbody>
+                        <table class="identity-table" style="width: 50%;">
+                            <tr><td width="30%">Nama Sekolah</td><td>:</td><td class="vSekolah fw-bold"></td></tr>
+                            <tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr>
+                            <tr><td>Nama Guru</td><td>:</td><td class="vGuru"></td></tr>
                         </table>
-                        <div class="signature-area mt-4"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                        <table class="doc-table mt-2 text-center">
+                            <thead>
+                                <tr><th width="15%">Hari/Tgl</th><th width="10%">Rombel</th><th width="35%">Materi</th><th width="20%">Absensi</th><th width="20%">Catatan</th></tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td id="jurTanggal"></td>
+                                    <td id="jurRombel"></td>
+                                    <td id="jurMateri" class="text-start"></td>
+                                    <td class="text-start">Hadir: <span id="jurHadir">0</span><br>Absen: <span id="jurAbsen">0</span><br><div id="jurListAbsen" class="small"></div></td>
+                                    <td>Tuntas</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                        <div class="signature-area mt-4">
+                            <div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div>
+                            <div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div>
+                        </div>
                     </div>
                 </div>
 
-                <div id="tabPenilaian" class="tab-content d-none">
-                    <div class="no-print card p-3 shadow-sm mb-3 border-info">
-                        <div class="row g-2 align-items-end">
-                            <div class="col-md-4"><label class="small fw-bold">Pilih Rombel</label><select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select></div>
-                            <div class="col-md-4"><label class="small fw-bold">Topik / Bab Penilaian</label><input type="text" id="topikNilai" class="form-control" value="Ulangan Harian"></div>
-                            <div class="col-md-2"><button class="btn btn-info w-100 fw-bold" onclick="simpanNilai()">Simpan</button></div>
-                            <div class="col-md-2 text-end"><button class="btn btn-outline-danger w-100" onclick="triggerPrint('docNilai', 'Nilai', 'portrait')">Cetak Nilai</button></div>
+                <!-- Penilaian Tab (Premium) -->
+                <div id="tabPenilaian" class="tab-content d-none animate-fadeIn">
+                    <div class="no-print">
+                        <h2 class="fw-bold mb-4"><i class="bi bi-graph-up me-2"></i>Rekap Penilaian</h2>
+                        
+                        <div class="modern-card mb-4">
+                            <div class="card-body p-4">
+                                <div class="row g-3 align-items-end">
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Pilih Rombel</label>
+                                        <select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select>
+                                    </div>
+                                    <div class="col-md-4">
+                                        <label class="form-label fw-bold">Topik Penilaian</label>
+                                        <input type="text" id="topikNilai" class="form-control" value="Ulangan Harian">
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-success w-100" onclick="simpanNilai()">
+                                            <i class="bi bi-save me-1"></i>Simpan
+                                        </button>
+                                    </div>
+                                    <div class="col-md-2">
+                                        <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docNilai', 'Nilai', 'portrait')">
+                                            <i class="bi bi-printer me-1"></i>Cetak
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
                     </div>
                     
@@ -332,10 +1515,17 @@
                             <tr><td>Topik Penilaian</td><td>:</td><td><b id="lblTopikNilai">...</b></td></tr>
                         </table>
                         <table class="doc-table mt-3 text-center">
-                            <thead><tr><th width="5%">No</th><th width="15%">NISN</th><th width="50%" class="text-start">Nama Siswa</th><th width="10%">JK</th><th width="20%">Nilai</th></tr></thead>
-                            <tbody id="tblNilaiBody"><tr><td colspan="5">Pilih Rombel.</td></tr></tbody>
+                            <thead>
+                                <tr><th width="5%">No</th><th width="15%">NISN</th><th width="50%" class="text-start">Nama Siswa</th><th width="10%">JK</th><th width="20%">Nilai</th></tr>
+                            </thead>
+                            <tbody id="tblNilaiBody">
+                                <tr><td colspan="5">Pilih Rombel.</td></tr>
+                            </tbody>
                         </table>
-                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                        <div class="signature-area">
+                            <div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div>
+                            <div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div>
+                        </div>
                     </div>
                 </div>
 
@@ -343,235 +1533,7 @@
         </div>
     </div>
 
-    <script>
-        // Data State Lokal (Storage)
-        let dataSiswa = JSON.parse(localStorage.getItem('sim_siswa')) || [];
-        let dataJadwal = JSON.parse(localStorage.getItem('sim_jadwal')) || [];
-        let dataNilai = JSON.parse(localStorage.getItem('sim_nilai')) || {};
-        let dataCPTP = JSON.parse(localStorage.getItem('sim_cptp')) || { cp: "", tps: [{bab:1, judul:"Materi Pertama", jp:4}] };
-
-        // Navigation
-        window.showTab = function(tabId) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
-            document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.remove('d-none');
-            event.target.classList.add('active');
-            
-            updateUIProfile();
-            if(tabId === 'tabCPTP') renderCPTP();
-            if(tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
-            if(tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
-            if(tabId === 'tabPenilaian') renderKelasPenilaian();
-        };
-
-        // Fungsi Salin Prompt AI
-        window.copyToClipboard = function(elementId) {
-            var copyText = document.getElementById(elementId);
-            copyText.select();
-            copyText.setSelectionRange(0, 99999); 
-            navigator.clipboard.writeText(copyText.value);
-            alert("Prompt telah disalin! Silakan paste ke ChatGPT/Gemini.");
-        };
-
-        // Print Logic Khusus (Bypass Blank Page CSS)
-        window.triggerPrint = function(sourceId, pdfName, orientation) {
-            updateUIProfile();
-            document.title = pdfName + "_" + new Date().getTime();
-            document.body.classList.remove('landscape-print', 'portrait-print');
-            document.body.classList.add(orientation + '-print');
-            
-            document.querySelectorAll('.print-view').forEach(el => el.classList.add('hide-on-print'));
-            document.querySelectorAll('.document-page').forEach(el => el.style.display = 'none');
-            
-            const target = document.getElementById(sourceId);
-            target.classList.remove('d-none', 'hide-on-print');
-            target.style.display = 'block';
-            
-            window.print();
-            target.style.display = 'none'; // reset
-        };
-
-        // Profil Update
-        window.simpanProfil = function() {
-            const p = { mapel: document.getElementById('profMapel').value, npsn: document.getElementById('profNpsn').value, sek: document.getElementById('profSekolah').value, thn: document.getElementById('profTahun').value, kep: document.getElementById('profKepsek').value, nkep: document.getElementById('profNipKepsek').value, gur: document.getElementById('profGuru').value, ngur: document.getElementById('profNipGuru').value, tgl: document.getElementById('profTanggal').value };
-            localStorage.setItem('sim_prof', JSON.stringify(p)); alert("Profil Tersimpan!"); updateUIProfile();
-        };
-        function loadProfil() {
-            const p = JSON.parse(localStorage.getItem('sim_prof'));
-            if(p) { document.getElementById('profMapel').value = p.mapel||''; document.getElementById('profNpsn').value = p.npsn||''; document.getElementById('profSekolah').value = p.sek||''; document.getElementById('profTahun').value = p.thn||''; document.getElementById('profKepsek').value = p.kep||''; document.getElementById('profNipKepsek').value = p.nkep||''; document.getElementById('profGuru').value = p.gur||''; document.getElementById('profNipGuru').value = p.ngur||''; document.getElementById('profTanggal').value = p.tgl||''; }
-            updateUIProfile();
-        }
-        function updateUIProfile() {
-            const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-            document.querySelectorAll('.vMapel').forEach(e => e.innerText = p.mapel || 'Mata Pelajaran');
-            document.querySelectorAll('.vSekolah').forEach(e => e.innerText = p.sek || '...');
-            document.querySelectorAll('.vTahun').forEach(e => e.innerText = p.thn || '...');
-            document.querySelectorAll('.vKepsek').forEach(e => e.innerText = p.kep || '...');
-            document.querySelectorAll('.vNipKepsek').forEach(e => e.innerText = p.nkep || '...');
-            document.querySelectorAll('.vGuru').forEach(e => e.innerText = p.gur || '...');
-            document.querySelectorAll('.vNipGuru').forEach(e => e.innerText = p.ngur || '...');
-            document.querySelectorAll('.vTanggal').forEach(e => e.innerText = p.tgl || '...');
-        }
-
-        // Setup CP & TP 
-        function renderCPTP() {
-            document.getElementById('inputCP').value = dataCPTP.cp;
-            let h = '';
-            dataCPTP.tps.forEach((tp) => {
-                h += `<tr><td><input type="number" class="form-control tp-bab" value="${tp.bab}"></td>
-                    <td><input type="text" class="form-control tp-judul" value="${tp.judul}"></td>
-                    <td><input type="number" class="form-control tp-jp" value="${tp.jp}"></td></tr>`;
-            });
-            document.getElementById('bodyInputTP').innerHTML = h;
-        }
-
-        window.tambahBarisTP = function() { dataCPTP.tps.push({ bab: dataCPTP.tps.length+1, judul: "", jp: 4 }); renderCPTP(); }
-        window.simpanCPTP = function() {
-            dataCPTP.cp = document.getElementById('inputCP').value;
-            dataCPTP.tps = [];
-            const babs = document.querySelectorAll('.tp-bab'); const juduls = document.querySelectorAll('.tp-judul'); const jps = document.querySelectorAll('.tp-jp');
-            for(let i=0; i<babs.length; i++){ if(juduls[i].value.trim() !== "") { dataCPTP.tps.push({ bab: babs[i].value, judul: juduls[i].value, jp: jps[i].value }); } }
-            localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP)); alert("CP & TP Berhasil Disimpan!");
-        }
-
-        // LOAD DEFAULT PAI DARI FILE LUAR
-        window.loadDefaultPAI = function() {
-            if(typeof dbKurikulumPAI === 'undefined') {
-                return alert("File data_default.js tidak ditemukan! Pastikan file tersebut ada di folder yang sama.");
-            }
-            const kls = document.getElementById('loadDefaultKls').value;
-            const dataKelas = dbKurikulumPAI[kls];
-            if(dataKelas) {
-                dataCPTP.cp = dataKelas.cp;
-                dataCPTP.tps = dataKelas.tps;
-                localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
-                renderCPTP();
-                alert(`Berhasil memuat Default PAI Kelas ${kls}!`);
-            }
-        }
-
-        // Import CSV Siswa
-        function processCsvData(d) {
-            let hitung = 0;
-            d.forEach(s => {
-                let nisn=s.nisn||s.NISN, nm=s.nama||s.Nama, jk=s.jk||s.JK, kls=s.kelas||s.Kelas, rmb=s.rombel||s.Rombel;
-                if(nm && kls && rmb) { dataSiswa.push({ nisn: nisn||'-', nama: nm, jk: jk||'-', kelas: kls, rombel: rmb }); hitung++; }
-            });
-            localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa)); renderTabelSiswa(); alert(`${hitung} siswa diimport!`);
-        }
-        window.importSiswaLokal = function() {
-            const f = document.getElementById('fileCsvSiswa').files[0]; if(!f) return alert("Pilih file CSV!");
-            Papa.parse(f, { header: true, skipEmptyLines: true, complete: function(r) { processCsvData(r.data); }});
-        };
-        window.clearDataSiswa = function() { if(confirm("Hapus semua?")){ dataSiswa=[]; localStorage.removeItem('sim_siswa'); renderTabelSiswa();} }
-        window.renderTabelSiswa = function() {
-            const f = document.getElementById('filterKelasSiswa').value;
-            let opt = '<option value="ALL">-- Semua Rombel --</option>';
-            new Set(dataSiswa.map(s => s.rombel)).forEach(r => opt += `<option value="${r}" ${f===r?'selected':''}>${r}</option>`);
-            document.getElementById('filterKelasSiswa').innerHTML = opt;
-            let tb = ''; (f==="ALL"?dataSiswa:dataSiswa.filter(s=>s.rombel===f)).forEach(s => tb += `<tr><td>${s.nisn}</td><td>${s.nama}</td><td>${s.jk}</td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`);
-            document.getElementById('tabelSiswaBody').innerHTML = tb || '<tr><td colspan="5" class="text-center">Kosong</td></tr>';
-        };
-
-        // Jadwal (Lokal Storage)
-        window.tambahJadwalLokal = function() {
-            const h = document.getElementById('jadwalHari').value, j = document.getElementById('jadwalJam').value, f = document.getElementById('jadwalFase').value, r = document.getElementById('jadwalRombel').value;
-            if(!j || !r) return alert("Jam & Rombel wajib isi!");
-            dataJadwal.push({ hari:h, jam:j, fase:f, rombel:r });
-            localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal)); renderJadwal();
-        }
-        window.hapusJadwal = function(idx) { dataJadwal.splice(idx,1); localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal)); renderJadwal(); }
-        function renderJadwal() {
-            let tb = ''; dataJadwal.forEach((d,i) => tb+=`<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td>${d.fase}</td><td>${d.rombel}</td><td><button class="btn btn-sm btn-danger" onclick="hapusJadwal(${i})">Hapus</button></td></tr>`);
-            document.getElementById('tabelJadwalBody').innerHTML = tb;
-        }
-
-        // Helper Dropdown UI
-        function populateDropdowns() {
-            let oj = '<option value="">-- Pilih Jadwal/Rombel --</option>';
-            dataJadwal.forEach((d) => oj += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - Rombel ${d.rombel}</option>`);
-            document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = oj);
-            let ot = '<option value="">-- Pilih Materi (TP) --</option>';
-            dataCPTP.tps.forEach(t => ot += `<option value='${t.judul}'>Bab ${t.bab} - ${t.judul}</option>`);
-            document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = ot);
-        }
-        function populateFaseRombelOptions(elementId) {
-            let setFr = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
-            let o = ''; setFr.forEach(fr => o += `<option value="${fr}">${fr}</option>`);
-            document.getElementById(elementId).innerHTML = o || '<option value="">Buat Jadwal Dulu</option>';
-        }
-
-        // Generator Tahunan
-        window.generateTahunan = function() {
-            const fr = document.getElementById('tFaseRombel').value;
-            document.querySelectorAll('.vFaseRombel').forEach(el => el.innerText = fr);
-            document.getElementById('vCPATP').innerText = dataCPTP.cp;
-
-            let hatp='', hprota='', hpromes='';
-            dataCPTP.tps.forEach(t => {
-                hatp += `<tr><td>${t.bab}</td><td>Peserta didik mampu memahami: ${t.judul}</td><td>${t.jp} JP</td></tr>`;
-                hprota += `<tr><td>Ganjil</td><td>Bab ${t.bab} - ${t.judul}</td><td>${t.jp}</td><td>Sesuai Kalender</td></tr>`;
-                hpromes += `<tr><td>Bab ${t.bab}: ${t.judul}</td><td>${t.jp}</td><td>${Math.ceil(t.jp/2)}</td><td>${Math.floor(t.jp/2)}</td><td></td><td></td> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td></tr>`;
-            });
-            document.getElementById('tblAtpBody').innerHTML = hatp; document.getElementById('tblProtaBody').innerHTML = hprota; document.getElementById('tblPromesBody').innerHTML = hpromes;
-            alert("Data di-load! Silakan klik tombol Cetak.");
-        }
-
-        // Generator Modul
-        window.generateModul = function() {
-            const j = document.getElementById('pSelectJadwal').value; const tp = document.getElementById('pSelectTP').value;
-            if(!j || !tp) return alert("Pilih Jadwal & Materi!"); const jv = JSON.parse(j);
-            document.querySelectorAll('.vFaseRombel').forEach(e => e.innerText = `Fase ${jv.fase} / ${jv.rombel}`);
-            document.getElementById('outMateriModul').innerText = tp;
-            alert("Modul Siap! Klik Cetak.");
-        }
-
-        // Absensi
-        window.loadAbsensi = function() {
-            const jVal = document.getElementById('selectJadwalAbsen').value; if(!jVal) return alert("Pilih Jadwal!");
-            const rmb = JSON.parse(jVal).rombel; const sKelas = dataSiswa.filter(s => s.rombel === rmb);
-            document.getElementById('areaAbsen').classList.remove('d-none');
-            let h = ''; sKelas.forEach(s => h += `<div class="col-3"><input type="checkbox" class="absen-check" value="${s.nama}" checked> <span class="small">${s.nama}</span></div>`);
-            document.getElementById('listSiswaAbsen').innerHTML = h || '<div class="text-danger">Siswa kosong di rombel ini. Import Data Dulu.</div>';
-        };
-        window.simpanJurnal = function() {
-            const jVal = JSON.parse(document.getElementById('selectJadwalAbsen').value); const mt = document.getElementById('selectTPAbsen').value;
-            const boxes = document.querySelectorAll('.absen-check'); let h=0, abs=[];
-            boxes.forEach(b => { if(b.checked) h++; else abs.push(b.value); });
-            document.getElementById('jurTanggal').innerText = new Date().toLocaleDateString('id-ID');
-            document.getElementById('jurRombel').innerText = jVal.rombel; document.getElementById('jurMateri').innerText = mt;
-            document.getElementById('jurHadir').innerText = h; document.getElementById('jurAbsen').innerText = abs.length;
-            document.getElementById('jurListAbsen').innerText = abs.length > 0 ? abs.join(", ") : "-";
-            alert("Tersimpan! Silakan klik Cetak Jurnal.");
-        };
-
-        // Penilaian
-        window.renderKelasPenilaian = function() {
-            let o = '<option value="">-- Pilih Rombel --</option>'; new Set(dataSiswa.map(s => s.rombel)).forEach(k => o += `<option value="${k}">${k}</option>`);
-            document.getElementById('selectKelasNilai').innerHTML = o;
-        };
-        window.loadPenilaian = function() {
-            const rmb = document.getElementById('selectKelasNilai').value;
-            document.getElementById('lblKelasNilai').innerText = rmb; document.getElementById('lblTopikNilai').innerText = document.getElementById('topikNilai').value;
-            let tb = '';
-            dataSiswa.filter(s => s.rombel === rmb).forEach((s, i) => {
-                let v = dataNilai[`${rmb}_${s.nisn}`] || '';
-                tb += `<tr><td>${i+1}</td><td>${s.nisn}</td><td class="text-start">${s.nama}</td><td>${s.jk}</td>
-                <td class="no-print"><input type="number" class="form-control input-nilai text-center" data-id="${s.nisn}" value="${v}"></td>
-                <td class="hide-on-print print-only-td" style="display:none;">${v}</td></tr>`;
-            });
-            tb += `<style>@media print { .input-nilai { display: none !important; } .print-only-td { display: table-cell !important; } }</style>`;
-            document.getElementById('tblNilaiBody').innerHTML = tb || '<tr><td colspan="5">Pilih Rombel.</td></tr>';
-            document.getElementById('docNilai').classList.remove('d-none');
-        };
-        window.simpanNilai = function() {
-            const rmb = document.getElementById('selectKelasNilai').value; if(!rmb) return alert("Pilih rombel!");
-            document.querySelectorAll('.input-nilai').forEach(el => dataNilai[`${rmb}_${el.getAttribute('data-id')}`] = el.value);
-            localStorage.setItem('sim_nilai', JSON.stringify(dataNilai)); alert("Nilai Disimpan!"); loadPenilaian();
-        };
-
-        // Initialize App
-        window.onload = function() { loadProfil(); renderTabelSiswa(); renderJadwal(); renderCPTP(); };
-    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="app.js"></script>
 </body>
 </html>
