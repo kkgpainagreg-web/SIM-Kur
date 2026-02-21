@@ -67,12 +67,8 @@
             box-shadow: 0 10px 30px rgba(102, 126, 234, 0.4);
         }
         
-        .sidebar-header .logo-circle i {
-            font-size: 30px;
-            color: white;
-        }
+        .sidebar-header .logo-circle i { font-size: 30px; color: white; }
         
-        /* Scrollable Navigation */
         .sidebar-nav-wrapper {
             flex: 1;
             overflow-y: auto;
@@ -80,23 +76,10 @@
             padding: 10px 0;
         }
         
-        /* Custom Scrollbar for Sidebar */
-        .sidebar-nav-wrapper::-webkit-scrollbar {
-            width: 6px;
-        }
-        
-        .sidebar-nav-wrapper::-webkit-scrollbar-track {
-            background: rgba(255,255,255,0.1);
-        }
-        
-        .sidebar-nav-wrapper::-webkit-scrollbar-thumb {
-            background: rgba(255,255,255,0.3);
-            border-radius: 3px;
-        }
-        
-        .sidebar-nav-wrapper::-webkit-scrollbar-thumb:hover {
-            background: rgba(255,255,255,0.5);
-        }
+        .sidebar-nav-wrapper::-webkit-scrollbar { width: 6px; }
+        .sidebar-nav-wrapper::-webkit-scrollbar-track { background: rgba(255,255,255,0.1); }
+        .sidebar-nav-wrapper::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.3); border-radius: 3px; }
+        .sidebar-nav-wrapper::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.5); }
         
         .sidebar .nav-link {
             color: rgba(255,255,255,0.7);
@@ -110,6 +93,7 @@
             font-weight: 500;
             font-size: 0.85rem;
             white-space: nowrap;
+            cursor: pointer;
         }
         
         .sidebar .nav-link:hover {
@@ -124,18 +108,8 @@
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
         
-        .sidebar .nav-link i {
-            width: 22px;
-            text-align: center;
-            font-size: 1rem;
-            flex-shrink: 0;
-        }
-        
-        .sidebar .nav-link span {
-            flex: 1;
-            overflow: hidden;
-            text-overflow: ellipsis;
-        }
+        .sidebar .nav-link i { width: 22px; text-align: center; font-size: 1rem; flex-shrink: 0; }
+        .sidebar .nav-link span { flex: 1; overflow: hidden; text-overflow: ellipsis; }
         
         .nav-section-title {
             padding: 10px 20px 5px;
@@ -171,7 +145,6 @@
             flex-shrink: 0;
         }
         
-        /* Sidebar Footer - Fixed at bottom */
         .sidebar-footer {
             padding: 15px;
             background: rgba(0,0,0,0.2);
@@ -186,7 +159,6 @@
             font-size: 0.8rem;
         }
         
-        /* Main Content */
         .main-content {
             margin-left: 280px;
             padding: 25px;
@@ -216,9 +188,7 @@
             font-weight: 600;
         }
         
-        .modern-card .card-body {
-            padding: 22px;
-        }
+        .modern-card .card-body { padding: 22px; }
         
         /* Stats Cards */
         .stat-card {
@@ -248,9 +218,7 @@
         .stat-card.warning::before { background: #f093fb; }
         .stat-card.danger::before { background: #ff416c; }
         
-        .stat-card:hover {
-            transform: var(--hover-transform);
-        }
+        .stat-card:hover { transform: var(--hover-transform); }
         
         .stat-card .stat-icon {
             width: 55px;
@@ -363,11 +331,9 @@
             font-size: 0.9rem;
         }
         
-        .modern-table tbody tr:hover {
-            background: rgba(102, 126, 234, 0.05);
-        }
+        .modern-table tbody tr:hover { background: rgba(102, 126, 234, 0.05); }
         
-        /* Calendar Styles */
+        /* Calendar */
         .calendar-wrapper {
             background: white;
             border-radius: 20px;
@@ -411,25 +377,10 @@
             font-size: 0.85rem;
         }
         
-        .calendar-day:hover {
-            background: rgba(102, 126, 234, 0.1);
-        }
-        
-        .calendar-day.today {
-            background: var(--primary-gradient);
-            color: white;
-        }
-        
-        .calendar-day.holiday {
-            background: #ffe8e8;
-            color: #ff4757;
-        }
-        
-        .calendar-day.holiday-custom {
-            background: #e8f5e9;
-            color: #2e7d32;
-        }
-        
+        .calendar-day:hover { background: rgba(102, 126, 234, 0.1); }
+        .calendar-day.today { background: var(--primary-gradient); color: white; }
+        .calendar-day.holiday { background: #ffe8e8; color: #ff4757; }
+        .calendar-day.holiday-custom { background: #e8f5e9; color: #2e7d32; }
         .calendar-day .holiday-dot {
             width: 5px;
             height: 5px;
@@ -487,10 +438,11 @@
             font-weight: 600;
         }
         
+        .jenjang-paud { background: #fff3e0; color: #ef6c00; }
         .jenjang-sd { background: #e3f2fd; color: #1976d2; }
         .jenjang-smp { background: #f3e5f5; color: #7b1fa2; }
         .jenjang-sma { background: #e8f5e9; color: #388e3c; }
-        .jenjang-smk { background: #fff3e0; color: #f57c00; }
+        .jenjang-smk { background: #fce4ec; color: #c2185b; }
         
         /* Mapel Card */
         .mapel-card {
@@ -513,6 +465,41 @@
             background: linear-gradient(135deg, rgba(102, 126, 234, 0.05) 0%, rgba(118, 75, 162, 0.05) 100%);
         }
         
+        /* Conflict Badge */
+        .conflict-badge {
+            background: var(--danger-gradient);
+            color: white;
+            padding: 3px 8px;
+            border-radius: 5px;
+            font-size: 0.7rem;
+            font-weight: 600;
+        }
+        
+        /* Jadwal Matrix */
+        .jadwal-matrix {
+            overflow-x: auto;
+        }
+        
+        .jadwal-matrix table {
+            min-width: 800px;
+        }
+        
+        .jadwal-cell {
+            min-height: 60px;
+            padding: 8px;
+            font-size: 0.75rem;
+            vertical-align: top;
+        }
+        
+        .jadwal-item {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 5px 8px;
+            border-radius: 8px;
+            margin-bottom: 4px;
+            font-size: 0.7rem;
+        }
+        
         /* Upgrade Banner */
         .upgrade-banner {
             background: var(--warning-gradient);
@@ -532,7 +519,7 @@
             font-weight: 600;
         }
         
-        /* Whatsapp Button */
+        /* WhatsApp Button */
         .btn-whatsapp {
             background: #25D366;
             color: white;
@@ -578,53 +565,41 @@
             box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
         }
         
-        /* Animations */
-        @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(30px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+        /* Info Box */
+        .info-box {
+            background: #e3f2fd;
+            border-left: 4px solid #2196f3;
+            padding: 12px 15px;
+            border-radius: 0 10px 10px 0;
+            margin-bottom: 15px;
         }
         
-        .animate-fade-in {
-            animation: fadeInUp 0.5s ease forwards;
+        .info-box.warning {
+            background: #fff3e0;
+            border-left-color: #ff9800;
         }
+        
+        .info-box.danger {
+            background: #ffebee;
+            border-left-color: #f44336;
+        }
+        
+        /* Animations */
+        @keyframes fadeInUp {
+            from { opacity: 0; transform: translateY(30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .animate-fade-in { animation: fadeInUp 0.5s ease forwards; }
         
         /* Mobile Responsive */
         @media (max-width: 992px) {
-            .sidebar {
-                transform: translateX(-100%);
-                transition: transform 0.3s ease;
-            }
-            .sidebar.show {
-                transform: translateX(0);
-            }
-            .main-content {
-                margin-left: 0;
-                padding: 70px 15px 15px;
-            }
-            .mobile-toggle {
-                display: flex;
-                align-items: center;
-                justify-content: center;
-            }
-            .sidebar-overlay {
-                display: none;
-                position: fixed;
-                top: 0;
-                left: 0;
-                right: 0;
-                bottom: 0;
-                background: rgba(0,0,0,0.5);
-                z-index: 999;
-            }
-            .sidebar-overlay.show {
-                display: block;
-            }
+            .sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+            .sidebar.show { transform: translateX(0); }
+            .main-content { margin-left: 0; padding: 70px 15px 15px; }
+            .mobile-toggle { display: flex; align-items: center; justify-content: center; }
+            .sidebar-overlay { display: none; position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 999; }
+            .sidebar-overlay.show { display: block; }
         }
         
         /* Print Styles */
@@ -640,12 +615,12 @@
 </head>
 <body>
 
-    <!-- Mobile Toggle Button -->
+    <!-- Mobile Toggle -->
     <button class="mobile-toggle no-print" onclick="toggleSidebar()">
         <i class="fas fa-bars"></i>
     </button>
     
-    <!-- Sidebar Overlay for Mobile -->
+    <!-- Sidebar Overlay -->
     <div class="sidebar-overlay no-print" id="sidebarOverlay" onclick="toggleSidebar()"></div>
 
     <!-- Admin Login Modal -->
@@ -658,7 +633,6 @@
                             <i class="fas fa-user-shield fa-2x text-white"></i>
                         </div>
                         <h4 class="fw-bold">Admin Login</h4>
-                        <p class="text-muted">Masukkan kredensial admin</p>
                     </div>
                     <div class="mb-3">
                         <label class="form-label fw-semibold">Email Admin</label>
@@ -697,7 +671,7 @@
                                     <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Jadwal Mengajar</li>
                                     <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>ATP & Prota</li>
                                     <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Profil & Instansi</li>
-                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Kelola Mata Pelajaran</li>
+                                    <li class="mb-2"><i class="fas fa-check-circle text-success me-2"></i>Kelola Mapel</li>
                                 </ul>
                             </div>
                         </div>
@@ -706,11 +680,10 @@
                                 <h5 class="fw-bold mb-3"><i class="fas fa-crown text-warning me-2"></i>Fitur PREMIUM</h5>
                                 <ul class="list-unstyled mb-0">
                                     <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Program Semester</li>
-                                    <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Modul Ajar & LKPD</li>
+                                    <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Modul Ajar</li>
                                     <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Absensi & Jurnal</li>
                                     <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Rekap Penilaian</li>
-                                    <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Import Data Siswa</li>
-                                    <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Setup CP & TP</li>
+                                    <li class="mb-2"><i class="fas fa-star text-warning me-2"></i>Import Siswa</li>
                                 </ul>
                             </div>
                         </div>
@@ -720,28 +693,19 @@
                         <div class="row align-items-center">
                             <div class="col-md-6">
                                 <h3 class="fw-bold mb-1" id="displayPrice">Rp 99.000</h3>
-                                <p class="text-muted mb-0" id="displayPriceDesc">Akses Selamanya / Lifetime</p>
+                                <p class="text-muted mb-0" id="displayPriceDesc">Lifetime</p>
                             </div>
                             <div class="col-md-6 text-md-end mt-3 mt-md-0">
                                 <a href="#" id="waUpgradeBtn" class="btn btn-whatsapp" target="_blank">
-                                    <i class="fab fa-whatsapp fa-lg"></i>
-                                    Hubungi WhatsApp
+                                    <i class="fab fa-whatsapp fa-lg"></i>WhatsApp
                                 </a>
                             </div>
                         </div>
                     </div>
                     
                     <div class="mt-4 p-4 border rounded-4">
-                        <h6 class="fw-bold mb-3"><i class="fas fa-university me-2"></i>Transfer ke Rekening:</h6>
-                        <div class="row">
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Bank:</strong> <span id="displayBank">BCA</span></p>
-                                <p class="mb-1"><strong>No. Rekening:</strong> <span id="displayRekening">1234567890</span></p>
-                            </div>
-                            <div class="col-md-6">
-                                <p class="mb-1"><strong>Atas Nama:</strong> <span id="displayNamaRek">Admin</span></p>
-                            </div>
-                        </div>
+                        <h6 class="fw-bold mb-3"><i class="fas fa-university me-2"></i>Transfer ke:</h6>
+                        <p class="mb-1"><strong>Bank:</strong> <span id="displayBank">BCA</span> | <strong>No:</strong> <span id="displayRekening">1234567890</span> | <strong>A/N:</strong> <span id="displayNamaRek">Admin</span></p>
                     </div>
                 </div>
             </div>
@@ -758,37 +722,35 @@
                 </div>
                 <div class="modal-body p-4">
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Jenjang Sekolah</label>
-                        <select id="newMapelJenjang" class="form-select">
-                            <option value="SD">SD / MI (Sekolah Dasar)</option>
-                            <option value="SMP">SMP / MTs (Sekolah Menengah Pertama)</option>
-                            <option value="SMA">SMA / MA (Sekolah Menengah Atas)</option>
-                            <option value="SMK">SMK (Sekolah Menengah Kejuruan)</option>
+                        <label class="form-label fw-semibold">Jenjang Sekolah <span class="text-danger">*</span></label>
+                        <select id="newMapelJenjang" class="form-select" onchange="updateMapelFormByJenjang()">
+                            <option value="">-- Pilih Jenjang --</option>
                             <option value="PAUD">PAUD / TK</option>
-                            <option value="LAINNYA">Lainnya</option>
+                            <option value="SD">SD / MI</option>
+                            <option value="SMP">SMP / MTs</option>
+                            <option value="SMA">SMA / MA</option>
+                            <option value="SMK">SMK</option>
                         </select>
                     </div>
                     <div class="mb-3">
-                        <label class="form-label fw-semibold">Nama Mata Pelajaran</label>
-                        <input type="text" id="newMapelNama" class="form-control" placeholder="Contoh: Matematika, Bahasa Indonesia, dll">
+                        <label class="form-label fw-semibold">Nama Mata Pelajaran <span class="text-danger">*</span></label>
+                        <input type="text" id="newMapelNama" class="form-control" placeholder="Contoh: Matematika">
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label fw-semibold">Kelas / Tingkat</label>
-                        <input type="text" id="newMapelKelas" class="form-control" placeholder="Contoh: X, XI, XII atau 1, 2, 3">
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Kelas <span class="text-danger">*</span></label>
+                            <select id="newMapelKelas" class="form-select" disabled>
+                                <option value="">Pilih Jenjang Dulu</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold">Fase <span class="text-danger">*</span></label>
+                            <select id="newMapelFase" class="form-select" disabled>
+                                <option value="">Pilih Jenjang Dulu</option>
+                            </select>
+                        </div>
                     </div>
-                    <div class="mb-4">
-                        <label class="form-label fw-semibold">Fase (Kurikulum Merdeka)</label>
-                        <select id="newMapelFase" class="form-select">
-                            <option value="Fondasi">Fase Fondasi (PAUD)</option>
-                            <option value="A">Fase A (Kelas 1-2 SD)</option>
-                            <option value="B">Fase B (Kelas 3-4 SD)</option>
-                            <option value="C">Fase C (Kelas 5-6 SD)</option>
-                            <option value="D">Fase D (Kelas 7-9 SMP)</option>
-                            <option value="E">Fase E (Kelas 10 SMA/SMK)</option>
-                            <option value="F">Fase F (Kelas 11-12 SMA/SMK)</option>
-                        </select>
-                    </div>
-                    <button class="btn btn-gradient-success w-100" onclick="simpanMapelBaru()">
+                    <button class="btn btn-gradient-success w-100 mt-4" onclick="simpanMapelBaru()">
                         <i class="fas fa-save me-2"></i>Simpan Mata Pelajaran
                     </button>
                 </div>
@@ -796,7 +758,22 @@
         </div>
     </div>
 
-    <!-- Main App Container -->
+    <!-- Jadwal Conflict Modal -->
+    <div class="modal fade" id="jadwalConflictModal" tabindex="-1">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content" style="border-radius: 20px; border: none;">
+                <div class="modal-header" style="background: var(--danger-gradient); color: white; border: none; border-radius: 20px 20px 0 0;">
+                    <h5 class="modal-title"><i class="fas fa-exclamation-triangle me-2"></i>Jadwal Bentrok!</h5>
+                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body p-4">
+                    <div id="conflictDetails"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App -->
     <div id="mainApp">
         <!-- Sidebar -->
         <div class="sidebar no-print" id="sidebarMenu">
@@ -805,121 +782,99 @@
                     <i class="fas fa-graduation-cap"></i>
                 </div>
                 <h6 class="fw-bold mb-0">SIM Kurikulum</h6>
-                <small class="opacity-75">Merdeka Pro v2.0</small>
+                <small class="opacity-75">Merdeka Pro v2.1</small>
             </div>
             
-            <!-- Scrollable Navigation -->
             <div class="sidebar-nav-wrapper">
                 <nav class="nav flex-column">
                     <div class="nav-section-title">Menu Utama</div>
                     <a class="nav-link active" onclick="showTab('tabDashboard')">
-                        <i class="fas fa-home"></i>
-                        <span>Dashboard</span>
+                        <i class="fas fa-home"></i><span>Dashboard</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabMapel')">
-                        <i class="fas fa-book-reader"></i>
-                        <span>Mata Pelajaran</span>
+                        <i class="fas fa-book-reader"></i><span>Mata Pelajaran</span>
                         <span class="free-badge">FREE</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabKalender')">
-                        <i class="fas fa-calendar-alt"></i>
-                        <span>Kalender Akademik</span>
+                        <i class="fas fa-calendar-alt"></i><span>Kalender</span>
                         <span class="free-badge">FREE</span>
                     </a>
                     
                     <div class="nav-section-title">Data & Profil</div>
                     <a class="nav-link" onclick="showTab('tabProfil')">
-                        <i class="fas fa-school"></i>
-                        <span>Profil & Instansi</span>
+                        <i class="fas fa-school"></i><span>Profil Instansi</span>
                         <span class="free-badge">FREE</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabJadwal')">
-                        <i class="fas fa-clock"></i>
-                        <span>Jadwal Mengajar</span>
+                        <i class="fas fa-clock"></i><span>Jadwal Mengajar</span>
                         <span class="free-badge">FREE</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabSiswa')">
-                        <i class="fas fa-users"></i>
-                        <span>Data Siswa</span>
+                        <i class="fas fa-users"></i><span>Data Siswa</span>
                         <span class="premium-badge">PRO</span>
                     </a>
                     
                     <div class="nav-section-title">Kurikulum</div>
                     <a class="nav-link" onclick="showTab('tabCPTP')">
-                        <i class="fas fa-bullseye"></i>
-                        <span>Setup CP & TP</span>
+                        <i class="fas fa-bullseye"></i><span>Setup CP & TP</span>
                         <span class="premium-badge">PRO</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabTahunan')">
-                        <i class="fas fa-folder-open"></i>
-                        <span>ATP, Prota, Promes</span>
+                        <i class="fas fa-folder-open"></i><span>ATP, Prota, Promes</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabPerangkat')">
-                        <i class="fas fa-book-open"></i>
-                        <span>Modul & LKPD</span>
+                        <i class="fas fa-book-open"></i><span>Modul Ajar</span>
                         <span class="premium-badge">PRO</span>
                     </a>
                     
                     <div class="nav-section-title">Pelaksanaan</div>
                     <a class="nav-link" onclick="showTab('tabPelaksanaan')">
-                        <i class="fas fa-clipboard-list"></i>
-                        <span>Absen & Jurnal</span>
+                        <i class="fas fa-clipboard-list"></i><span>Absen & Jurnal</span>
                         <span class="premium-badge">PRO</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabPenilaian')">
-                        <i class="fas fa-chart-bar"></i>
-                        <span>Rekap Penilaian</span>
+                        <i class="fas fa-chart-bar"></i><span>Penilaian</span>
                         <span class="premium-badge">PRO</span>
                     </a>
                     
                     <div class="nav-section-title">Bantuan</div>
                     <a class="nav-link" onclick="showTab('tabPanduan')">
-                        <i class="fas fa-book"></i>
-                        <span>Buku Panduan</span>
+                        <i class="fas fa-book"></i><span>Panduan</span>
                     </a>
                     <a class="nav-link" onclick="showTab('tabAI')">
-                        <i class="fas fa-robot"></i>
-                        <span>Asisten AI</span>
+                        <i class="fas fa-robot"></i><span>Asisten AI</span>
                     </a>
                     
                     <div class="nav-divider"></div>
                     <a class="nav-link" onclick="showAdminLogin()">
-                        <i class="fas fa-user-shield"></i>
-                        <span>Admin Panel</span>
+                        <i class="fas fa-user-shield"></i><span>Admin Panel</span>
                     </a>
                 </nav>
             </div>
             
-            <!-- Fixed Footer -->
             <div class="sidebar-footer">
                 <div class="status-box">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
+                    <div class="d-flex justify-content-between align-items-center mb-1">
                         <small class="opacity-75">Status:</small>
                         <span id="userStatusBadge" class="badge bg-secondary" style="font-size: 0.65rem;">Free</span>
                     </div>
-                    <small class="d-block opacity-75">Device ID:</small>
-                    <small class="text-info" id="showDeviceId" style="font-size: 0.65rem; word-break: break-all;"></small>
+                    <small class="d-block opacity-50" style="font-size: 0.6rem;">ID: <span id="showDeviceId"></span></small>
                 </div>
             </div>
         </div>
 
-        <!-- Main Content Area -->
+        <!-- Main Content -->
         <div class="main-content" id="mainContentArea">
             
-            <!-- Dashboard Tab -->
+            <!-- Dashboard -->
             <div id="tabDashboard" class="tab-content animate-fade-in">
-                <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1">Dashboard <span class="wave">👋</span></h3>
-                        <p class="text-muted mb-0">SIM Kurikulum Merdeka - Semua Jenjang</p>
-                    </div>
-                </div>
+                <h3 class="fw-bold mb-1">Dashboard 👋</h3>
+                <p class="text-muted mb-4">SIM Kurikulum Merdeka - Semua Jenjang</p>
                 
-                <!-- Active Mapel Indicator -->
                 <div class="active-mapel-indicator no-print" id="activeMapelIndicator" style="display: none;">
                     <div class="d-flex justify-content-between align-items-center">
                         <div>
-                            <small class="text-muted">Mata Pelajaran Aktif:</small>
+                            <small class="text-muted">Mapel Aktif:</small>
                             <h6 class="mb-0 fw-bold" id="activeMapelName">-</h6>
                         </div>
                         <button class="btn btn-sm btn-outline-primary" onclick="showTab('tabMapel')">
@@ -928,26 +883,22 @@
                     </div>
                 </div>
                 
-                <!-- Upgrade Banner for Free Users -->
                 <div class="upgrade-banner no-print" id="upgradeBanner">
                     <div>
-                        <h6 class="mb-1 fw-bold"><i class="fas fa-crown me-2"></i>Upgrade ke Premium!</h6>
-                        <small class="opacity-75">Dapatkan akses semua fitur lengkap</small>
+                        <h6 class="mb-0 fw-bold"><i class="fas fa-crown me-2"></i>Upgrade ke Premium!</h6>
+                        <small class="opacity-75">Akses semua fitur</small>
                     </div>
-                    <button class="btn btn-sm" onclick="showUpgradeModal()">Lihat Penawaran</button>
+                    <button class="btn btn-sm" onclick="showUpgradeModal()">Lihat</button>
                 </div>
                 
-                <!-- Stats Cards -->
                 <div class="row g-3 mb-4">
                     <div class="col-6 col-md-3">
                         <div class="stat-card primary">
                             <div class="d-flex align-items-center">
-                                <div class="stat-icon me-3">
-                                    <i class="fas fa-book-reader"></i>
-                                </div>
+                                <div class="stat-icon me-3"><i class="fas fa-book-reader"></i></div>
                                 <div>
                                     <h4 class="mb-0 fw-bold" id="statMapel">0</h4>
-                                    <small class="text-muted">Mata Pelajaran</small>
+                                    <small class="text-muted">Mapel</small>
                                 </div>
                             </div>
                         </div>
@@ -955,12 +906,10 @@
                     <div class="col-6 col-md-3">
                         <div class="stat-card success">
                             <div class="d-flex align-items-center">
-                                <div class="stat-icon me-3">
-                                    <i class="fas fa-users"></i>
-                                </div>
+                                <div class="stat-icon me-3"><i class="fas fa-users"></i></div>
                                 <div>
                                     <h4 class="mb-0 fw-bold" id="statSiswa">0</h4>
-                                    <small class="text-muted">Total Siswa</small>
+                                    <small class="text-muted">Siswa</small>
                                 </div>
                             </div>
                         </div>
@@ -968,12 +917,10 @@
                     <div class="col-6 col-md-3">
                         <div class="stat-card warning">
                             <div class="d-flex align-items-center">
-                                <div class="stat-icon me-3">
-                                    <i class="fas fa-calendar-check"></i>
-                                </div>
+                                <div class="stat-icon me-3"><i class="fas fa-calendar-check"></i></div>
                                 <div>
                                     <h4 class="mb-0 fw-bold" id="statJadwal">0</h4>
-                                    <small class="text-muted">Jadwal Aktif</small>
+                                    <small class="text-muted">Jadwal</small>
                                 </div>
                             </div>
                         </div>
@@ -981,49 +928,40 @@
                     <div class="col-6 col-md-3">
                         <div class="stat-card danger">
                             <div class="d-flex align-items-center">
-                                <div class="stat-icon me-3">
-                                    <i class="fas fa-bullseye"></i>
-                                </div>
+                                <div class="stat-icon me-3"><i class="fas fa-bullseye"></i></div>
                                 <div>
                                     <h4 class="mb-0 fw-bold" id="statTP">0</h4>
-                                    <small class="text-muted">Tujuan Pembelajaran</small>
+                                    <small class="text-muted">TP</small>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Quick Actions -->
                 <div class="row g-4">
                     <div class="col-lg-8">
                         <div class="modern-card h-100">
-                            <div class="card-header">
-                                <i class="fas fa-rocket me-2"></i>Aksi Cepat
-                            </div>
+                            <div class="card-header"><i class="fas fa-rocket me-2"></i>Aksi Cepat</div>
                             <div class="card-body">
                                 <div class="row g-3">
                                     <div class="col-6 col-md-3">
                                         <button class="btn btn-outline-primary w-100 py-3" onclick="showTab('tabMapel')">
-                                            <i class="fas fa-plus d-block mb-2 fa-lg"></i>
-                                            <small>Tambah Mapel</small>
+                                            <i class="fas fa-plus d-block mb-2"></i><small>Mapel</small>
                                         </button>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <button class="btn btn-outline-success w-100 py-3" onclick="showTab('tabKalender')">
-                                            <i class="fas fa-calendar d-block mb-2 fa-lg"></i>
-                                            <small>Kalender</small>
+                                        <button class="btn btn-outline-success w-100 py-3" onclick="showTab('tabJadwal')">
+                                            <i class="fas fa-clock d-block mb-2"></i><small>Jadwal</small>
                                         </button>
                                     </div>
                                     <div class="col-6 col-md-3">
-                                        <button class="btn btn-outline-warning w-100 py-3" onclick="showTab('tabJadwal')">
-                                            <i class="fas fa-clock d-block mb-2 fa-lg"></i>
-                                            <small>Jadwal</small>
+                                        <button class="btn btn-outline-warning w-100 py-3" onclick="showTab('tabKalender')">
+                                            <i class="fas fa-calendar d-block mb-2"></i><small>Kalender</small>
                                         </button>
                                     </div>
                                     <div class="col-6 col-md-3">
                                         <button class="btn btn-outline-danger w-100 py-3" onclick="showTab('tabTahunan')">
-                                            <i class="fas fa-file-alt d-block mb-2 fa-lg"></i>
-                                            <small>ATP & Prota</small>
+                                            <i class="fas fa-file-alt d-block mb-2"></i><small>ATP</small>
                                         </button>
                                     </div>
                                 </div>
@@ -1033,16 +971,16 @@
                     <div class="col-lg-4">
                         <div class="modern-card h-100">
                             <div class="card-header" style="background: var(--secondary-gradient);">
-                                <i class="fas fa-info-circle me-2"></i>Info Aplikasi
+                                <i class="fas fa-info-circle me-2"></i>Info
                             </div>
                             <div class="card-body">
-                                <p class="mb-2"><strong>Versi:</strong> 2.0 Pro</p>
-                                <p class="mb-2"><strong>Support:</strong> Semua Jenjang</p>
-                                <p class="mb-0"><strong>Jenjang:</strong></p>
-                                <div class="mt-2 d-flex flex-wrap gap-1">
-                                    <span class="jenjang-badge jenjang-sd">SD/MI</span>
-                                    <span class="jenjang-badge jenjang-smp">SMP/MTs</span>
-                                    <span class="jenjang-badge jenjang-sma">SMA/MA</span>
+                                <p class="mb-2"><strong>Versi:</strong> 2.1</p>
+                                <p class="mb-2"><strong>Jenjang:</strong></p>
+                                <div class="d-flex flex-wrap gap-1">
+                                    <span class="jenjang-badge jenjang-paud">PAUD</span>
+                                    <span class="jenjang-badge jenjang-sd">SD</span>
+                                    <span class="jenjang-badge jenjang-smp">SMP</span>
+                                    <span class="jenjang-badge jenjang-sma">SMA</span>
                                     <span class="jenjang-badge jenjang-smk">SMK</span>
                                 </div>
                             </div>
@@ -1051,47 +989,41 @@
                 </div>
             </div>
 
-            <!-- Mapel Management Tab (NEW - FREE) -->
+            <!-- Mapel Tab -->
             <div id="tabMapel" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1"><i class="fas fa-book-reader me-2 text-primary"></i>Mata Pelajaran</h3>
-                        <p class="text-muted mb-0">Kelola mata pelajaran yang Anda ampu</p>
+                        <p class="text-muted mb-0">Kelola mata pelajaran yang diampu</p>
                     </div>
                     <div>
                         <span class="badge bg-success px-3 py-2 me-2">GRATIS</span>
                         <button class="btn btn-gradient-primary" onclick="showAddMapelModal()">
-                            <i class="fas fa-plus me-2"></i>Tambah Mapel
+                            <i class="fas fa-plus me-2"></i>Tambah
                         </button>
                     </div>
                 </div>
                 
-                <!-- Jenjang Filter -->
                 <div class="mb-4">
-                    <div class="btn-group" role="group">
+                    <div class="btn-group flex-wrap" role="group" id="filterJenjangBtns">
                         <button type="button" class="btn btn-outline-primary active" onclick="filterMapelByJenjang('ALL')">Semua</button>
-                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SD')">SD/MI</button>
-                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SMP')">SMP/MTs</button>
-                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SMA')">SMA/MA</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('PAUD')">PAUD</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SD')">SD</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SMP')">SMP</button>
+                        <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SMA')">SMA</button>
                         <button type="button" class="btn btn-outline-primary" onclick="filterMapelByJenjang('SMK')">SMK</button>
                     </div>
                 </div>
                 
-                <!-- Mapel List -->
-                <div class="row g-3" id="mapelList">
-                    <div class="col-12 text-center py-5 text-muted">
-                        <i class="fas fa-book fa-4x mb-3 opacity-25"></i>
-                        <p>Belum ada mata pelajaran. Klik "Tambah Mapel" untuk menambahkan.</p>
-                    </div>
-                </div>
+                <div class="row g-3" id="mapelList"></div>
             </div>
 
-            <!-- Calendar Tab (FREE) -->
+            <!-- Calendar Tab -->
             <div id="tabKalender" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
                     <div>
                         <h3 class="fw-bold mb-1"><i class="fas fa-calendar-alt me-2 text-primary"></i>Kalender Akademik</h3>
-                        <p class="text-muted mb-0">Kelola hari libur nasional dan kustom</p>
+                        <p class="text-muted mb-0">Hari libur nasional & kustom</p>
                     </div>
                     <span class="badge bg-success px-3 py-2">GRATIS</span>
                 </div>
@@ -1100,64 +1032,41 @@
                     <div class="col-lg-8">
                         <div class="calendar-wrapper">
                             <div class="calendar-header d-flex justify-content-between align-items-center">
-                                <button class="btn btn-light btn-sm" onclick="changeMonth(-1)">
-                                    <i class="fas fa-chevron-left"></i>
-                                </button>
+                                <button class="btn btn-light btn-sm" onclick="changeMonth(-1)"><i class="fas fa-chevron-left"></i></button>
                                 <h5 class="mb-0 fw-bold" id="calendarTitle">Juli 2025</h5>
-                                <button class="btn btn-light btn-sm" onclick="changeMonth(1)">
-                                    <i class="fas fa-chevron-right"></i>
-                                </button>
+                                <button class="btn btn-light btn-sm" onclick="changeMonth(1)"><i class="fas fa-chevron-right"></i></button>
                             </div>
-                            <div class="calendar-grid" id="calendarGrid">
-                                <div class="calendar-day-header">Min</div>
-                                <div class="calendar-day-header">Sen</div>
-                                <div class="calendar-day-header">Sel</div>
-                                <div class="calendar-day-header">Rab</div>
-                                <div class="calendar-day-header">Kam</div>
-                                <div class="calendar-day-header">Jum</div>
-                                <div class="calendar-day-header">Sab</div>
-                            </div>
-                            <div id="calendarDays" style="display: contents;"></div>
+                            <div class="calendar-grid" id="calendarGrid"></div>
                         </div>
-                        
-                        <!-- Legend -->
-                        <div class="mt-3 p-3 bg-white rounded-4 shadow-sm">
-                            <div class="d-flex gap-4 flex-wrap">
-                                <div><span class="badge me-2" style="background: var(--primary-gradient);">&nbsp;&nbsp;</span>Hari Ini</div>
-                                <div><span class="badge bg-danger me-2">&nbsp;&nbsp;</span>Libur Nasional</div>
-                                <div><span class="badge bg-success me-2">&nbsp;&nbsp;</span>Libur Kustom</div>
-                            </div>
+                        <div class="mt-3 p-3 bg-white rounded-4 shadow-sm d-flex gap-4 flex-wrap">
+                            <div><span class="badge me-2" style="background: var(--primary-gradient);">&nbsp;&nbsp;</span>Hari Ini</div>
+                            <div><span class="badge bg-danger me-2">&nbsp;&nbsp;</span>Libur Nasional</div>
+                            <div><span class="badge bg-success me-2">&nbsp;&nbsp;</span>Libur Kustom</div>
                         </div>
                     </div>
-                    
                     <div class="col-lg-4">
-                        <!-- Add Custom Holiday -->
                         <div class="modern-card mb-4">
                             <div class="card-header" style="background: var(--secondary-gradient);">
                                 <i class="fas fa-plus-circle me-2"></i>Tambah Libur Kustom
                             </div>
                             <div class="card-body">
-                                <p class="small text-muted mb-3">Untuk hari libur tidak tetap seperti Idul Fitri, Idul Adha, dll.</p>
+                                <p class="small text-muted mb-3">Untuk Idul Fitri, Idul Adha, dll.</p>
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Tanggal</label>
                                     <input type="date" id="customHolidayDate" class="form-control">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Nama Hari Libur</label>
-                                    <input type="text" id="customHolidayName" class="form-control" placeholder="Cth: Idul Fitri 1446 H">
+                                    <input type="text" id="customHolidayName" class="form-control" placeholder="Nama Hari Libur">
                                 </div>
                                 <button class="btn btn-gradient-success w-100" onclick="addCustomHoliday()">
                                     <i class="fas fa-plus me-2"></i>Tambah
                                 </button>
                             </div>
                         </div>
-                        
-                        <!-- Holiday List -->
                         <div class="modern-card">
                             <div class="card-header" style="background: var(--danger-gradient);">
-                                <i class="fas fa-list me-2"></i>Daftar Hari Libur
+                                <i class="fas fa-list me-2"></i>Daftar Libur
                             </div>
-                            <div class="card-body p-0" style="max-height: 350px; overflow-y: auto;">
+                            <div class="card-body p-0" style="max-height: 300px; overflow-y: auto;">
                                 <div id="holidayList" class="p-3"></div>
                             </div>
                         </div>
@@ -1165,13 +1074,10 @@
                 </div>
             </div>
 
-            <!-- Profile Tab (FREE) -->
+            <!-- Profile Tab -->
             <div id="tabProfil" class="tab-content d-none no-print animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-school me-2 text-warning"></i>Profil & Instansi</h3>
-                        <p class="text-muted mb-0">Kelola informasi sekolah dan guru</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-school me-2 text-warning"></i>Profil & Instansi</h3>
                     <span class="badge bg-success px-3 py-2">GRATIS</span>
                 </div>
                 
@@ -1183,16 +1089,16 @@
                         <div class="row g-3">
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold small">Jenjang Sekolah</label>
-                                <select id="profJenjang" class="form-select">
-                                    <option value="SD">SD / MI</option>
+                                <select id="profJenjang" class="form-select" onchange="updateProfilByJenjang()">
+                                    <option value="PAUD">PAUD / TK</option>
+                                    <option value="SD" selected>SD / MI</option>
                                     <option value="SMP">SMP / MTs</option>
                                     <option value="SMA">SMA / MA</option>
                                     <option value="SMK">SMK</option>
-                                    <option value="PAUD">PAUD / TK</option>
                                 </select>
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">NPSN Sekolah</label>
+                                <label class="form-label fw-semibold small">NPSN</label>
                                 <input type="number" id="profNpsn" class="form-control" placeholder="12345678">
                             </div>
                             <div class="col-md-4">
@@ -1200,7 +1106,7 @@
                                 <input type="text" id="profSekolah" class="form-control" placeholder="SDN 1 ...">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold small">Alamat Sekolah</label>
+                                <label class="form-label fw-semibold small">Alamat</label>
                                 <input type="text" id="profAlamat" class="form-control" placeholder="Jl. ...">
                             </div>
                             <div class="col-md-6">
@@ -1209,25 +1115,25 @@
                             </div>
                             <div class="col-md-6">
                                 <label class="form-label fw-semibold small">Kepala Sekolah</label>
-                                <input type="text" id="profKepsek" class="form-control" placeholder="Nama Lengkap">
+                                <input type="text" id="profKepsek" class="form-control">
                             </div>
                             <div class="col-md-6">
-                                <label class="form-label fw-semibold small">NIP Kepala Sekolah</label>
-                                <input type="text" id="profNipKepsek" class="form-control" placeholder="NIP">
+                                <label class="form-label fw-semibold small">NIP Kepsek</label>
+                                <input type="text" id="profNipKepsek" class="form-control">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Nama Guru Pengampu</label>
-                                <input type="text" id="profGuru" class="form-control" placeholder="Nama Lengkap">
+                                <label class="form-label fw-semibold small">Nama Guru</label>
+                                <input type="text" id="profGuru" class="form-control">
                             </div>
                             <div class="col-md-4">
                                 <label class="form-label fw-semibold small">NIP Guru</label>
-                                <input type="text" id="profNipGuru" class="form-control" placeholder="NIP">
+                                <input type="text" id="profNipGuru" class="form-control">
                             </div>
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Tempat, Tgl Pengesahan</label>
+                                <label class="form-label fw-semibold small">Tempat, Tanggal</label>
                                 <input type="text" id="profTanggal" class="form-control" placeholder="Jakarta, 15 Juli 2025">
                             </div>
-                            <div class="col-md-12 mt-3">
+                            <div class="col-12">
                                 <button class="btn btn-gradient-warning" onclick="simpanProfil()">
                                     <i class="fas fa-save me-2"></i>Simpan Profil
                                 </button>
@@ -1237,19 +1143,21 @@
                 </div>
             </div>
 
-            <!-- Schedule Tab (FREE) -->
+            <!-- Schedule Tab with Validation -->
             <div id="tabJadwal" class="tab-content d-none no-print animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-clock me-2 text-success"></i>Jadwal Mengajar</h3>
-                        <p class="text-muted mb-0">Kelola jadwal mengajar Anda</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-clock me-2 text-success"></i>Jadwal Mengajar</h3>
                     <span class="badge bg-success px-3 py-2">GRATIS</span>
+                </div>
+                
+                <div class="info-box mb-4">
+                    <i class="fas fa-info-circle me-2"></i>
+                    <strong>Validasi Anti Bentrok:</strong> Sistem akan memvalidasi agar tidak ada jadwal yang bentrok. Maksimal 2 rombel per jam pelajaran.
                 </div>
                 
                 <div class="modern-card mb-4">
                     <div class="card-header" style="background: var(--secondary-gradient);">
-                        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal Baru
+                        <i class="fas fa-plus-circle me-2"></i>Tambah Jadwal
                     </div>
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
@@ -1265,79 +1173,112 @@
                                 </select>
                             </div>
                             <div class="col-md-2 col-6">
-                                <label class="form-label fw-semibold small">Jam Ke-</label>
-                                <input type="number" id="jadwalJam" class="form-control" placeholder="1" min="1">
-                            </div>
-                            <div class="col-md-3 col-6">
-                                <label class="form-label fw-semibold small">Fase</label>
-                                <select id="jadwalFase" class="form-select">
-                                    <option value="Fondasi">Fase Fondasi (PAUD)</option>
-                                    <option value="A">Fase A (Kelas 1-2)</option>
-                                    <option value="B">Fase B (Kelas 3-4)</option>
-                                    <option value="C">Fase C (Kelas 5-6)</option>
-                                    <option value="D">Fase D (SMP)</option>
-                                    <option value="E">Fase E (SMA X)</option>
-                                    <option value="F">Fase F (SMA XI-XII)</option>
+                                <label class="form-label fw-semibold small">Jam Ke</label>
+                                <select id="jadwalJam" class="form-select">
+                                    <option value="1">Jam 1</option>
+                                    <option value="2">Jam 2</option>
+                                    <option value="3">Jam 3</option>
+                                    <option value="4">Jam 4</option>
+                                    <option value="5">Jam 5</option>
+                                    <option value="6">Jam 6</option>
+                                    <option value="7">Jam 7</option>
+                                    <option value="8">Jam 8</option>
+                                    <option value="9">Jam 9</option>
+                                    <option value="10">Jam 10</option>
                                 </select>
                             </div>
-                            <div class="col-md-3 col-6">
-                                <label class="form-label fw-semibold small">Kelas/Rombel</label>
-                                <input type="text" id="jadwalRombel" class="form-control" placeholder="X IPA 1">
+                            <div class="col-md-2 col-6">
+                                <label class="form-label fw-semibold small">Jenjang</label>
+                                <select id="jadwalJenjang" class="form-select" onchange="updateJadwalDropdowns()">
+                                    <option value="">Pilih</option>
+                                    <option value="PAUD">PAUD</option>
+                                    <option value="SD">SD</option>
+                                    <option value="SMP">SMP</option>
+                                    <option value="SMA">SMA</option>
+                                    <option value="SMK">SMK</option>
+                                </select>
                             </div>
-                            <div class="col-md-2">
-                                <button class="btn btn-gradient-success w-100" onclick="tambahJadwalLokal()">
-                                    <i class="fas fa-plus me-1"></i>Tambah
-                                </button>
+                            <div class="col-md-2 col-6">
+                                <label class="form-label fw-semibold small">Fase</label>
+                                <select id="jadwalFase" class="form-select" disabled>
+                                    <option value="">Pilih Jenjang</option>
+                                </select>
                             </div>
+                            <div class="col-md-2 col-6">
+                                <label class="form-label fw-semibold small">Kelas</label>
+                                <select id="jadwalKelas" class="form-select" disabled>
+                                    <option value="">Pilih Jenjang</option>
+                                </select>
+                            </div>
+                            <div class="col-md-2 col-6">
+                                <label class="form-label fw-semibold small">Rombel</label>
+                                <input type="text" id="jadwalRombel" class="form-control" placeholder="A/B/C">
+                            </div>
+                        </div>
+                        <div class="mt-3">
+                            <button class="btn btn-gradient-success" onclick="tambahJadwal()">
+                                <i class="fas fa-plus me-2"></i>Tambah Jadwal
+                            </button>
+                            <button class="btn btn-outline-primary ms-2" onclick="showJadwalMatrix()">
+                                <i class="fas fa-table me-2"></i>Lihat Matriks
+                            </button>
                         </div>
                     </div>
                 </div>
                 
+                <!-- Jadwal Matrix View -->
+                <div id="jadwalMatrixView" class="modern-card mb-4 d-none">
+                    <div class="card-header" style="background: var(--info-gradient);">
+                        <i class="fas fa-table me-2"></i>Matriks Jadwal Mingguan
+                    </div>
+                    <div class="card-body jadwal-matrix">
+                        <table class="table table-bordered table-sm" id="jadwalMatrixTable"></table>
+                    </div>
+                </div>
+                
+                <!-- Jadwal List -->
                 <div class="modern-table">
                     <table class="table table-hover mb-0">
                         <thead>
                             <tr>
                                 <th>Hari</th>
                                 <th>Jam</th>
+                                <th>Jenjang</th>
                                 <th>Fase</th>
-                                <th>Kelas/Rombel</th>
+                                <th>Kelas</th>
+                                <th>Rombel</th>
                                 <th width="80">Aksi</th>
                             </tr>
                         </thead>
                         <tbody id="tabelJadwalBody">
-                            <tr><td colspan="5" class="text-center py-4">Belum ada jadwal</td></tr>
+                            <tr><td colspan="7" class="text-center py-4">Belum ada jadwal</td></tr>
                         </tbody>
                     </table>
                 </div>
             </div>
 
-            <!-- CP & TP Tab (PREMIUM) -->
+            <!-- CP & TP Tab -->
             <div id="tabCPTP" class="tab-content d-none no-print animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-bullseye me-2 text-info"></i>Setup CP & TP</h3>
-                        <p class="text-muted mb-0">Capaian & Tujuan Pembelajaran</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-bullseye me-2 text-info"></i>Setup CP & TP</h3>
                     <span class="badge bg-warning px-3 py-2">PREMIUM</span>
                 </div>
                 
                 <div id="cptpContent">
-                    <!-- Load Default PAI -->
                     <div class="modern-card mb-4">
                         <div class="card-header" style="background: var(--info-gradient);">
-                            <i class="fas fa-download me-2"></i>Muat Data Default PAI SD
+                            <i class="fas fa-download me-2"></i>Load Default PAI SD
                         </div>
                         <div class="card-body">
                             <div class="row g-3 align-items-end">
                                 <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Pilih Kelas</label>
                                     <select id="loadDefaultKls" class="form-select">
-                                        <option value="1">Kelas 1 (Fase A)</option>
-                                        <option value="2">Kelas 2 (Fase A)</option>
-                                        <option value="3">Kelas 3 (Fase B)</option>
-                                        <option value="4">Kelas 4 (Fase B)</option>
-                                        <option value="5">Kelas 5 (Fase C)</option>
-                                        <option value="6">Kelas 6 (Fase C)</option>
+                                        <option value="1">Kelas 1</option>
+                                        <option value="2">Kelas 2</option>
+                                        <option value="3">Kelas 3</option>
+                                        <option value="4">Kelas 4</option>
+                                        <option value="5">Kelas 5</option>
+                                        <option value="6">Kelas 6</option>
                                     </select>
                                 </div>
                                 <div class="col-md-3">
@@ -1349,18 +1290,14 @@
                         </div>
                     </div>
                     
-                    <!-- CP Input -->
                     <div class="modern-card">
-                        <div class="card-header">
-                            <i class="fas fa-edit me-2"></i>Input CP & TP
-                        </div>
+                        <div class="card-header"><i class="fas fa-edit me-2"></i>Input CP & TP</div>
                         <div class="card-body">
                             <div class="mb-4">
                                 <label class="form-label fw-bold">Capaian Pembelajaran (CP):</label>
-                                <textarea id="inputCP" class="form-control" rows="3" placeholder="Masukkan narasi CP..."></textarea>
+                                <textarea id="inputCP" class="form-control" rows="3"></textarea>
                             </div>
-                            
-                            <label class="form-label fw-bold mb-3">Daftar Tujuan Pembelajaran (TP):</label>
+                            <label class="form-label fw-bold mb-3">Tujuan Pembelajaran (TP):</label>
                             <div class="table-responsive">
                                 <table class="table table-bordered">
                                     <thead class="table-light">
@@ -1374,13 +1311,12 @@
                                     <tbody id="bodyInputTP"></tbody>
                                 </table>
                             </div>
-                            
                             <div class="d-flex justify-content-between mt-3">
                                 <button class="btn btn-outline-primary" onclick="tambahBarisTP()">
                                     <i class="fas fa-plus me-2"></i>Tambah Bab
                                 </button>
                                 <button class="btn btn-gradient-primary" onclick="simpanCPTP()">
-                                    <i class="fas fa-save me-2"></i>Simpan CP & TP
+                                    <i class="fas fa-save me-2"></i>Simpan
                                 </button>
                             </div>
                         </div>
@@ -1388,75 +1324,52 @@
                 </div>
             </div>
 
-            <!-- Students Tab (PREMIUM) -->
+            <!-- Students Tab -->
             <div id="tabSiswa" class="tab-content d-none no-print animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-users me-2 text-primary"></i>Data Siswa</h3>
-                        <p class="text-muted mb-0">Import dan kelola data siswa</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-users me-2 text-primary"></i>Data Siswa</h3>
                     <span class="badge bg-warning px-3 py-2">PREMIUM</span>
                 </div>
                 
-                <div id="siswaContent">
-                    <div class="alert alert-info d-flex align-items-center mb-4">
-                        <i class="fas fa-info-circle fa-lg me-3"></i>
-                        <div>
-                            <strong>Format CSV:</strong> Header wajib: <code>nisn, nama, jk, kelas, rombel</code>
-                        </div>
-                    </div>
-                    
-                    <div class="modern-card mb-4">
-                        <div class="card-header">
-                            <i class="fas fa-file-csv me-2"></i>Upload File CSV
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-8">
-                                    <input type="file" id="fileCsvSiswa" class="form-control" accept=".csv">
-                                </div>
-                                <div class="col-md-4">
-                                    <button class="btn btn-gradient-primary w-100" onclick="importSiswaLokal()">
-                                        <i class="fas fa-upload me-2"></i>Upload
-                                    </button>
-                                </div>
+                <div class="info-box mb-4">
+                    <strong>Format CSV:</strong> <code>nisn, nama, jk, kelas, rombel</code>
+                </div>
+                
+                <div class="modern-card mb-4">
+                    <div class="card-header"><i class="fas fa-file-csv me-2"></i>Upload CSV</div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-8">
+                                <input type="file" id="fileCsvSiswa" class="form-control" accept=".csv">
+                            </div>
+                            <div class="col-md-4">
+                                <button class="btn btn-gradient-primary w-100" onclick="importSiswaLokal()">
+                                    <i class="fas fa-upload me-2"></i>Upload
+                                </button>
                             </div>
                         </div>
                     </div>
-                    
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <select id="filterKelasSiswa" class="form-select" style="width: 200px;" onchange="renderTabelSiswa()"></select>
-                        <button class="btn btn-outline-danger btn-sm" onclick="clearDataSiswa()">
-                            <i class="fas fa-trash me-1"></i>Hapus Semua
-                        </button>
-                    </div>
-                    
-                    <div class="modern-table">
-                        <table class="table table-hover mb-0">
-                            <thead>
-                                <tr>
-                                    <th>NISN</th>
-                                    <th>Nama Siswa</th>
-                                    <th>JK</th>
-                                    <th>Kelas</th>
-                                    <th>Rombel</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tabelSiswaBody">
-                                <tr><td colspan="5" class="text-center py-4">Belum ada data</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
+                </div>
+                
+                <div class="d-flex justify-content-between mb-3">
+                    <select id="filterKelasSiswa" class="form-select" style="width: 200px;" onchange="renderTabelSiswa()"></select>
+                    <button class="btn btn-outline-danger btn-sm" onclick="clearDataSiswa()">
+                        <i class="fas fa-trash me-1"></i>Hapus Semua
+                    </button>
+                </div>
+                
+                <div class="modern-table">
+                    <table class="table table-hover mb-0">
+                        <thead><tr><th>NISN</th><th>Nama</th><th>JK</th><th>Kelas</th><th>Rombel</th></tr></thead>
+                        <tbody id="tabelSiswaBody"><tr><td colspan="5" class="text-center py-4">Belum ada data</td></tr></tbody>
+                    </table>
                 </div>
             </div>
 
             <!-- ATP, Prota, Promes Tab -->
             <div id="tabTahunan" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-folder-open me-2 text-danger"></i>ATP, Prota & Promes</h3>
-                        <p class="text-muted mb-0">Generate dokumen perencanaan</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-folder-open me-2 text-danger"></i>ATP, Prota & Promes</h3>
                 </div>
                 
                 <div class="modern-card mb-4 no-print">
@@ -1466,7 +1379,7 @@
                     <div class="card-body">
                         <div class="row g-3 align-items-end">
                             <div class="col-md-4">
-                                <label class="form-label fw-semibold small">Pilih Fase & Rombel</label>
+                                <label class="form-label fw-semibold small">Fase & Rombel</label>
                                 <select id="tFaseRombel" class="form-select"></select>
                             </div>
                             <div class="col-md-2">
@@ -1483,240 +1396,172 @@
                                 </button>
                                 <button class="btn btn-gradient-warning" onclick="checkPremiumAndPrint('docPromes', 'Promes', 'landscape')">
                                     <i class="fas fa-print me-1"></i>Promes
-                                    <small class="ms-1">(PRO)</small>
                                 </button>
                             </div>
                         </div>
                     </div>
                 </div>
                 
-                <!-- Documents will be rendered here by JS -->
                 <div id="docATP" class="document-page print-view d-none"></div>
                 <div id="docProta" class="document-page print-view d-none"></div>
                 <div id="docPromes" class="document-page print-view d-none"></div>
             </div>
 
-            <!-- Modul Tab (PREMIUM) -->
+            <!-- Modul Tab -->
             <div id="tabPerangkat" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-book-open me-2 text-success"></i>Modul Ajar</h3>
-                        <p class="text-muted mb-0">Generate modul pembelajaran</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-book-open me-2 text-success"></i>Modul Ajar</h3>
                     <span class="badge bg-warning px-3 py-2">PREMIUM</span>
                 </div>
                 
-                <div id="modulContent">
-                    <div class="modern-card mb-4 no-print">
-                        <div class="card-header" style="background: var(--secondary-gradient);">
-                            <i class="fas fa-cog me-2"></i>Pengaturan
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Jadwal</label>
-                                    <select id="pSelectJadwal" class="form-select"></select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Materi (TP)</label>
-                                    <select id="pSelectTP" class="form-select"></select>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-gradient-success w-100" onclick="generateModul()">
-                                        <i class="fas fa-magic me-1"></i>Buat
-                                    </button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docModul', 'Modul', 'portrait')">
-                                        <i class="fas fa-print me-1"></i>Cetak
-                                    </button>
-                                </div>
+                <div class="modern-card mb-4 no-print">
+                    <div class="card-header" style="background: var(--secondary-gradient);"><i class="fas fa-cog me-2"></i>Pengaturan</div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small">Jadwal</label>
+                                <select id="pSelectJadwal" class="form-select"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Materi (TP)</label>
+                                <select id="pSelectTP" class="form-select"></select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-gradient-success w-100" onclick="generateModul()">Buat</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docModul', 'Modul', 'portrait')">Cetak</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <div id="docModul" class="document-page print-view d-none"></div>
                 </div>
+                <div id="docModul" class="document-page print-view d-none"></div>
             </div>
 
-            <!-- Absen & Jurnal Tab (PREMIUM) -->
+            <!-- Absen Tab -->
             <div id="tabPelaksanaan" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-clipboard-list me-2 text-danger"></i>Absensi & Jurnal</h3>
-                        <p class="text-muted mb-0">Kelola kehadiran siswa</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-clipboard-list me-2 text-danger"></i>Absensi & Jurnal</h3>
                     <span class="badge bg-warning px-3 py-2">PREMIUM</span>
                 </div>
                 
-                <div id="absenContent">
-                    <div class="modern-card mb-4 no-print">
-                        <div class="card-header" style="background: var(--danger-gradient);">
-                            <i class="fas fa-cog me-2"></i>Pengaturan
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Jadwal</label>
-                                    <select id="selectJadwalAbsen" class="form-select"></select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Materi (TP)</label>
-                                    <select id="selectTPAbsen" class="form-select"></select>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-gradient-danger w-100" onclick="loadAbsensi()">
-                                        <i class="fas fa-user-check me-1"></i>Mulai
-                                    </button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-outline-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">
-                                        <i class="fas fa-print me-1"></i>Cetak
-                                    </button>
-                                </div>
+                <div class="modern-card mb-4 no-print">
+                    <div class="card-header" style="background: var(--danger-gradient);"><i class="fas fa-cog me-2"></i>Pengaturan</div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small">Jadwal</label>
+                                <select id="selectJadwalAbsen" class="form-select"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Materi</label>
+                                <select id="selectTPAbsen" class="form-select"></select>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-gradient-danger w-100" onclick="loadAbsensi()">Mulai</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-outline-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">Cetak</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <div id="areaAbsen" class="d-none no-print mb-4">
-                        <div class="modern-card">
-                            <div class="card-header">
-                                <i class="fas fa-users me-2"></i>Daftar Kehadiran
-                            </div>
-                            <div class="card-body">
-                                <div id="listSiswaAbsen" class="row g-2"></div>
-                                <hr>
-                                <button class="btn btn-gradient-primary" onclick="simpanJurnal()">
-                                    <i class="fas fa-save me-2"></i>Simpan Jurnal
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    
-                    <div id="docJurnal" class="document-page print-view d-none"></div>
                 </div>
+                
+                <div id="areaAbsen" class="d-none no-print mb-4">
+                    <div class="modern-card">
+                        <div class="card-header"><i class="fas fa-users me-2"></i>Kehadiran</div>
+                        <div class="card-body">
+                            <div id="listSiswaAbsen" class="row g-2"></div>
+                            <hr>
+                            <button class="btn btn-gradient-primary" onclick="simpanJurnal()"><i class="fas fa-save me-2"></i>Simpan Jurnal</button>
+                        </div>
+                    </div>
+                </div>
+                <div id="docJurnal" class="document-page print-view d-none"></div>
             </div>
 
-            <!-- Penilaian Tab (PREMIUM) -->
+            <!-- Penilaian Tab -->
             <div id="tabPenilaian" class="tab-content d-none animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4 no-print">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-chart-bar me-2 text-info"></i>Rekap Penilaian</h3>
-                        <p class="text-muted mb-0">Input dan cetak nilai siswa</p>
-                    </div>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-chart-bar me-2 text-info"></i>Penilaian</h3>
                     <span class="badge bg-warning px-3 py-2">PREMIUM</span>
                 </div>
                 
-                <div id="nilaiContent">
-                    <div class="modern-card mb-4 no-print">
-                        <div class="card-header" style="background: var(--info-gradient);">
-                            <i class="fas fa-cog me-2"></i>Pengaturan
-                        </div>
-                        <div class="card-body">
-                            <div class="row g-3 align-items-end">
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Pilih Rombel</label>
-                                    <select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select>
-                                </div>
-                                <div class="col-md-4">
-                                    <label class="form-label fw-semibold small">Topik Penilaian</label>
-                                    <input type="text" id="topikNilai" class="form-control" value="Ulangan Harian">
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-gradient-primary w-100" onclick="simpanNilai()">
-                                        <i class="fas fa-save me-1"></i>Simpan
-                                    </button>
-                                </div>
-                                <div class="col-md-2">
-                                    <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docNilai', 'Nilai', 'portrait')">
-                                        <i class="fas fa-print me-1"></i>Cetak
-                                    </button>
-                                </div>
+                <div class="modern-card mb-4 no-print">
+                    <div class="card-header" style="background: var(--info-gradient);"><i class="fas fa-cog me-2"></i>Pengaturan</div>
+                    <div class="card-body">
+                        <div class="row g-3 align-items-end">
+                            <div class="col-md-4">
+                                <label class="form-label small">Rombel</label>
+                                <select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select>
+                            </div>
+                            <div class="col-md-4">
+                                <label class="form-label small">Topik</label>
+                                <input type="text" id="topikNilai" class="form-control" value="Ulangan Harian">
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-gradient-primary w-100" onclick="simpanNilai()">Simpan</button>
+                            </div>
+                            <div class="col-md-2">
+                                <button class="btn btn-gradient-danger w-100" onclick="triggerPrint('docNilai', 'Nilai', 'portrait')">Cetak</button>
                             </div>
                         </div>
                     </div>
-                    
-                    <div id="docNilai" class="document-page print-view d-none"></div>
                 </div>
+                <div id="docNilai" class="document-page print-view d-none"></div>
             </div>
 
             <!-- Panduan Tab -->
             <div id="tabPanduan" class="tab-content d-none no-print animate-fade-in">
-                <div class="mb-4">
-                    <h3 class="fw-bold mb-1"><i class="fas fa-book me-2 text-success"></i>Buku Panduan</h3>
-                    <p class="text-muted mb-0">Panduan lengkap penggunaan aplikasi</p>
-                </div>
-                
+                <h3 class="fw-bold mb-4"><i class="fas fa-book me-2 text-success"></i>Panduan</h3>
                 <div class="modern-card">
-                    <div class="card-body" style="line-height: 1.8;">
+                    <div class="card-body">
                         <div class="accordion" id="accordionPanduan">
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#panduan1">
-                                        <i class="fas fa-book-reader me-2 text-primary"></i>Cara Menambah Mata Pelajaran
+                                    <button class="accordion-button" data-bs-toggle="collapse" data-bs-target="#p1">
+                                        <i class="fas fa-book-reader me-2 text-primary"></i>Menambah Mata Pelajaran
                                     </button>
                                 </h2>
-                                <div id="panduan1" class="accordion-collapse collapse show" data-bs-parent="#accordionPanduan">
+                                <div id="p1" class="accordion-collapse collapse show" data-bs-parent="#accordionPanduan">
                                     <div class="accordion-body">
                                         <ol>
-                                            <li>Buka menu <b>Mata Pelajaran</b> di sidebar</li>
-                                            <li>Klik tombol <b>Tambah Mapel</b></li>
-                                            <li>Pilih Jenjang Sekolah (SD/SMP/SMA/SMK)</li>
-                                            <li>Masukkan nama mata pelajaran</li>
-                                            <li>Pilih Kelas/Tingkat dan Fase</li>
-                                            <li>Klik <b>Simpan</b></li>
+                                            <li>Buka menu <b>Mata Pelajaran</b></li>
+                                            <li>Klik <b>Tambah</b></li>
+                                            <li>Pilih <b>Jenjang</b> terlebih dahulu</li>
+                                            <li>Sistem akan otomatis menampilkan Fase dan Kelas sesuai jenjang</li>
+                                            <li>Isi nama mapel dan klik Simpan</li>
                                         </ol>
                                     </div>
                                 </div>
                             </div>
                             <div class="accordion-item">
                                 <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panduan2">
-                                        <i class="fas fa-bullseye me-2 text-info"></i>Cara Input CP dan TP
+                                    <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#p2">
+                                        <i class="fas fa-clock me-2 text-success"></i>Validasi Jadwal Anti Bentrok
                                     </button>
                                 </h2>
-                                <div id="panduan2" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
-                                    <div class="accordion-body">
-                                        <ol>
-                                            <li>Buka menu <b>Setup CP & TP</b></li>
-                                            <li>Masukkan narasi Capaian Pembelajaran (CP)</li>
-                                            <li>Klik <b>Tambah Bab</b> untuk menambah Tujuan Pembelajaran</li>
-                                            <li>Isi Nomor Bab, Judul Materi, dan Alokasi JP</li>
-                                            <li>Klik <b>Simpan CP & TP</b></li>
-                                        </ol>
-                                        <p class="text-muted"><i>Untuk PAI SD, gunakan fitur "Load Data Default"</i></p>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panduan3">
-                                        <i class="fas fa-file-csv me-2 text-success"></i>Cara Import Data Siswa
-                                    </button>
-                                </h2>
-                                <div id="panduan3" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
-                                    <div class="accordion-body">
-                                        <ol>
-                                            <li>Siapkan file Excel dengan kolom: <code>nisn, nama, jk, kelas, rombel</code></li>
-                                            <li>Save As → pilih format <b>CSV (Comma delimited)</b></li>
-                                            <li>Buka menu <b>Data Siswa</b></li>
-                                            <li>Upload file CSV</li>
-                                        </ol>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="accordion-item">
-                                <h2 class="accordion-header">
-                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#panduan4">
-                                        <i class="fas fa-calendar me-2 text-danger"></i>Cara Menggunakan Kalender
-                                    </button>
-                                </h2>
-                                <div id="panduan4" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
+                                <div id="p2" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
                                     <div class="accordion-body">
                                         <ul>
-                                            <li>Hari libur nasional <b>baku</b> sudah otomatis tersedia</li>
-                                            <li>Untuk libur <b>tidak tetap</b> (Idul Fitri, Idul Adha, dll), tambahkan manual via form "Tambah Libur Kustom"</li>
-                                            <li>Klik tanggal untuk melihat detail hari libur</li>
+                                            <li>Sistem akan <b>memblokir</b> jika jadwal sama persis sudah ada</li>
+                                            <li>Maksimal <b>2 rombel</b> per jam pelajaran yang sama</li>
+                                            <li>Gunakan tombol <b>Lihat Matriks</b> untuk melihat jadwal mingguan</li>
+                                        </ul>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="accordion-item">
+                                <h2 class="accordion-header">
+                                    <button class="accordion-button collapsed" data-bs-toggle="collapse" data-bs-target="#p3">
+                                        <i class="fas fa-calendar me-2 text-danger"></i>Kalender & Hari Libur
+                                    </button>
+                                </h2>
+                                <div id="p3" class="accordion-collapse collapse" data-bs-parent="#accordionPanduan">
+                                    <div class="accordion-body">
+                                        <ul>
+                                            <li>Libur nasional <b>baku</b> sudah otomatis</li>
+                                            <li>Untuk Idul Fitri, Idul Adha, dll → tambah manual di <b>Libur Kustom</b></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -1726,186 +1571,91 @@
                 </div>
             </div>
 
-            <!-- AI Assistant Tab -->
+            <!-- AI Tab -->
             <div id="tabAI" class="tab-content d-none no-print animate-fade-in">
-                <div class="mb-4">
-                    <h3 class="fw-bold mb-1"><i class="fas fa-robot me-2 text-info"></i>Asisten AI</h3>
-                    <p class="text-muted mb-0">Koleksi prompt untuk ChatGPT/Gemini</p>
-                </div>
-                
+                <h3 class="fw-bold mb-4"><i class="fas fa-robot me-2 text-info"></i>Asisten AI</h3>
                 <div class="row g-3">
                     <div class="col-md-6">
                         <div class="modern-card h-100">
-                            <div class="card-header" style="background: var(--primary-gradient);">
-                                <i class="fas fa-users me-2"></i>Data CSV Siswa
-                            </div>
+                            <div class="card-header" style="background: var(--primary-gradient);"><i class="fas fa-users me-2"></i>Data Siswa CSV</div>
                             <div class="card-body">
-                                <textarea id="prompt1" class="form-control mb-3" rows="4" readonly>Buatkan data siswa dummy sebanyak 20 siswa. Format CSV dengan header: nisn,nama,jk,kelas,rombel. Contoh: 00123,Budi,L,4,4A. Untuk kelas 4 rombel 4A.</textarea>
-                                <button class="btn btn-gradient-primary btn-sm w-100" onclick="copyToClipboard('prompt1')">
-                                    <i class="fas fa-copy me-2"></i>Salin
-                                </button>
+                                <textarea id="prompt1" class="form-control mb-3" rows="3" readonly>Buatkan data siswa 20 orang format CSV: nisn,nama,jk,kelas,rombel untuk kelas 4A.</textarea>
+                                <button class="btn btn-gradient-primary btn-sm w-100" onclick="copyToClipboard('prompt1')"><i class="fas fa-copy me-2"></i>Salin</button>
                             </div>
                         </div>
                     </div>
                     <div class="col-md-6">
                         <div class="modern-card h-100">
-                            <div class="card-header" style="background: var(--secondary-gradient);">
-                                <i class="fas fa-bullseye me-2"></i>Menyusun TP
-                            </div>
+                            <div class="card-header" style="background: var(--secondary-gradient);"><i class="fas fa-bullseye me-2"></i>Menyusun TP</div>
                             <div class="card-body">
-                                <textarea id="prompt2" class="form-control mb-3" rows="4" readonly>Saya Guru [MAPEL] untuk Fase [FASE]. Buatkan TP per Bab untuk 1 Semester dalam tabel: Bab, Judul TP, Alokasi JP. Total 72 JP.</textarea>
-                                <button class="btn btn-gradient-success btn-sm w-100" onclick="copyToClipboard('prompt2')">
-                                    <i class="fas fa-copy me-2"></i>Salin
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="modern-card h-100">
-                            <div class="card-header" style="background: var(--info-gradient);">
-                                <i class="fas fa-book-open me-2"></i>Skenario Modul
-                            </div>
-                            <div class="card-body">
-                                <textarea id="prompt3" class="form-control mb-3" rows="4" readonly>Buatkan skenario Kegiatan Inti 110 menit untuk [MAPEL] kelas [KELAS] topik: [MATERI]. Integrasikan: Kemandirian, Penalaran Kritis, Kolaborasi.</textarea>
-                                <button class="btn btn-gradient-primary btn-sm w-100" onclick="copyToClipboard('prompt3')">
-                                    <i class="fas fa-copy me-2"></i>Salin
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-6">
-                        <div class="modern-card h-100">
-                            <div class="card-header" style="background: var(--warning-gradient);">
-                                <i class="fas fa-question-circle me-2"></i>Soal HOTS
-                            </div>
-                            <div class="card-body">
-                                <textarea id="prompt4" class="form-control mb-3" rows="4" readonly>Buatkan 5 soal PG dan 2 soal Uraian HOTS beserta kunci jawaban untuk [MAPEL] Kelas [KELAS] topik: [MATERI].</textarea>
-                                <button class="btn btn-gradient-warning btn-sm w-100" onclick="copyToClipboard('prompt4')">
-                                    <i class="fas fa-copy me-2"></i>Salin
-                                </button>
+                                <textarea id="prompt2" class="form-control mb-3" rows="3" readonly>Saya Guru [MAPEL] Fase [X]. Buatkan TP per Bab untuk 1 Semester dalam tabel: Bab, Judul TP, Alokasi JP. Total 72 JP.</textarea>
+                                <button class="btn btn-gradient-success btn-sm w-100" onclick="copyToClipboard('prompt2')"><i class="fas fa-copy me-2"></i>Salin</button>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
 
-            <!-- Admin Panel Tab -->
+            <!-- Admin Tab -->
             <div id="tabAdmin" class="tab-content d-none no-print animate-fade-in">
                 <div class="d-flex justify-content-between align-items-center mb-4">
-                    <div>
-                        <h3 class="fw-bold mb-1"><i class="fas fa-user-shield me-2 text-warning"></i>Admin Panel</h3>
-                        <p class="text-muted mb-0">Kelola pengaturan aplikasi</p>
-                    </div>
-                    <button class="btn btn-outline-danger" onclick="logoutAdmin()">
-                        <i class="fas fa-sign-out-alt me-2"></i>Logout
-                    </button>
+                    <h3 class="fw-bold mb-0"><i class="fas fa-user-shield me-2 text-warning"></i>Admin Panel</h3>
+                    <button class="btn btn-outline-danger" onclick="logoutAdmin()"><i class="fas fa-sign-out-alt me-2"></i>Logout</button>
                 </div>
                 
                 <div class="row g-4">
                     <div class="col-md-6">
                         <div class="modern-card">
-                            <div class="card-header" style="background: var(--warning-gradient);">
-                                <i class="fas fa-cog me-2"></i>Pengaturan Admin
-                            </div>
+                            <div class="card-header" style="background: var(--warning-gradient);"><i class="fas fa-cog me-2"></i>Admin</div>
                             <div class="card-body">
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Email Admin</label>
+                                    <label class="form-label small">Email</label>
                                     <input type="email" id="adminEmailSetting" class="form-control">
                                 </div>
                                 <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Password Baru</label>
-                                    <input type="password" id="adminPasswordSetting" class="form-control" placeholder="Kosongkan jika tidak diubah">
+                                    <label class="form-label small">Password Baru</label>
+                                    <input type="password" id="adminPasswordSetting" class="form-control">
                                 </div>
-                                <button class="btn btn-gradient-warning w-100" onclick="simpanAdminSettings()">
-                                    <i class="fas fa-save me-2"></i>Simpan
-                                </button>
+                                <button class="btn btn-gradient-warning w-100" onclick="simpanAdminSettings()"><i class="fas fa-save me-2"></i>Simpan</button>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="col-md-6">
                         <div class="modern-card">
-                            <div class="card-header" style="background: var(--secondary-gradient);">
-                                <i class="fab fa-whatsapp me-2"></i>WhatsApp & Harga
-                            </div>
+                            <div class="card-header" style="background: var(--secondary-gradient);"><i class="fab fa-whatsapp me-2"></i>WhatsApp & Harga</div>
                             <div class="card-body">
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Nomor WhatsApp</label>
-                                    <input type="text" id="settingWA" class="form-control" placeholder="628xxx">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Harga Premium (Rp)</label>
-                                    <input type="number" id="settingHarga" class="form-control">
-                                </div>
-                                <div class="mb-3">
-                                    <label class="form-label fw-semibold small">Deskripsi</label>
-                                    <input type="text" id="settingHargaDesc" class="form-control">
-                                </div>
+                                <div class="mb-2"><input type="text" id="settingWA" class="form-control" placeholder="628xxx"></div>
+                                <div class="mb-2"><input type="number" id="settingHarga" class="form-control" placeholder="Harga"></div>
+                                <div class="mb-2"><input type="text" id="settingHargaDesc" class="form-control" placeholder="Deskripsi"></div>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="col-md-12">
                         <div class="modern-card">
-                            <div class="card-header" style="background: var(--primary-gradient);">
-                                <i class="fas fa-university me-2"></i>Rekening Bank
-                            </div>
+                            <div class="card-header" style="background: var(--primary-gradient);"><i class="fas fa-university me-2"></i>Rekening</div>
                             <div class="card-body">
                                 <div class="row g-3">
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Nama Bank</label>
-                                        <input type="text" id="settingBank" class="form-control">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">No Rekening</label>
-                                        <input type="text" id="settingRekening" class="form-control">
-                                    </div>
-                                    <div class="col-md-4">
-                                        <label class="form-label fw-semibold small">Atas Nama</label>
-                                        <input type="text" id="settingNamaRek" class="form-control">
-                                    </div>
+                                    <div class="col-md-4"><input type="text" id="settingBank" class="form-control" placeholder="Bank"></div>
+                                    <div class="col-md-4"><input type="text" id="settingRekening" class="form-control" placeholder="No Rek"></div>
+                                    <div class="col-md-4"><input type="text" id="settingNamaRek" class="form-control" placeholder="Atas Nama"></div>
                                 </div>
-                                <button class="btn btn-gradient-primary w-100 mt-3" onclick="simpanPricingSettings()">
-                                    <i class="fas fa-save me-2"></i>Simpan Semua
-                                </button>
+                                <button class="btn btn-gradient-primary w-100 mt-3" onclick="simpanPricingSettings()"><i class="fas fa-save me-2"></i>Simpan Semua</button>
                             </div>
                         </div>
                     </div>
-                    
                     <div class="col-md-12">
                         <div class="modern-card">
-                            <div class="card-header" style="background: var(--danger-gradient);">
-                                <i class="fas fa-crown me-2"></i>Kelola User Premium
-                            </div>
+                            <div class="card-header" style="background: var(--danger-gradient);"><i class="fas fa-crown me-2"></i>User Premium</div>
                             <div class="card-body">
                                 <div class="row g-3 mb-4">
-                                    <div class="col-md-5">
-                                        <input type="text" id="newPremiumUser" class="form-control" placeholder="Device ID atau Email">
-                                    </div>
-                                    <div class="col-md-3">
-                                        <button class="btn btn-gradient-success w-100" onclick="addPremiumUser()">
-                                            <i class="fas fa-plus me-1"></i>Tambah
-                                        </button>
-                                    </div>
-                                    <div class="col-md-4">
-                                        <button class="btn btn-gradient-primary w-100" onclick="activateCurrentDevice()">
-                                            <i class="fas fa-check me-1"></i>Aktifkan Device Ini
-                                        </button>
-                                    </div>
+                                    <div class="col-md-5"><input type="text" id="newPremiumUser" class="form-control" placeholder="Device ID"></div>
+                                    <div class="col-md-3"><button class="btn btn-gradient-success w-100" onclick="addPremiumUser()"><i class="fas fa-plus me-1"></i>Tambah</button></div>
+                                    <div class="col-md-4"><button class="btn btn-gradient-primary w-100" onclick="activateCurrentDevice()"><i class="fas fa-check me-1"></i>Aktifkan Ini</button></div>
                                 </div>
-                                <div class="table-responsive">
-                                    <table class="table table-bordered table-sm">
-                                        <thead class="table-light">
-                                            <tr>
-                                                <th>No</th>
-                                                <th>User ID</th>
-                                                <th>Tanggal</th>
-                                                <th>Aksi</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody id="premiumUsersList"></tbody>
-                                    </table>
-                                </div>
+                                <table class="table table-bordered table-sm">
+                                    <thead class="table-light"><tr><th>No</th><th>ID</th><th>Aksi</th></tr></thead>
+                                    <tbody id="premiumUsersList"></tbody>
+                                </table>
                             </div>
                         </div>
                     </div>
