@@ -1,5 +1,6 @@
 // File: data_default.js
 // Berisi data bawaan (Default) untuk Mata Pelajaran PAI SD Kelas 1-6
+// Anda bisa mengubah isi teks di bawah ini jika ada pembaruan kurikulum.
 
 const dbKurikulumPAI = {
     "1": {
