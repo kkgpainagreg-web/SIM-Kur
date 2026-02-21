@@ -1,6 +1,6 @@
 // ==========================================
-// SIM KURIKULUM MERDEKA PRO v2.0
-// Support: SD, SMP, SMA, SMK, PAUD
+// SIM KURIKULUM MERDEKA PRO v2.1
+// Dengan Validasi Jadwal Anti Bentrok
 // ==========================================
 
 // Data State
@@ -13,12 +13,12 @@ let premiumUsers = JSON.parse(localStorage.getItem('sim_premium_users')) || [];
 let dataMapel = JSON.parse(localStorage.getItem('sim_mapel')) || [];
 let activeMapelId = localStorage.getItem('sim_active_mapel') || null;
 
-// Admin Default
+// Admin & Pricing
 const DEFAULT_ADMIN = { email: "afifaro@gmail.com", password: "admin123" };
 let adminSettings = JSON.parse(localStorage.getItem('sim_admin')) || DEFAULT_ADMIN;
 let pricingSettings = JSON.parse(localStorage.getItem('sim_pricing')) || {
-    whatsapp: "6281234567890", harga: 99000, hargaDesc: "Akses Selamanya / Lifetime",
-    bank: "BCA", rekening: "1234567890", namaRek: "Admin SIM Kurikulum"
+    whatsapp: "6281234567890", harga: 99000, hargaDesc: "Lifetime",
+    bank: "BCA", rekening: "1234567890", namaRek: "Admin"
 };
 
 // Device ID
@@ -28,17 +28,78 @@ if (!deviceId) {
     localStorage.setItem('sim_device_id', deviceId);
 }
 
-// Calendar State
+// Calendar
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
-// National Holidays (Fixed)
+// National Holidays
 const nationalHolidays = {
     "01-01": "Tahun Baru Masehi",
-    "05-01": "Hari Buruh Internasional",
+    "05-01": "Hari Buruh",
     "06-01": "Hari Lahir Pancasila",
     "08-17": "Hari Kemerdekaan RI",
     "12-25": "Hari Natal"
+};
+
+// ==========================================
+// JENJANG CONFIGURATION
+// ==========================================
+const JENJANG_CONFIG = {
+    PAUD: {
+        fases: [{ value: 'Fondasi', label: 'Fase Fondasi' }],
+        kelas: [
+            { value: 'Kelompok A', label: 'Kelompok A' },
+            { value: 'Kelompok B', label: 'Kelompok B' },
+            { value: 'TK A', label: 'TK A' },
+            { value: 'TK B', label: 'TK B' }
+        ]
+    },
+    SD: {
+        fases: [
+            { value: 'A', label: 'Fase A (Kelas 1-2)' },
+            { value: 'B', label: 'Fase B (Kelas 3-4)' },
+            { value: 'C', label: 'Fase C (Kelas 5-6)' }
+        ],
+        kelas: [
+            { value: '1', label: 'Kelas 1' },
+            { value: '2', label: 'Kelas 2' },
+            { value: '3', label: 'Kelas 3' },
+            { value: '4', label: 'Kelas 4' },
+            { value: '5', label: 'Kelas 5' },
+            { value: '6', label: 'Kelas 6' }
+        ]
+    },
+    SMP: {
+        fases: [{ value: 'D', label: 'Fase D (Kelas 7-9)' }],
+        kelas: [
+            { value: '7', label: 'Kelas 7' },
+            { value: '8', label: 'Kelas 8' },
+            { value: '9', label: 'Kelas 9' }
+        ]
+    },
+    SMA: {
+        fases: [
+            { value: 'E', label: 'Fase E (Kelas 10)' },
+            { value: 'F', label: 'Fase F (Kelas 11-12)' }
+        ],
+        kelas: [
+            { value: '10', label: 'Kelas 10' },
+            { value: '11', label: 'Kelas 11' },
+            { value: '12', label: 'Kelas 12' }
+        ]
+    },
+    SMK: {
+        fases: [
+            { value: 'E', label: 'Fase E (Kelas 10)' },
+            { value: 'F', label: 'Fase F (Kelas 11-12)' }
+        ],
+        kelas: [
+            { value: '10', label: 'Kelas 10' },
+            { value: '11', label: 'Kelas 11' },
+            { value: '12', label: 'Kelas 12' },
+            { value: '13', label: 'Kelas 13 (4 Tahun)' }
+        ]
+    }
 };
 
 // ==========================================
@@ -54,7 +115,7 @@ window.onload = function() {
     updateStats();
     checkPremiumStatus();
     loadPricingDisplay();
-    document.getElementById('showDeviceId').textContent = deviceId;
+    document.getElementById('showDeviceId').textContent = deviceId.substring(0, 15) + '...';
     updateActiveMapelIndicator();
 };
 
@@ -63,7 +124,6 @@ window.onload = function() {
 // ==========================================
 window.showTab = function(tabId) {
     const premiumTabs = ['tabCPTP', 'tabSiswa', 'tabPerangkat', 'tabPelaksanaan', 'tabPenilaian'];
-    
     if (premiumTabs.includes(tabId) && !isPremiumUser()) {
         showUpgradeModal();
         return;
@@ -74,14 +134,12 @@ window.showTab = function(tabId) {
     
     const targetTab = document.getElementById(tabId);
     if (targetTab) targetTab.classList.remove('d-none');
-    
     if (event && event.target) {
         let navLink = event.target.closest('.nav-link');
         if (navLink) navLink.classList.add('active');
     }
     
     updateUIProfile();
-    
     if(tabId === 'tabCPTP') renderCPTP();
     if(tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
     if(tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
@@ -89,8 +147,8 @@ window.showTab = function(tabId) {
     if(tabId === 'tabKalender') renderCalendar();
     if(tabId === 'tabAdmin') loadAdminPanel();
     if(tabId === 'tabMapel') renderMapelList();
+    if(tabId === 'tabJadwal') renderJadwal();
     
-    // Close sidebar on mobile
     if (window.innerWidth < 992) {
         document.getElementById('sidebarMenu').classList.remove('show');
         document.getElementById('sidebarOverlay').classList.remove('show');
@@ -103,9 +161,263 @@ window.toggleSidebar = function() {
 };
 
 // ==========================================
-// MAPEL MANAGEMENT (NEW)
+// DYNAMIC FORM UPDATES BY JENJANG
+// ==========================================
+window.updateMapelFormByJenjang = function() {
+    const jenjang = document.getElementById('newMapelJenjang').value;
+    const faseSelect = document.getElementById('newMapelFase');
+    const kelasSelect = document.getElementById('newMapelKelas');
+    
+    if (!jenjang || !JENJANG_CONFIG[jenjang]) {
+        faseSelect.innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
+        kelasSelect.innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
+        faseSelect.disabled = true;
+        kelasSelect.disabled = true;
+        return;
+    }
+    
+    const config = JENJANG_CONFIG[jenjang];
+    
+    // Update Fase
+    let faseOpts = '<option value="">-- Pilih Fase --</option>';
+    config.fases.forEach(f => faseOpts += `<option value="${f.value}">${f.label}</option>`);
+    faseSelect.innerHTML = faseOpts;
+    faseSelect.disabled = false;
+    
+    // Update Kelas
+    let kelasOpts = '<option value="">-- Pilih Kelas --</option>';
+    config.kelas.forEach(k => kelasOpts += `<option value="${k.value}">${k.label}</option>`);
+    kelasSelect.innerHTML = kelasOpts;
+    kelasSelect.disabled = false;
+};
+
+window.updateJadwalDropdowns = function() {
+    const jenjang = document.getElementById('jadwalJenjang').value;
+    const faseSelect = document.getElementById('jadwalFase');
+    const kelasSelect = document.getElementById('jadwalKelas');
+    
+    if (!jenjang || !JENJANG_CONFIG[jenjang]) {
+        faseSelect.innerHTML = '<option value="">Pilih Jenjang</option>';
+        kelasSelect.innerHTML = '<option value="">Pilih Jenjang</option>';
+        faseSelect.disabled = true;
+        kelasSelect.disabled = true;
+        return;
+    }
+    
+    const config = JENJANG_CONFIG[jenjang];
+    
+    let faseOpts = '';
+    config.fases.forEach(f => faseOpts += `<option value="${f.value}">${f.label}</option>`);
+    faseSelect.innerHTML = faseOpts;
+    faseSelect.disabled = false;
+    
+    let kelasOpts = '';
+    config.kelas.forEach(k => kelasOpts += `<option value="${k.value}">${k.label}</option>`);
+    kelasSelect.innerHTML = kelasOpts;
+    kelasSelect.disabled = false;
+};
+
+window.updateProfilByJenjang = function() {
+    // Could be used for additional profile-based updates
+};
+
+// ==========================================
+// JADWAL VALIDATION (ANTI BENTROK)
+// ==========================================
+function validateJadwal(newJadwal) {
+    const conflicts = [];
+    const MAX_ROMBEL_PER_JAM = 2;
+    
+    // Check 1: Exact duplicate (same day, hour, class, rombel)
+    const exactDuplicate = dataJadwal.find(j => 
+        j.hari === newJadwal.hari && 
+        j.jam === newJadwal.jam && 
+        j.kelas === newJadwal.kelas && 
+        j.rombel === newJadwal.rombel
+    );
+    
+    if (exactDuplicate) {
+        conflicts.push({
+            type: 'duplicate',
+            message: `Jadwal persis sama sudah ada: ${newJadwal.hari} Jam ${newJadwal.jam} untuk Kelas ${newJadwal.kelas}${newJadwal.rombel}`
+        });
+    }
+    
+    // Check 2: Same day and hour - count how many rombels already scheduled
+    const sameTimeSlot = dataJadwal.filter(j => 
+        j.hari === newJadwal.hari && 
+        j.jam === newJadwal.jam
+    );
+    
+    if (sameTimeSlot.length >= MAX_ROMBEL_PER_JAM) {
+        conflicts.push({
+            type: 'max_rombel',
+            message: `Sudah ada ${sameTimeSlot.length} rombel di ${newJadwal.hari} Jam ${newJadwal.jam}. Maksimal ${MAX_ROMBEL_PER_JAM} rombel per jam.`,
+            existing: sameTimeSlot.map(j => `${j.jenjang} ${j.kelas}${j.rombel}`)
+        });
+    }
+    
+    // Check 3: Same class-rombel at the same time slot (even different day?)
+    // This ensures a specific class can't be in two places at once
+    const classConflict = dataJadwal.find(j =>
+        j.hari === newJadwal.hari &&
+        j.jam === newJadwal.jam &&
+        j.jenjang === newJadwal.jenjang &&
+        j.kelas === newJadwal.kelas &&
+        j.rombel === newJadwal.rombel
+    );
+    
+    if (classConflict && !exactDuplicate) {
+        conflicts.push({
+            type: 'class_conflict',
+            message: `Kelas ${newJadwal.jenjang} ${newJadwal.kelas}${newJadwal.rombel} sudah dijadwalkan di waktu yang sama`
+        });
+    }
+    
+    return conflicts;
+}
+
+window.tambahJadwal = function() {
+    const hari = document.getElementById('jadwalHari').value;
+    const jam = document.getElementById('jadwalJam').value;
+    const jenjang = document.getElementById('jadwalJenjang').value;
+    const fase = document.getElementById('jadwalFase').value;
+    const kelas = document.getElementById('jadwalKelas').value;
+    const rombel = document.getElementById('jadwalRombel').value.trim().toUpperCase() || 'A';
+    
+    // Validation: Required fields
+    if (!jenjang) return showToast('Pilih Jenjang!', 'warning');
+    if (!fase) return showToast('Pilih Fase!', 'warning');
+    if (!kelas) return showToast('Pilih Kelas!', 'warning');
+    
+    const newJadwal = { hari, jam, jenjang, fase, kelas, rombel };
+    
+    // Validate conflicts
+    const conflicts = validateJadwal(newJadwal);
+    
+    if (conflicts.length > 0) {
+        showJadwalConflict(conflicts);
+        return;
+    }
+    
+    // Add jadwal
+    dataJadwal.push(newJadwal);
+    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+    renderJadwal();
+    updateStats();
+    
+    // Reset form
+    document.getElementById('jadwalRombel').value = '';
+    
+    showToast('Jadwal berhasil ditambahkan!', 'success');
+};
+
+function showJadwalConflict(conflicts) {
+    let html = '<div class="info-box danger mb-3"><i class="fas fa-exclamation-triangle me-2"></i>Jadwal tidak dapat ditambahkan karena:</div>';
+    html += '<ul class="mb-0">';
+    conflicts.forEach(c => {
+        html += `<li class="mb-2"><strong>${c.type === 'duplicate' ? 'Duplikat' : c.type === 'max_rombel' ? 'Melebihi Batas' : 'Bentrok'}:</strong><br>${c.message}`;
+        if (c.existing) {
+            html += `<br><small class="text-muted">Sudah ada: ${c.existing.join(', ')}</small>`;
+        }
+        html += '</li>';
+    });
+    html += '</ul>';
+    
+    document.getElementById('conflictDetails').innerHTML = html;
+    const modal = new bootstrap.Modal(document.getElementById('jadwalConflictModal'));
+    modal.show();
+}
+
+window.hapusJadwal = function(idx) {
+    if (!confirm('Hapus jadwal ini?')) return;
+    dataJadwal.splice(idx, 1);
+    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+    renderJadwal();
+    updateStats();
+    showToast('Jadwal dihapus!', 'info');
+};
+
+function renderJadwal() {
+    let html = '';
+    if (dataJadwal.length === 0) {
+        html = '<tr><td colspan="7" class="text-center py-4">Belum ada jadwal</td></tr>';
+    } else {
+        // Sort by day and hour
+        const dayOrder = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+        const sorted = [...dataJadwal].sort((a, b) => {
+            const dayDiff = dayOrder.indexOf(a.hari) - dayOrder.indexOf(b.hari);
+            if (dayDiff !== 0) return dayDiff;
+            return parseInt(a.jam) - parseInt(b.jam);
+        });
+        
+        sorted.forEach((d, i) => {
+            const origIdx = dataJadwal.findIndex(j => 
+                j.hari === d.hari && j.jam === d.jam && j.kelas === d.kelas && j.rombel === d.rombel
+            );
+            html += `<tr>
+                <td>${d.hari}</td>
+                <td>Jam ${d.jam}</td>
+                <td><span class="jenjang-badge jenjang-${d.jenjang.toLowerCase()}">${d.jenjang}</span></td>
+                <td>Fase ${d.fase}</td>
+                <td>${d.kelas}</td>
+                <td>${d.rombel}</td>
+                <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusJadwal(${origIdx})"><i class="fas fa-trash"></i></button></td>
+            </tr>`;
+        });
+    }
+    document.getElementById('tabelJadwalBody').innerHTML = html;
+}
+
+window.showJadwalMatrix = function() {
+    const matrixView = document.getElementById('jadwalMatrixView');
+    matrixView.classList.toggle('d-none');
+    
+    if (!matrixView.classList.contains('d-none')) {
+        renderJadwalMatrix();
+    }
+};
+
+function renderJadwalMatrix() {
+    const days = ['Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const hours = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
+    
+    let html = '<thead class="table-dark"><tr><th>Jam</th>';
+    days.forEach(d => html += `<th>${d}</th>`);
+    html += '</tr></thead><tbody>';
+    
+    hours.forEach(h => {
+        html += `<tr><td class="fw-bold">Jam ${h}</td>`;
+        days.forEach(d => {
+            const jadwalAtSlot = dataJadwal.filter(j => j.hari === d && parseInt(j.jam) === h);
+            html += '<td class="jadwal-cell">';
+            jadwalAtSlot.forEach(j => {
+                html += `<div class="jadwal-item">${j.jenjang} ${j.kelas}${j.rombel}</div>`;
+            });
+            if (jadwalAtSlot.length >= 2) {
+                html += '<span class="conflict-badge">PENUH</span>';
+            }
+            html += '</td>';
+        });
+        html += '</tr>';
+    });
+    
+    html += '</tbody>';
+    document.getElementById('jadwalMatrixTable').innerHTML = html;
+}
+
+// ==========================================
+// MAPEL MANAGEMENT
 // ==========================================
 window.showAddMapelModal = function() {
+    // Reset form
+    document.getElementById('newMapelJenjang').value = '';
+    document.getElementById('newMapelNama').value = '';
+    document.getElementById('newMapelFase').innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
+    document.getElementById('newMapelKelas').innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
+    document.getElementById('newMapelFase').disabled = true;
+    document.getElementById('newMapelKelas').disabled = true;
+    
     const modal = new bootstrap.Modal(document.getElementById('addMapelModal'));
     modal.show();
 };
@@ -113,39 +425,29 @@ window.showAddMapelModal = function() {
 window.simpanMapelBaru = function() {
     const jenjang = document.getElementById('newMapelJenjang').value;
     const nama = document.getElementById('newMapelNama').value.trim();
-    const kelas = document.getElementById('newMapelKelas').value.trim();
+    const kelas = document.getElementById('newMapelKelas').value;
     const fase = document.getElementById('newMapelFase').value;
     
-    if (!nama) {
-        showToast('Nama mata pelajaran wajib diisi!', 'warning');
-        return;
-    }
+    if (!jenjang) return showToast('Pilih Jenjang!', 'warning');
+    if (!nama) return showToast('Isi Nama Mapel!', 'warning');
+    if (!kelas) return showToast('Pilih Kelas!', 'warning');
+    if (!fase) return showToast('Pilih Fase!', 'warning');
     
     const newMapel = {
         id: 'MAPEL_' + Date.now(),
-        jenjang: jenjang,
-        nama: nama,
-        kelas: kelas,
-        fase: fase,
+        jenjang, nama, kelas, fase,
         createdAt: new Date().toISOString()
     };
     
     dataMapel.push(newMapel);
     localStorage.setItem('sim_mapel', JSON.stringify(dataMapel));
     
-    // Set as active if first mapel
-    if (dataMapel.length === 1) {
-        setActiveMapel(newMapel.id);
-    }
-    
-    // Reset form
-    document.getElementById('newMapelNama').value = '';
-    document.getElementById('newMapelKelas').value = '';
+    if (dataMapel.length === 1) setActiveMapel(newMapel.id);
     
     bootstrap.Modal.getInstance(document.getElementById('addMapelModal')).hide();
     renderMapelList();
     updateStats();
-    showToast('Mata pelajaran berhasil ditambahkan!', 'success');
+    showToast('Mapel ditambahkan!', 'success');
 };
 
 window.setActiveMapel = function(mapelId) {
@@ -153,75 +455,62 @@ window.setActiveMapel = function(mapelId) {
     localStorage.setItem('sim_active_mapel', mapelId);
     renderMapelList();
     updateActiveMapelIndicator();
-    showToast('Mata pelajaran aktif diubah!', 'success');
+    showToast('Mapel aktif diubah!', 'success');
 };
 
 window.hapusMapel = function(mapelId) {
-    if (!confirm('Hapus mata pelajaran ini?')) return;
-    
+    if (!confirm('Hapus mapel ini?')) return;
     dataMapel = dataMapel.filter(m => m.id !== mapelId);
     localStorage.setItem('sim_mapel', JSON.stringify(dataMapel));
-    
     if (activeMapelId === mapelId) {
         activeMapelId = dataMapel.length > 0 ? dataMapel[0].id : null;
         localStorage.setItem('sim_active_mapel', activeMapelId);
     }
-    
     renderMapelList();
     updateActiveMapelIndicator();
     updateStats();
-    showToast('Mata pelajaran dihapus!', 'info');
 };
 
 window.filterMapelByJenjang = function(jenjang) {
-    document.querySelectorAll('#tabMapel .btn-group .btn').forEach(btn => {
+    document.querySelectorAll('#filterJenjangBtns .btn').forEach(btn => {
         btn.classList.remove('active');
-        if (btn.textContent.includes(jenjang) || (jenjang === 'ALL' && btn.textContent === 'Semua')) {
+        if ((jenjang === 'ALL' && btn.textContent === 'Semua') || btn.textContent === jenjang) {
             btn.classList.add('active');
         }
     });
     renderMapelList(jenjang);
 };
 
-function renderMapelList(filterJenjang = 'ALL') {
+function renderMapelList(filter = 'ALL') {
     const container = document.getElementById('mapelList');
-    let filtered = filterJenjang === 'ALL' ? dataMapel : dataMapel.filter(m => m.jenjang === filterJenjang);
+    let filtered = filter === 'ALL' ? dataMapel : dataMapel.filter(m => m.jenjang === filter);
     
     if (filtered.length === 0) {
-        container.innerHTML = `
-            <div class="col-12 text-center py-5 text-muted">
-                <i class="fas fa-book fa-4x mb-3 opacity-25"></i>
-                <p>Belum ada mata pelajaran${filterJenjang !== 'ALL' ? ' untuk jenjang ini' : ''}.</p>
-                <button class="btn btn-gradient-primary" onclick="showAddMapelModal()">
-                    <i class="fas fa-plus me-2"></i>Tambah Mapel
-                </button>
-            </div>`;
+        container.innerHTML = `<div class="col-12 text-center py-5 text-muted">
+            <i class="fas fa-book fa-4x mb-3 opacity-25"></i>
+            <p>Belum ada mapel${filter !== 'ALL' ? ' untuk ' + filter : ''}.</p>
+            <button class="btn btn-gradient-primary" onclick="showAddMapelModal()"><i class="fas fa-plus me-2"></i>Tambah</button>
+        </div>`;
         return;
     }
     
     let html = '';
     filtered.forEach(m => {
         const isActive = m.id === activeMapelId;
-        const jenjangClass = `jenjang-${m.jenjang.toLowerCase()}`;
-        html += `
-            <div class="col-md-4 col-sm-6">
-                <div class="mapel-card ${isActive ? 'active' : ''}" onclick="setActiveMapel('${m.id}')">
-                    <div class="d-flex justify-content-between align-items-start mb-2">
-                        <span class="jenjang-badge ${jenjangClass}">${m.jenjang}</span>
-                        ${isActive ? '<span class="badge bg-primary"><i class="fas fa-check"></i> Aktif</span>' : ''}
-                    </div>
-                    <h6 class="fw-bold mb-1">${m.nama}</h6>
-                    <small class="text-muted">Kelas ${m.kelas} • Fase ${m.fase}</small>
-                    <div class="mt-3 d-flex gap-2">
-                        <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="event.stopPropagation(); setActiveMapel('${m.id}')">
-                            <i class="fas fa-check-circle"></i> Pilih
-                        </button>
-                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); hapusMapel('${m.id}')">
-                            <i class="fas fa-trash"></i>
-                        </button>
-                    </div>
+        html += `<div class="col-md-4 col-sm-6">
+            <div class="mapel-card ${isActive ? 'active' : ''}" onclick="setActiveMapel('${m.id}')">
+                <div class="d-flex justify-content-between align-items-start mb-2">
+                    <span class="jenjang-badge jenjang-${m.jenjang.toLowerCase()}">${m.jenjang}</span>
+                    ${isActive ? '<span class="badge bg-primary"><i class="fas fa-check"></i></span>' : ''}
                 </div>
-            </div>`;
+                <h6 class="fw-bold mb-1">${m.nama}</h6>
+                <small class="text-muted">Kelas ${m.kelas} • Fase ${m.fase}</small>
+                <div class="mt-3 d-flex gap-2">
+                    <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="event.stopPropagation(); setActiveMapel('${m.id}')"><i class="fas fa-check-circle"></i></button>
+                    <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); hapusMapel('${m.id}')"><i class="fas fa-trash"></i></button>
+                </div>
+            </div>
+        </div>`;
     });
     container.innerHTML = html;
 }
@@ -229,8 +518,7 @@ function renderMapelList(filterJenjang = 'ALL') {
 function updateActiveMapelIndicator() {
     const indicator = document.getElementById('activeMapelIndicator');
     const nameEl = document.getElementById('activeMapelName');
-    
-    if (activeMapelId && dataMapel.length > 0) {
+    if (activeMapelId) {
         const mapel = dataMapel.find(m => m.id === activeMapelId);
         if (mapel) {
             nameEl.textContent = `${mapel.nama} - ${mapel.jenjang} Kelas ${mapel.kelas}`;
@@ -246,20 +534,17 @@ function getActiveMapelName() {
         const mapel = dataMapel.find(m => m.id === activeMapelId);
         if (mapel) return mapel.nama;
     }
-    return localStorage.getItem('sim_prof') ? JSON.parse(localStorage.getItem('sim_prof')).mapel || 'Mata Pelajaran' : 'Mata Pelajaran';
+    return 'Mata Pelajaran';
 }
 
 // ==========================================
 // PREMIUM SYSTEM
 // ==========================================
-function isPremiumUser() {
-    return premiumUsers.includes(deviceId);
-}
+function isPremiumUser() { return premiumUsers.includes(deviceId); }
 
 function checkPremiumStatus() {
     const badge = document.getElementById('userStatusBadge');
     const banner = document.getElementById('upgradeBanner');
-    
     if (isPremiumUser()) {
         badge.className = 'badge';
         badge.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
@@ -274,8 +559,7 @@ function checkPremiumStatus() {
 
 window.showUpgradeModal = function() {
     loadPricingDisplay();
-    const modal = new bootstrap.Modal(document.getElementById('upgradeModal'));
-    modal.show();
+    new bootstrap.Modal(document.getElementById('upgradeModal')).show();
 };
 
 function loadPricingDisplay() {
@@ -284,54 +568,38 @@ function loadPricingDisplay() {
     document.getElementById('displayBank').textContent = pricingSettings.bank;
     document.getElementById('displayRekening').textContent = pricingSettings.rekening;
     document.getElementById('displayNamaRek').textContent = pricingSettings.namaRek;
-    
-    const waBtn = document.getElementById('waUpgradeBtn');
-    const msg = encodeURIComponent(`Halo, saya ingin upgrade SIM Kurikulum Pro.\n\nDevice ID: ${deviceId}\n\nMohon informasi. Terima kasih!`);
-    waBtn.href = `https://wa.me/${pricingSettings.whatsapp}?text=${msg}`;
+    document.getElementById('waUpgradeBtn').href = `https://wa.me/${pricingSettings.whatsapp}?text=${encodeURIComponent('Halo, saya mau upgrade SIM Kurikulum Pro. Device ID: ' + deviceId)}`;
 }
 
 window.checkPremiumAndPrint = function(docId, name, orientation) {
-    if (!isPremiumUser()) {
-        showUpgradeModal();
-        return;
-    }
+    if (!isPremiumUser()) { showUpgradeModal(); return; }
     triggerPrint(docId, name, orientation);
 };
 
 // ==========================================
 // ADMIN PANEL
 // ==========================================
-window.showAdminLogin = function() {
-    const modal = new bootstrap.Modal(document.getElementById('adminLoginModal'));
-    modal.show();
-};
+window.showAdminLogin = function() { new bootstrap.Modal(document.getElementById('adminLoginModal')).show(); };
 
 window.loginAdmin = function() {
-    const email = document.getElementById('adminEmail').value;
-    const password = document.getElementById('adminPassword').value;
-    
-    if (email === adminSettings.email && password === adminSettings.password) {
+    if (document.getElementById('adminEmail').value === adminSettings.email && 
+        document.getElementById('adminPassword').value === adminSettings.password) {
         localStorage.setItem('sim_admin_logged', 'true');
         bootstrap.Modal.getInstance(document.getElementById('adminLoginModal')).hide();
         showTab('tabAdmin');
         showToast('Login berhasil!', 'success');
     } else {
-        showToast('Email atau password salah!', 'danger');
+        showToast('Login gagal!', 'danger');
     }
 };
 
 window.logoutAdmin = function() {
     localStorage.removeItem('sim_admin_logged');
     showTab('tabDashboard');
-    showToast('Logout berhasil!', 'info');
 };
 
 function loadAdminPanel() {
-    if (localStorage.getItem('sim_admin_logged') !== 'true') {
-        showAdminLogin();
-        return;
-    }
-    
+    if (localStorage.getItem('sim_admin_logged') !== 'true') { showAdminLogin(); return; }
     document.getElementById('adminEmailSetting').value = adminSettings.email;
     document.getElementById('settingWA').value = pricingSettings.whatsapp;
     document.getElementById('settingHarga').value = pricingSettings.harga;
@@ -339,41 +607,40 @@ function loadAdminPanel() {
     document.getElementById('settingBank').value = pricingSettings.bank;
     document.getElementById('settingRekening').value = pricingSettings.rekening;
     document.getElementById('settingNamaRek').value = pricingSettings.namaRek;
-    
     renderPremiumUsers();
 }
 
 window.simpanAdminSettings = function() {
     adminSettings.email = document.getElementById('adminEmailSetting').value;
-    const newPwd = document.getElementById('adminPasswordSetting').value;
-    if (newPwd.trim()) adminSettings.password = newPwd;
+    const pwd = document.getElementById('adminPasswordSetting').value;
+    if (pwd.trim()) adminSettings.password = pwd;
     localStorage.setItem('sim_admin', JSON.stringify(adminSettings));
-    showToast('Pengaturan admin tersimpan!', 'success');
+    showToast('Tersimpan!', 'success');
 };
 
 window.simpanPricingSettings = function() {
-    pricingSettings.whatsapp = document.getElementById('settingWA').value;
-    pricingSettings.harga = document.getElementById('settingHarga').value;
-    pricingSettings.hargaDesc = document.getElementById('settingHargaDesc').value;
-    pricingSettings.bank = document.getElementById('settingBank').value;
-    pricingSettings.rekening = document.getElementById('settingRekening').value;
-    pricingSettings.namaRek = document.getElementById('settingNamaRek').value;
+    pricingSettings = {
+        whatsapp: document.getElementById('settingWA').value,
+        harga: document.getElementById('settingHarga').value,
+        hargaDesc: document.getElementById('settingHargaDesc').value,
+        bank: document.getElementById('settingBank').value,
+        rekening: document.getElementById('settingRekening').value,
+        namaRek: document.getElementById('settingNamaRek').value
+    };
     localStorage.setItem('sim_pricing', JSON.stringify(pricingSettings));
-    showToast('Pengaturan tersimpan!', 'success');
+    showToast('Tersimpan!', 'success');
 };
 
 window.addPremiumUser = function() {
-    const userId = document.getElementById('newPremiumUser').value.trim();
-    if (!userId) return showToast('Masukkan User ID!', 'warning');
-    if (!premiumUsers.includes(userId)) {
-        premiumUsers.push(userId);
+    const id = document.getElementById('newPremiumUser').value.trim();
+    if (!id) return;
+    if (!premiumUsers.includes(id)) {
+        premiumUsers.push(id);
         localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
         document.getElementById('newPremiumUser').value = '';
         renderPremiumUsers();
         checkPremiumStatus();
-        showToast('User premium ditambahkan!', 'success');
-    } else {
-        showToast('User sudah ada!', 'warning');
+        showToast('Ditambahkan!', 'success');
     }
 };
 
@@ -383,118 +650,74 @@ window.activateCurrentDevice = function() {
         localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
         renderPremiumUsers();
         checkPremiumStatus();
-        showToast('Device ini sekarang Premium!', 'success');
-    } else {
-        showToast('Device ini sudah Premium!', 'info');
+        showToast('Device ini Premium!', 'success');
     }
 };
 
-window.removePremiumUser = function(userId) {
-    if (confirm('Hapus user premium ini?')) {
-        premiumUsers = premiumUsers.filter(u => u !== userId);
-        localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
-        renderPremiumUsers();
-        checkPremiumStatus();
-    }
+window.removePremiumUser = function(id) {
+    premiumUsers = premiumUsers.filter(u => u !== id);
+    localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
+    renderPremiumUsers();
+    checkPremiumStatus();
 };
 
 function renderPremiumUsers() {
     const tbody = document.getElementById('premiumUsersList');
-    if (premiumUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada</td></tr>';
-        return;
-    }
-    let html = '';
-    premiumUsers.forEach((user, i) => {
-        const isCurrent = user === deviceId ? ' <span class="badge bg-success">Ini</span>' : '';
-        html += `<tr>
-            <td>${i+1}</td>
-            <td><small>${user}${isCurrent}</small></td>
-            <td><small>${new Date().toLocaleDateString('id-ID')}</small></td>
-            <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="removePremiumUser('${user}')"><i class="fas fa-times"></i></button></td>
-        </tr>`;
-    });
-    tbody.innerHTML = html;
+    if (premiumUsers.length === 0) { tbody.innerHTML = '<tr><td colspan="3">Belum ada</td></tr>'; return; }
+    tbody.innerHTML = premiumUsers.map((u, i) => 
+        `<tr><td>${i+1}</td><td><small>${u}${u === deviceId ? ' <span class="badge bg-success">Ini</span>' : ''}</small></td>
+        <td><button class="btn btn-sm btn-danger py-0" onclick="removePremiumUser('${u}')"><i class="fas fa-times"></i></button></td></tr>`
+    ).join('');
 }
 
 // ==========================================
-// CALENDAR SYSTEM
+// CALENDAR
 // ==========================================
 function renderCalendar() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    document.getElementById('calendarTitle').textContent = `${monthNames[currentMonth]} ${currentYear}`;
+    const months = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
+    document.getElementById('calendarTitle').textContent = `${months[currentMonth]} ${currentYear}`;
     
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const today = new Date();
     
-    const grid = document.getElementById('calendarGrid');
-    // Keep headers, remove days
-    let headerHtml = '';
-    ['Min','Sen','Sel','Rab','Kam','Jum','Sab'].forEach(d => {
-        headerHtml += `<div class="calendar-day-header">${d}</div>`;
-    });
-    
-    let daysHtml = '';
-    for (let i = 0; i < firstDay; i++) {
-        daysHtml += '<div class="calendar-day" style="opacity: 0.2;"></div>';
-    }
+    let html = ['Min','Sen','Sel','Rab','Kam','Jum','Sab'].map(d => `<div class="calendar-day-header">${d}</div>`).join('');
+    for (let i = 0; i < firstDay; i++) html += '<div class="calendar-day" style="opacity:0.2;"></div>';
     
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const fullDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        
-        let classes = 'calendar-day';
-        let holidayName = '';
-        
-        if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
-            classes += ' today';
-        }
-        
-        if (nationalHolidays[dateStr]) {
-            classes += ' holiday';
-            holidayName = nationalHolidays[dateStr];
-        }
-        
-        const customHoliday = customHolidays.find(h => h.date === fullDateStr);
-        if (customHoliday) {
-            classes += ' holiday-custom';
-            holidayName = customHoliday.name;
-        }
-        
-        daysHtml += `<div class="${classes}" onclick="showHolidayInfo('${fullDateStr}', '${holidayName}')" title="${holidayName}">
-            ${day}${holidayName ? '<div class="holiday-dot"></div>' : ''}
-        </div>`;
+        const fullDate = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
+        let cls = 'calendar-day', name = '';
+        if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) cls += ' today';
+        if (nationalHolidays[dateStr]) { cls += ' holiday'; name = nationalHolidays[dateStr]; }
+        const custom = customHolidays.find(h => h.date === fullDate);
+        if (custom) { cls += ' holiday-custom'; name = custom.name; }
+        html += `<div class="${cls}" onclick="showHolidayInfo('${fullDate}','${name}')" title="${name}">${day}${name ? '<div class="holiday-dot"></div>' : ''}</div>`;
     }
-    
-    grid.innerHTML = headerHtml + daysHtml;
+    document.getElementById('calendarGrid').innerHTML = html;
     renderHolidayList();
 }
 
-window.changeMonth = function(delta) {
-    currentMonth += delta;
+window.changeMonth = function(d) {
+    currentMonth += d;
     if (currentMonth > 11) { currentMonth = 0; currentYear++; }
     else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     renderCalendar();
 };
 
-window.showHolidayInfo = function(date, name) {
-    if (name) showToast(`${date}: ${name}`, 'info');
-};
+window.showHolidayInfo = function(date, name) { if (name) showToast(`${date}: ${name}`, 'info'); };
 
 window.addCustomHoliday = function() {
     const date = document.getElementById('customHolidayDate').value;
     const name = document.getElementById('customHolidayName').value.trim();
-    if (!date || !name) return showToast('Lengkapi tanggal dan nama!', 'warning');
+    if (!date || !name) return showToast('Lengkapi data!', 'warning');
     if (!customHolidays.find(h => h.date === date)) {
         customHolidays.push({ date, name });
         localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
         document.getElementById('customHolidayDate').value = '';
         document.getElementById('customHolidayName').value = '';
         renderCalendar();
-        showToast('Hari libur ditambahkan!', 'success');
-    } else {
-        showToast('Tanggal sudah ada!', 'warning');
+        showToast('Ditambahkan!', 'success');
     }
 };
 
@@ -505,23 +728,12 @@ window.removeCustomHoliday = function(date) {
 };
 
 function renderHolidayList() {
-    const container = document.getElementById('holidayList');
-    let html = '<h6 class="fw-bold mb-2 text-danger small"><i class="fas fa-flag me-2"></i>Libur Nasional</h6>';
-    for (const [date, name] of Object.entries(nationalHolidays)) {
-        html += `<div class="d-flex justify-content-between mb-1 small p-2 bg-light rounded"><span>${name}</span><small class="text-muted">${date}</small></div>`;
-    }
-    html += '<hr><h6 class="fw-bold mb-2 text-success small"><i class="fas fa-star me-2"></i>Libur Kustom</h6>';
-    if (customHolidays.length === 0) {
-        html += '<p class="text-muted small">Belum ada</p>';
-    } else {
-        customHolidays.forEach(h => {
-            html += `<div class="d-flex justify-content-between align-items-center mb-1 small p-2 bg-light rounded">
-                <span>${h.name}<br><small class="text-muted">${h.date}</small></span>
-                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeCustomHoliday('${h.date}')"><i class="fas fa-times"></i></button>
-            </div>`;
-        });
-    }
-    container.innerHTML = html;
+    let html = '<h6 class="fw-bold mb-2 text-danger small">Libur Nasional</h6>';
+    Object.entries(nationalHolidays).forEach(([d, n]) => html += `<div class="small p-2 bg-light rounded mb-1">${n} <span class="text-muted">(${d})</span></div>`);
+    html += '<hr><h6 class="fw-bold mb-2 text-success small">Libur Kustom</h6>';
+    if (customHolidays.length === 0) html += '<p class="text-muted small">Belum ada</p>';
+    else customHolidays.forEach(h => html += `<div class="d-flex justify-content-between small p-2 bg-light rounded mb-1"><span>${h.name}<br><small class="text-muted">${h.date}</small></span><button class="btn btn-sm btn-outline-danger py-0" onclick="removeCustomHoliday('${h.date}')"><i class="fas fa-times"></i></button></div>`);
+    document.getElementById('holidayList').innerHTML = html;
 }
 
 // ==========================================
@@ -535,7 +747,7 @@ function updateStats() {
 }
 
 // ==========================================
-// PROFILE MANAGEMENT
+// PROFILE
 // ==========================================
 window.simpanProfil = function() {
     const p = {
@@ -551,17 +763,17 @@ window.simpanProfil = function() {
         tgl: document.getElementById('profTanggal').value
     };
     localStorage.setItem('sim_prof', JSON.stringify(p));
-    showToast('Profil tersimpan!', 'success');
+    showToast('Tersimpan!', 'success');
     updateUIProfile();
 };
 
 function loadProfil() {
     const p = JSON.parse(localStorage.getItem('sim_prof'));
-    if(p) {
-        if(document.getElementById('profJenjang')) document.getElementById('profJenjang').value = p.jenjang || 'SD';
+    if (p) {
+        if (document.getElementById('profJenjang')) document.getElementById('profJenjang').value = p.jenjang || 'SD';
         document.getElementById('profNpsn').value = p.npsn || '';
         document.getElementById('profSekolah').value = p.sek || '';
-        if(document.getElementById('profAlamat')) document.getElementById('profAlamat').value = p.alamat || '';
+        if (document.getElementById('profAlamat')) document.getElementById('profAlamat').value = p.alamat || '';
         document.getElementById('profTahun').value = p.thn || '';
         document.getElementById('profKepsek').value = p.kep || '';
         document.getElementById('profNipKepsek').value = p.nkep || '';
@@ -574,8 +786,7 @@ function loadProfil() {
 
 function updateUIProfile() {
     const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    const mapelName = getActiveMapelName();
-    document.querySelectorAll('.vMapel').forEach(e => e.innerText = mapelName);
+    document.querySelectorAll('.vMapel').forEach(e => e.innerText = getActiveMapelName());
     document.querySelectorAll('.vSekolah').forEach(e => e.innerText = p.sek || '...');
     document.querySelectorAll('.vTahun').forEach(e => e.innerText = p.thn || '...');
     document.querySelectorAll('.vKepsek').forEach(e => e.innerText = p.kep || '...');
@@ -586,783 +797,81 @@ function updateUIProfile() {
 }
 
 // ==========================================
-// CP & TP MANAGEMENT
+// CP & TP
 // ==========================================
 function renderCPTP() {
     document.getElementById('inputCP').value = dataCPTP.cp;
-    let html = '';
-    dataCPTP.tps.forEach((tp, idx) => {
-        html += `<tr>
-            <td><input type="number" class="form-control form-control-sm tp-bab" value="${tp.bab}"></td>
-            <td><input type="text" class="form-control form-control-sm tp-judul" value="${tp.judul}"></td>
-            <td><input type="number" class="form-control form-control-sm tp-jp" value="${tp.jp}"></td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="hapusTP(${idx})"><i class="fas fa-trash"></i></button></td>
-        </tr>`;
-    });
-    document.getElementById('bodyInputTP').innerHTML = html;
+    document.getElementById('bodyInputTP').innerHTML = dataCPTP.tps.map((tp, i) => 
+        `<tr><td><input type="number" class="form-control form-control-sm tp-bab" value="${tp.bab}"></td>
+        <td><input type="text" class="form-control form-control-sm tp-judul" value="${tp.judul}"></td>
+        <td><input type="number" class="form-control form-control-sm tp-jp" value="${tp.jp}"></td>
+        <td><button class="btn btn-sm btn-outline-danger" onclick="hapusTP(${i})"><i class="fas fa-trash"></i></button></td></tr>`
+    ).join('');
 }
 
-window.tambahBarisTP = function() {
-    dataCPTP.tps.push({ bab: dataCPTP.tps.length + 1, judul: "", jp: 4 });
-    renderCPTP();
-};
-
-window.hapusTP = function(idx) {
-    dataCPTP.tps.splice(idx, 1);
-    renderCPTP();
-};
+window.tambahBarisTP = function() { dataCPTP.tps.push({ bab: dataCPTP.tps.length + 1, judul: "", jp: 4 }); renderCPTP(); };
+window.hapusTP = function(i) { dataCPTP.tps.splice(i, 1); renderCPTP(); };
 
 window.simpanCPTP = function() {
     dataCPTP.cp = document.getElementById('inputCP').value;
     dataCPTP.tps = [];
-    const babs = document.querySelectorAll('.tp-bab');
-    const juduls = document.querySelectorAll('.tp-judul');
-    const jps = document.querySelectorAll('.tp-jp');
-    for(let i = 0; i < babs.length; i++) {
-        if(juduls[i].value.trim()) {
-            dataCPTP.tps.push({ bab: babs[i].value, judul: juduls[i].value, jp: jps[i].value });
-        }
-    }
+    document.querySelectorAll('.tp-bab').forEach((el, i) => {
+        const judul = document.querySelectorAll('.tp-judul')[i].value;
+        if (judul.trim()) dataCPTP.tps.push({ bab: el.value, judul, jp: document.querySelectorAll('.tp-jp')[i].value });
+    });
     localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
     updateStats();
-    showToast('CP & TP tersimpan!', 'success');
+    showToast('Tersimpan!', 'success');
 };
 
 window.loadDefaultPAI = function() {
-    if(typeof dbKurikulumPAI === 'undefined') return showToast('File data_default.js tidak ditemukan!', 'danger');
-    const kls = document.getElementById('loadDefaultKls').value;
-    const data = dbKurikulumPAI[kls];
-    if(data) {
-        dataCPTP.cp = data.cp;
-        dataCPTP.tps = data.tps;
-        localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
-        renderCPTP();
-        updateStats();
-        showToast(`Data PAI Kelas ${kls} dimuat!`, 'success');
-    }
+    if (typeof dbKurikulumPAI === 'undefined') return showToast('File data_default.js tidak ditemukan!', 'danger');
+    const d = dbKurikulumPAI[document.getElementById('loadDefaultKls').value];
+    if (d) { dataCPTP = { cp: d.cp, tps: d.tps }; localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP)); renderCPTP(); updateStats(); showToast('Dimuat!', 'success'); }
 };
 
 // ==========================================
-// STUDENT DATA
+// STUDENTS
 // ==========================================
-function processCsvData(d) {
-    let count = 0;
-    d.forEach(s => {
-        let nisn = s.nisn || s.NISN, nama = s.nama || s.Nama, jk = s.jk || s.JK, kelas = s.kelas || s.Kelas, rombel = s.rombel || s.Rombel;
-        if(nama && kelas && rombel) {
-            dataSiswa.push({ nisn: nisn || '-', nama, jk: jk || '-', kelas, rombel });
-            count++;
-        }
-    });
-    localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
-    renderTabelSiswa();
-    updateStats();
-    showToast(`${count} siswa diimport!`, 'success');
-}
-
 window.importSiswaLokal = function() {
     const file = document.getElementById('fileCsvSiswa').files[0];
-    if(!file) return showToast('Pilih file CSV!', 'warning');
-    Papa.parse(file, { header: true, skipEmptyLines: true, complete: r => processCsvData(r.data) });
-};
-
-window.clearDataSiswa = function() {
-    if(confirm("Hapus semua data siswa?")) {
-        dataSiswa = [];
-        localStorage.removeItem('sim_siswa');
+    if (!file) return showToast('Pilih file!', 'warning');
+    Papa.parse(file, { header: true, skipEmptyLines: true, complete: r => {
+        r.data.forEach(s => {
+            const nama = s.nama || s.Nama;
+            const kelas = s.kelas || s.Kelas;
+            const rombel = s.rombel || s.Rombel;
+            if (nama && kelas && rombel) dataSiswa.push({ nisn: s.nisn || s.NISN || '-', nama, jk: s.jk || s.JK || '-', kelas, rombel });
+        });
+        localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
         renderTabelSiswa();
         updateStats();
-    }
+        showToast(`${r.data.length} siswa diimport!`, 'success');
+    }});
 };
+
+window.clearDataSiswa = function() { if (confirm('Hapus semua?')) { dataSiswa = []; localStorage.removeItem('sim_siswa'); renderTabelSiswa(); updateStats(); } };
 
 window.renderTabelSiswa = function() {
     const filter = document.getElementById('filterKelasSiswa').value;
-    let opts = '<option value="ALL">-- Semua Rombel --</option>';
+    let opts = '<option value="ALL">Semua</option>';
     new Set(dataSiswa.map(s => s.rombel)).forEach(r => opts += `<option value="${r}" ${filter===r?'selected':''}>${r}</option>`);
     document.getElementById('filterKelasSiswa').innerHTML = opts;
-    
-    let html = '';
-    const filtered = filter === "ALL" ? dataSiswa : dataSiswa.filter(s => s.rombel === filter);
-    filtered.forEach(s => html += `<tr><td>${s.nisn}</td><td>${s.nama}</td><td>${s.jk}</td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`);
-    document.getElementById('tabelSiswaBody').innerHTML = html || '<tr><td colspan="5" class="text-center py-4">Belum ada data</td></tr>';
+    const filtered = filter === 'ALL' ? dataSiswa : dataSiswa.filter(s => s.rombel === filter);
+    document.getElementById('tabelSiswaBody').innerHTML = filtered.length ? filtered.map(s => `<tr><td>${s.nisn}</td><td>${s.nama}</td><td>${s.jk}</td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`).join('') : '<tr><td colspan="5" class="text-center py-4">Tidak ada data</td></tr>';
 };
-
-// ==========================================
-// SCHEDULE
-// ==========================================
-window.tambahJadwalLokal = function() {
-    const hari = document.getElementById('jadwalHari').value;
-    const jam = document.getElementById('jadwalJam').value;
-    const fase = document.getElementById('jadwalFase').value;
-    const rombel = document.getElementById('jadwalRombel').value;
-    if(!jam || !rombel) return showToast('Jam & Rombel wajib diisi!', 'warning');
-    dataJadwal.push({ hari, jam, fase, rombel });
-    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
-    renderJadwal();
-    updateStats();
-    showToast('Jadwal ditambahkan!', 'success');
-    document.getElementById('jadwalJam').value = '';
-    document.getElementById('jadwalRombel').value = '';
-};
-
-window.hapusJadwal = function(idx) {
-    dataJadwal.splice(idx, 1);
-    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
-    renderJadwal();
-    updateStats();
-};
-
-function renderJadwal() {
-    let html = '';
-    if (dataJadwal.length === 0) {
-        html = '<tr><td colspan="5" class="text-center py-4">Belum ada jadwal</td></tr>';
-    } else {
-        dataJadwal.forEach((d, i) => {
-            html += `<tr>
-                <td>${d.hari}</td>
-                <td>Jam Ke-${d.jam}</td>
-                <td><span class="badge bg-primary">Fase ${d.fase}</span></td>
-                <td>${d.rombel}</td>
-                <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusJadwal(${i})"><i class="fas fa-trash"></i></button></td>
-            </tr>`;
-        });
-    }
-    document.getElementById('tabelJadwalBody').innerHTML = html;
-}
 
 // ==========================================
 // DROPDOWNS
 // ==========================================
 function populateDropdowns() {
-    let oj = '<option value="">-- Pilih Jadwal --</option>';
-    dataJadwal.forEach(d => oj += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - ${d.rombel}</option>`);
+    let oj = '<option value="">Pilih</option>';
+    dataJadwal.forEach(d => oj += `<option value='${JSON.stringify(d)}'>${d.hari} J${d.jam} - ${d.jenjang} ${d.kelas}${d.rombel}</option>`);
     document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = oj);
-    
-    let ot = '<option value="">-- Pilih Materi --</option>';
-    dataCPTP.tps.forEach(t => ot += `<option value='${t.judul}'>Bab ${t.bab}: ${t.judul}</option>`);
+    let ot = '<option value="">Pilih</option>';
+    dataCPTP.tps.forEach(t => ot += `<option value="${t.judul}">Bab ${t.bab}: ${t.judul}</option>`);
     document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = ot);
 }
 
-function populateFaseRombelOptions(elementId) {
-    let set = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
-    let o = '';
-    set.forEach(fr => o += `<option value="${fr}">${fr}</option>`);
-    document.getElementById(elementId).innerHTML = o || '<option>Buat Jadwal Dulu</option>';
-}
-
-// ==========================================
-// DOCUMENT GENERATORS
-// ==========================================
-window.generateTahunan = function() {
-    const fr = document.getElementById('tFaseRombel').value;
-    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    const mapel = getActiveMapelName();
-    
-    // ATP Document
-    let atpHtml = `
-        <div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)<br>KURIKULUM MERDEKA</div>
-        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
-            <tr><td width="15%">Sekolah</td><td width="2%">:</td><td>${p.sek||'...'}</td><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
-            <tr><td>Fase/Rombel</td><td>:</td><td>${fr}</td><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td></tr>
-        </table>
-        <p><b>Capaian Pembelajaran:</b><br>${dataCPTP.cp}</p>
-        <table class="doc-table">
-            <thead><tr><th width="8%">Bab</th><th>Alur Tujuan Pembelajaran</th><th width="12%">JP</th></tr></thead>
-            <tbody>`;
-    let totalJP = 0;
-    dataCPTP.tps.forEach(t => {
-        totalJP += parseInt(t.jp);
-        atpHtml += `<tr><td style="text-align:center;">${t.bab}</td><td>Peserta didik mampu memahami: ${t.judul}</td><td style="text-align:center;">${t.jp}</td></tr>`;
-    });
-    atpHtml += `<tr style="font-weight:bold;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:center;">${totalJP} JP</td></tr>
-        </tbody></table>
-        <div style="display:flex; justify-content:space-between; margin-top:40px;">
-            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
-            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
-        </div>`;
-    document.getElementById('docATP').innerHTML = atpHtml;
-    
-    // PROTA Document
-    let protaHtml = `
-        <div class="doc-header">PROGRAM TAHUNAN (PROTA)<br>KURIKULUM MERDEKA</div>
-        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
-            <tr><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td><td width="15%">Fase/Rombel</td><td width="2%">:</td><td>${fr}</td></tr>
-            <tr><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td><td>Sekolah</td><td>:</td><td>${p.sek||'...'}</td></tr>
-        </table>
-        <table class="doc-table">
-            <thead><tr><th width="12%">Semester</th><th>Bab / Tujuan Pembelajaran</th><th width="10%">JP</th><th width="18%">Keterangan</th></tr></thead>
-            <tbody>`;
-    dataCPTP.tps.forEach((t, idx) => {
-        const sem = idx < Math.ceil(dataCPTP.tps.length / 2) ? 'Ganjil' : 'Genap';
-        protaHtml += `<tr><td style="text-align:center;">${sem}</td><td>Bab ${t.bab} - ${t.judul}</td><td style="text-align:center;">${t.jp}</td><td>Sesuai Kalender</td></tr>`;
-    });
-    protaHtml += `</tbody></table>
-        <div style="display:flex; justify-content:space-between; margin-top:40px;">
-            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
-            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
-        </div>`;
-    document.getElementById('docProta').innerHTML = protaHtml;
-    
-    // PROMES Document
-    let promesHtml = `
-        <div class="doc-header">PROGRAM SEMESTER (PROMES)<br>KURIKULUM MERDEKA</div>
-        <table style="width:100%; margin-bottom:10px; font-size:10pt;">
-            <tr>
-                <td>Sekolah: <b>${p.sek||'...'}</b></td>
-                <td>Mapel: <b>${mapel}</b></td>
-                <td>Fase: <b>${fr}</b></td>
-                <td>TA: <b>${p.thn||'...'}</b></td>
-            </tr>
-        </table>
-        <table class="doc-table" style="font-size:8pt;">
-            <thead>
-                <tr>
-                    <th rowspan="2" width="22%">Tujuan Pembelajaran</th>
-                    <th rowspan="2" width="5%">JP</th>
-                    <th colspan="4">Juli</th>
-                    <th colspan="4">Agustus</th>
-                    <th colspan="4">September</th>
-                    <th colspan="4">Oktober</th>
-                    <th colspan="4">November</th>
-                    <th colspan="4">Desember</th>
-                </tr>
-                <tr>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                    <th>1</th><th>2</th><th>3</th><th>4</th>
-                </tr>
-            </thead>
-            <tbody>`;
-    
-    let weekCounter = 0;
-    dataCPTP.tps.forEach(t => {
-        const weeksNeeded = Math.ceil(parseInt(t.jp) / 2);
-        let weekCells = '';
-        for (let w = 0; w < 24; w++) {
-            if (w >= weekCounter && w < weekCounter + weeksNeeded) {
-                weekCells += `<td style="text-align:center; background:#d4edda;">✓</td>`;
-            } else {
-                weekCells += `<td></td>`;
-            }
-        }
-        weekCounter += weeksNeeded;
-        promesHtml += `<tr><td style="text-align:left; font-size:8pt;">Bab ${t.bab}: ${t.judul}</td><td style="text-align:center;">${t.jp}</td>${weekCells}</tr>`;
-    });
-    
-    promesHtml += `</tbody></table>
-        <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:10pt;">
-            <div style="width:45%; text-align:center;">Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u></div>
-            <div style="width:45%; text-align:center;">Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u></div>
-        </div>`;
-    document.getElementById('docPromes').innerHTML = promesHtml;
-    
-    showToast('Dokumen berhasil di-generate! Klik Cetak.', 'success');
-};
-
-// ==========================================
-// MODUL GENERATOR
-// ==========================================
-window.generateModul = function() {
-    const jadwalVal = document.getElementById('pSelectJadwal').value;
-    const tp = document.getElementById('pSelectTP').value;
-    
-    if(!jadwalVal || !tp) return showToast('Pilih Jadwal & Materi!', 'warning');
-    
-    const jadwal = JSON.parse(jadwalVal);
-    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    const mapel = getActiveMapelName();
-    const faseRombel = `Fase ${jadwal.fase} / ${jadwal.rombel}`;
-    
-    let modulHtml = `
-        <div class="doc-header">MODUL AJAR<br>KURIKULUM MERDEKA</div>
-        
-        <p style="margin-bottom:5px;"><b>A. INFORMASI UMUM</b></p>
-        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
-            <tr><td width="15%">Penyusun</td><td width="2%">:</td><td><b>${p.gur||'...'}</b></td><td width="15%">Instansi</td><td width="2%">:</td><td>${p.sek||'...'}</td></tr>
-            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td><td>Fase / Rombel</td><td>:</td><td>${faseRombel}</td></tr>
-            <tr><td>Alokasi Waktu</td><td>:</td><td>2 x 35 Menit</td><td>Hari/Tanggal</td><td>:</td><td>${jadwal.hari}, ........................</td></tr>
-        </table>
-        
-        <p style="margin-bottom:5px;"><b>B. CAPAIAN & TUJUAN PEMBELAJARAN</b></p>
-        <p style="text-align:justify; margin-bottom:15px;">
-            <b>Capaian Pembelajaran:</b> ${dataCPTP.cp || '...'}<br><br>
-            <b>Tujuan Pembelajaran:</b> Peserta didik mampu memahami dan menerapkan materi tentang <b>"${tp}"</b> dengan baik.
-        </p>
-        
-        <p style="margin-bottom:5px;"><b>C. PROFIL PELAJAR PANCASILA</b></p>
-        <p style="margin-bottom:15px;">Beriman dan Bertakwa kepada Tuhan YME, Berkebinekaan Global, Bergotong Royong, Mandiri, Bernalar Kritis, dan Kreatif.</p>
-        
-        <p style="margin-bottom:5px;"><b>D. SARANA & PRASARANA</b></p>
-        <p style="margin-bottom:15px;">Buku Paket, LKPD, Papan Tulis, Spidol, Media Pembelajaran, LCD Proyektor (jika tersedia).</p>
-        
-        <p style="margin-bottom:5px;"><b>E. KEGIATAN PEMBELAJARAN</b></p>
-        <table class="doc-table" style="margin-bottom:15px;">
-            <tr><th width="18%">Tahap</th><th>Deskripsi Kegiatan</th></tr>
-            <tr>
-                <td style="text-align:center;"><b>Pendahuluan</b><br>(10 Menit)</td>
-                <td>
-                    <ol style="margin:0; padding-left:20px;">
-                        <li>Guru membuka pelajaran dengan salam dan berdoa bersama <i>(Beriman, Bertakwa kepada Tuhan YME)</i></li>
-                        <li>Guru mengecek kehadiran siswa dan kesiapan belajar</li>
-                        <li>Guru melakukan apersepsi dengan mengaitkan materi sebelumnya</li>
-                        <li>Guru menyampaikan tujuan pembelajaran dan motivasi</li>
-                    </ol>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align:center;"><b>Inti</b><br>(50 Menit)</td>
-                <td>
-                    <ol style="margin:0; padding-left:20px;">
-                        <li>Guru menjelaskan materi tentang <b>"${tp}"</b> secara sistematis</li>
-                        <li>Peserta didik mengamati dan mencatat poin-poin penting <i>(Mandiri)</i></li>
-                        <li>Peserta didik berdiskusi dalam kelompok kecil <i>(Gotong Royong, Berkebinekaan Global)</i></li>
-                        <li>Peserta didik mengerjakan LKPD / latihan soal <i>(Bernalar Kritis, Kreatif)</i></li>
-                        <li>Perwakilan kelompok mempresentasikan hasil diskusi</li>
-                        <li>Guru memberikan umpan balik dan penguatan</li>
-                    </ol>
-                </td>
-            </tr>
-            <tr>
-                <td style="text-align:center;"><b>Penutup</b><br>(10 Menit)</td>
-                <td>
-                    <ol style="margin:0; padding-left:20px;">
-                        <li>Guru dan peserta didik menyimpulkan pembelajaran bersama</li>
-                        <li>Guru memberikan refleksi dan tindak lanjut (PR/tugas)</li>
-                        <li>Guru menyampaikan rencana pembelajaran pertemuan berikutnya</li>
-                        <li>Doa penutup dan salam</li>
-                    </ol>
-                </td>
-            </tr>
-        </table>
-        
-        <p style="margin-bottom:5px;"><b>F. ASESMEN / PENILAIAN</b></p>
-        <table class="doc-table" style="margin-bottom:15px;">
-            <tr><th width="25%">Jenis Asesmen</th><th>Teknik</th><th width="30%">Instrumen</th></tr>
-            <tr><td>Asesmen Diagnostik</td><td>Tanya jawab awal pembelajaran</td><td>Pertanyaan lisan</td></tr>
-            <tr><td>Asesmen Formatif</td><td>Observasi aktivitas & LKPD</td><td>Lembar observasi, LKPD</td></tr>
-            <tr><td>Asesmen Sumatif</td><td>Tes tertulis / Portofolio</td><td>Soal tes, rubrik penilaian</td></tr>
-        </table>
-        
-        <p style="margin-bottom:5px;"><b>G. PENGAYAAN & REMEDIAL</b></p>
-        <p style="margin-bottom:15px;">
-            <b>Pengayaan:</b> Peserta didik yang sudah tuntas diberikan soal/tugas pengembangan.<br>
-            <b>Remedial:</b> Peserta didik yang belum tuntas diberikan bimbingan dan ujian ulang.
-        </p>
-        
-        <div style="display:flex; justify-content:space-between; margin-top:40px; page-break-inside:avoid;">
-            <div style="width:45%; text-align:center;">
-                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
-                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
-            </div>
-            <div style="width:45%; text-align:center;">
-                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
-                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
-            </div>
-        </div>`;
-    
-    document.getElementById('docModul').innerHTML = modulHtml;
-    showToast('Modul berhasil dibuat! Klik Cetak.', 'success');
-};
-
-// ==========================================
-// ATTENDANCE & JOURNAL
-// ==========================================
-window.loadAbsensi = function() {
-    const jVal = document.getElementById('selectJadwalAbsen').value;
-    if(!jVal) return showToast('Pilih Jadwal!', 'warning');
-    
-    const rombel = JSON.parse(jVal).rombel;
-    const siswaKelas = dataSiswa.filter(s => s.rombel === rombel);
-    
-    document.getElementById('areaAbsen').classList.remove('d-none');
-    
-    let html = '';
-    if (siswaKelas.length === 0) {
-        html = '<div class="col-12 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Tidak ada siswa di rombel ini. Import data siswa terlebih dahulu.</div>';
-    } else {
-        siswaKelas.forEach((s, i) => {
-            html += `<div class="col-md-3 col-6">
-                <div class="form-check p-2 border rounded">
-                    <input type="checkbox" class="form-check-input absen-check" value="${s.nama}" id="abs${i}" checked>
-                    <label class="form-check-label small" for="abs${i}">${s.nama}</label>
-                </div>
-            </div>`;
-        });
-    }
-    document.getElementById('listSiswaAbsen').innerHTML = html;
-};
-
-window.simpanJurnal = function() {
-    const jVal = document.getElementById('selectJadwalAbsen').value;
-    const materi = document.getElementById('selectTPAbsen').value;
-    
-    if(!jVal || !materi) return showToast('Lengkapi jadwal dan materi!', 'warning');
-    
-    const jadwal = JSON.parse(jVal);
-    const checkboxes = document.querySelectorAll('.absen-check');
-    let hadir = 0;
-    let tidakHadir = [];
-    
-    checkboxes.forEach(cb => {
-        if(cb.checked) hadir++;
-        else tidakHadir.push(cb.value);
-    });
-    
-    const today = new Date();
-    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
-    const tanggalStr = `${days[today.getDay()]}, ${today.toLocaleDateString('id-ID')}`;
-    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    const mapel = getActiveMapelName();
-    
-    let jurnalHtml = `
-        <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN</div>
-        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
-            <tr><td width="25%">Nama Sekolah</td><td width="2%">:</td><td><b>${p.sek||'...'}</b></td></tr>
-            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td></tr>
-            <tr><td>Nama Guru</td><td>:</td><td>${p.gur||'...'}</td></tr>
-        </table>
-        <table class="doc-table" style="text-align:center;">
-            <thead>
-                <tr>
-                    <th width="15%">Hari/Tanggal</th>
-                    <th width="10%">Rombel</th>
-                    <th width="10%">Jam Ke</th>
-                    <th width="35%">Materi / Tujuan Pembelajaran</th>
-                    <th width="15%">Absensi</th>
-                    <th width="15%">Catatan</th>
-                </tr>
-            </thead>
-            <tbody>
-                <tr>
-                    <td>${tanggalStr}</td>
-                    <td>${jadwal.rombel}</td>
-                    <td>${jadwal.jam}</td>
-                    <td style="text-align:left;">${materi}</td>
-                    <td style="text-align:left;">
-                        Hadir: <b>${hadir}</b><br>
-                        Tidak Hadir: <b>${tidakHadir.length}</b>
-                        ${tidakHadir.length > 0 ? '<br><small class="text-danger">(' + tidakHadir.join(', ') + ')</small>' : ''}
-                    </td>
-                    <td>Tuntas</td>
-                </tr>
-            </tbody>
-        </table>
-        <div style="display:flex; justify-content:space-between; margin-top:50px;">
-            <div style="width:45%; text-align:center;">
-                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
-                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
-            </div>
-            <div style="width:45%; text-align:center;">
-                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
-                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
-            </div>
-        </div>`;
-    
-    document.getElementById('docJurnal').innerHTML = jurnalHtml;
-    showToast('Jurnal tersimpan! Klik Cetak.', 'success');
-};
-
-// ==========================================
-// GRADING / PENILAIAN
-// ==========================================
-window.renderKelasPenilaian = function() {
-    let opts = '<option value="">-- Pilih Rombel --</option>';
-    new Set(dataSiswa.map(s => s.rombel)).forEach(k => opts += `<option value="${k}">${k}</option>`);
-    document.getElementById('selectKelasNilai').innerHTML = opts;
-};
-
-window.loadPenilaian = function() {
-    const rombel = document.getElementById('selectKelasNilai').value;
-    if (!rombel) return;
-    
-    const topik = document.getElementById('topikNilai').value;
-    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    const mapel = getActiveMapelName();
-    
-    let html = `
-        <div class="doc-header">DAFTAR NILAI SISWA</div>
-        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
-            <tr><td width="25%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
-            <tr><td>Kelas / Rombel</td><td>:</td><td><b>${rombel}</b></td></tr>
-            <tr><td>Topik Penilaian</td><td>:</td><td><b>${topik}</b></td></tr>
-            <tr><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td></tr>
-        </table>
-        <table class="doc-table" style="text-align:center;">
-            <thead>
-                <tr>
-                    <th width="5%">No</th>
-                    <th width="15%">NISN</th>
-                    <th width="45%">Nama Siswa</th>
-                    <th width="10%">JK</th>
-                    <th width="15%">Nilai</th>
-                    <th width="10%">Ket</th>
-                </tr>
-            </thead>
-            <tbody>`;
-    
-    const siswaRombel = dataSiswa.filter(s => s.rombel === rombel);
-    
-    if (siswaRombel.length === 0) {
-        html += '<tr><td colspan="6">Tidak ada siswa</td></tr>';
-    } else {
-        siswaRombel.forEach((s, i) => {
-            const nilai = dataNilai[`${rombel}_${s.nisn}`] || '';
-            const ket = nilai >= 75 ? 'Tuntas' : (nilai ? 'Belum' : '-');
-            html += `<tr>
-                <td>${i + 1}</td>
-                <td>${s.nisn}</td>
-                <td style="text-align:left;">${s.nama}</td>
-                <td>${s.jk}</td>
-                <td class="no-print">
-                    <input type="number" class="form-control form-control-sm input-nilai text-center" 
-                           data-id="${s.nisn}" value="${nilai}" min="0" max="100" style="width:70px; margin:0 auto;">
-                </td>
-                <td class="d-none print-nilai">${nilai}</td>
-                <td class="d-none print-ket">${ket}</td>
-            </tr>`;
-        });
-    }
-    
-    html += `</tbody></table>
-        <style>
-            @media print { 
-                .no-print { display: none !important; } 
-                .print-nilai, .print-ket { display: table-cell !important; }
-            }
-        </style>
-        <div style="display:flex; justify-content:space-between; margin-top:50px;">
-            <div style="width:45%; text-align:center;">
-                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
-                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
-            </div>
-            <div style="width:45%; text-align:center;">
-                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
-                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
-            </div>
-        </div>`;
-    
-    document.getElementById('docNilai').innerHTML = html;
-    document.getElementById('docNilai').classList.remove('d-none');
-};
-
-window.simpanNilai = function() {
-    const rombel = document.getElementById('selectKelasNilai').value;
-    if(!rombel) return showToast('Pilih rombel!', 'warning');
-    
-    document.querySelectorAll('.input-nilai').forEach(el => {
-        const id = el.getAttribute('data-id');
-        dataNilai[`${rombel}_${id}`] = el.value;
-    });
-    
-    localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
-    showToast('Nilai tersimpan!', 'success');
-    loadPenilaian();
-};
-
-// ==========================================
-// PRINT FUNCTIONS
-// ==========================================
-window.triggerPrint = function(sourceId, pdfName, orientation) {
-    updateUIProfile();
-    document.title = `${pdfName}_${new Date().getTime()}`;
-    
-    // Hide all print views
-    document.querySelectorAll('.print-view').forEach(el => {
-        el.classList.add('d-none');
-        el.classList.remove('print-active');
-    });
-    
-    // Show only target
-    const target = document.getElementById(sourceId);
-    if (!target) {
-        showToast('Dokumen belum di-generate!', 'warning');
-        return;
-    }
-    
-    target.classList.remove('d-none');
-    target.classList.add('print-active');
-    
-    // Add orientation style
-    let styleEl = document.getElementById('printOrientationStyle');
-    if (!styleEl) {
-        styleEl = document.createElement('style');
-        styleEl.id = 'printOrientationStyle';
-        document.head.appendChild(styleEl);
-    }
-    styleEl.textContent = `@media print { @page { size: ${orientation}; } }`;
-    
-    setTimeout(() => {
-        window.print();
-        setTimeout(() => {
-            target.classList.remove('print-active');
-        }, 500);
-    }, 300);
-};
-
-// ==========================================
-// UTILITY FUNCTIONS
-// ==========================================
-window.copyToClipboard = function(elementId) {
-    const textarea = document.getElementById(elementId);
-    textarea.select();
-    textarea.setSelectionRange(0, 99999);
-    navigator.clipboard.writeText(textarea.value);
-    showToast('Prompt disalin!', 'success');
-};
-
-function showToast(message, type = 'info') {
-    document.querySelectorAll('.toast-notification').forEach(t => t.remove());
-    
-    const bgColors = {
-        'success': 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-        'danger': 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)',
-        'warning': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
-        'info': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
-    };
-    
-    const icons = {
-        'success': 'fa-check-circle',
-        'danger': 'fa-times-circle',
-        'warning': 'fa-exclamation-circle',
-        'info': 'fa-info-circle'
-    };
-    
-    const toast = document.createElement('div');
-    toast.className = 'toast-notification';
-    toast.innerHTML = `<i class="fas ${icons[type]} me-2"></i>${message}`;
-    toast.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        background: ${bgColors[type]};
-        color: white;
-        border-radius: 10px;
-        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
-        z-index: 9999;
-        font-weight: 500;
-        font-size: 0.9rem;
-        animation: toastSlideIn 0.3s ease;
-        max-width: 300px;
-    `;
-    
-    if (!document.getElementById('toastAnimStyle')) {
-        const style = document.createElement('style');
-        style.id = 'toastAnimStyle';
-        style.textContent = `
-            @keyframes toastSlideIn {
-                from { transform: translateX(100%); opacity: 0; }
-                to { transform: translateX(0); opacity: 1; }
-            }
-            @keyframes toastSlideOut {
-                from { transform: translateX(0); opacity: 1; }
-                to { transform: translateX(100%); opacity: 0; }
-            }
-        `;
-        document.head.appendChild(style);
-    }
-    
-    document.body.appendChild(toast);
-    
-    setTimeout(() => {
-        toast.style.animation = 'toastSlideOut 0.3s ease';
-        setTimeout(() => toast.remove(), 300);
-    }, 3000);
-}
-
-// ==========================================
-// BACKUP & RESTORE
-// ==========================================
-window.exportAllData = function() {
-    const allData = {
-        siswa: dataSiswa,
-        jadwal: dataJadwal,
-        cptp: dataCPTP,
-        nilai: dataNilai,
-        holidays: customHolidays,
-        mapel: dataMapel,
-        activeMapel: activeMapelId,
-        profil: JSON.parse(localStorage.getItem('sim_prof')) || {},
-        exportDate: new Date().toISOString(),
-        version: '2.0'
-    };
-    
-    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `backup_sim_kurikulum_${Date.now()}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-    
-    showToast('Data berhasil diekspor!', 'success');
-};
-
-window.importAllData = function(event) {
-    const file = event.target.files[0];
-    if (!file) return;
-    
-    const reader = new FileReader();
-    reader.onload = function(e) {
-        try {
-            const data = JSON.parse(e.target.result);
-            
-            if (data.siswa) { dataSiswa = data.siswa; localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa)); }
-            if (data.jadwal) { dataJadwal = data.jadwal; localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal)); }
-            if (data.cptp) { dataCPTP = data.cptp; localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP)); }
-            if (data.nilai) { dataNilai = data.nilai; localStorage.setItem('sim_nilai', JSON.stringify(dataNilai)); }
-            if (data.holidays) { customHolidays = data.holidays; localStorage.setItem('sim_holidays', JSON.stringify(customHolidays)); }
-            if (data.mapel) { dataMapel = data.mapel; localStorage.setItem('sim_mapel', JSON.stringify(dataMapel)); }
-            if (data.activeMapel) { activeMapelId = data.activeMapel; localStorage.setItem('sim_active_mapel', activeMapelId); }
-            if (data.profil) { localStorage.setItem('sim_prof', JSON.stringify(data.profil)); }
-            
-            // Refresh
-            loadProfil();
-            renderTabelSiswa();
-            renderJadwal();
-            renderCPTP();
-            renderCalendar();
-            renderMapelList();
-            updateStats();
-            updateActiveMapelIndicator();
-            
-            showToast('Data berhasil diimpor!', 'success');
-        } catch (err) {
-            showToast('Format file tidak valid!', 'danger');
-        }
-    };
-    reader.readAsText(file);
-};
-
-// ==========================================
-// KEYBOARD & WINDOW EVENTS
-// ==========================================
-document.addEventListener('keydown', function(e) {
-    if (e.ctrlKey && e.key === 's') {
-        e.preventDefault();
-        showToast('Data tersimpan otomatis di browser!', 'info');
-    }
-    if (e.key === 'Escape') {
-        document.querySelectorAll('.modal.show').forEach(modal => {
-            bootstrap.Modal.getInstance(modal)?.hide();
-        });
-    }
-});
-
-// Close sidebar when clicking outside on mobile
-window.addEventListener('resize', function() {
-    if (window.innerWidth >= 992) {
-        document.getElementById('sidebarMenu').classList.remove('show');
-        document.getElementById('sidebarOverlay').classList.remove('show');
-    }
-});
-
-// ==========================================
-// INIT LOG
-// ==========================================
-console.log('🎓 SIM Kurikulum Merdeka Pro v2.0');
-console.log('📱 Device ID:', deviceId);
-console.log('✅ Support: SD, SMP, SMA, SMK, PAUD');                                                                                                                                            
+function populateFaseRombelOptions(id) {
+    let set = new Set(dataJadwal.map(d => `Fase 
