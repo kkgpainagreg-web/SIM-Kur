@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SIM PAI Terpadu Pro</title>
+    <title>SIM Perangkat Ajar Kurikulum Merdeka</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
     <style>
@@ -13,7 +13,7 @@
         .sidebar .nav-link:hover, .sidebar .nav-link.active { color: white; background-color: #2c3e50; border-radius: 5px; }
         .content-area { padding: 20px; height: 100vh; overflow-y: auto; }
         
-        /* Print Styles */
+        /* Document Styles */
         .document-page { background: white; padding: 40px; box-shadow: 0 4px 15px rgba(0,0,0,0.1); margin-bottom: 20px; font-family: 'Times New Roman', Times, serif; color: black; max-width: 100%; overflow-x: auto;}
         .doc-header { text-align: center; font-weight: bold; font-size: 14pt; margin-bottom: 15px; text-transform: uppercase; line-height: 1.3; }
         table.doc-table { width: 100%; border-collapse: collapse; font-size: 11pt; margin-bottom: 15px; }
@@ -26,48 +26,37 @@
         .signature-box { display: table-cell; width: 50%; text-align: center; font-size: 11pt; }
         .signature-name { text-decoration: underline; font-weight: bold; margin-top: 75px; }
 
+        /* Print Settings (Fixing Blank Pages) */
         @media print {
             @page { margin: 15mm; }
-            body { background-color: white; }
-            body * { visibility: hidden; }
-            #printArea, #printArea * { visibility: visible; }
-            #printArea { position: absolute; left: 0; top: 0; width: 100%; margin: 0; padding: 0; }
-            .no-print { display: none !important; }
-            .sidebar { display: none !important; }
-            .content-area { width: 100% !important; height: auto !important; padding: 0 !important; overflow: visible !important; }
-            .document-page { box-shadow: none; margin: 0; padding: 0; max-width: 100%; border: none; }
+            body { background-color: white !important; margin: 0; padding: 0; }
+            .no-print, .sidebar { display: none !important; }
+            .content-area { width: 100% !important; padding: 0 !important; overflow: visible !important; height: auto !important; }
+            .document-page { box-shadow: none !important; margin: 0 !important; padding: 0 !important; border: none !important; }
+            .hide-on-print { display: none !important; }
+            table.doc-table th { -webkit-print-color-adjust: exact; background-color: #e9ecef !important; }
+            
             .landscape-print { @page { size: landscape; } }
             .portrait-print { @page { size: portrait; } }
-            table.doc-table th { -webkit-print-color-adjust: exact; background-color: #e9ecef !important; }
         }
     </style>
 </head>
 <body>
 
-    <div id="loginScreen" class="container d-flex justify-content-center align-items-center" style="height: 100vh;">
-        <div class="card p-5 text-center shadow" style="max-width: 450px;">
-            <h3 class="mb-3 text-success fw-bold">🎓 SIM PAI Terpadu</h3>
-            <p class="text-muted small">Kelola Modul, Jadwal, Nilai & Absen Terintegrasi.</p>
-            <button id="btnLogin" class="btn btn-danger mt-3">🌐 Sign in with Google / belajar.id</button>
-            <button class="btn btn-outline-secondary mt-3 btn-sm" onclick="bypassLogin()">Mode Uji Coba (Lokal)</button>
-        </div>
-    </div>
-
-    <div id="mainApp" class="container-fluid d-none">
+    <div id="mainApp" class="container-fluid">
         <div class="row">
             <div class="col-md-2 sidebar flex-column no-print">
                 <div class="text-center mb-3">
-                    <img id="userAvatar" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="rounded-circle mb-2 bg-secondary" width="50" height="50" alt="User">
-                    <div id="userName" class="small fw-bold"></div>
-                    <button id="btnLogout" class="btn btn-sm btn-outline-light mt-2" style="font-size: 0.7rem;">Logout</button>
+                    <img id="userAvatar" src="data:image/svg+xml;charset=UTF-8,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='%23fff'%3E%3Cpath d='M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z'/%3E%3C/svg%3E" class="rounded-circle mb-2 bg-secondary" width="50" height="50">
+                    <div id="userName" class="small fw-bold">Guru Universal</div>
                 </div>
                 <hr class="bg-light">
                 <nav class="nav flex-column">
                     <a class="nav-link active" onclick="showTab('tabDashboard')">🏠 Dashboard</a>
-                    <a class="nav-link" onclick="showTab('tabPanduan')">📖 Panduan (Bantuan)</a>
-                    <a class="nav-link text-warning" onclick="showTab('tabProfil')">🏫 Profil Instansi (NPSN)</a>
+                    <a class="nav-link text-warning" onclick="showTab('tabProfil')">🏫 Profil & Mapel</a>
+                    <a class="nav-link text-info" onclick="showTab('tabCPTP')">🎯 Setup CP & TP</a>
                     <a class="nav-link" onclick="showTab('tabSiswa')">👥 Data Siswa (CSV)</a>
-                    <a class="nav-link" onclick="showTab('tabJadwal')">📅 Jadwal (Kolaborasi)</a>
+                    <a class="nav-link" onclick="showTab('tabJadwal')">📅 Jadwal Mengajar</a>
                     <a class="nav-link" onclick="showTab('tabTahunan')">📁 Prota, Promes, ATP</a>
                     <a class="nav-link" onclick="showTab('tabPerangkat')">📖 Modul & LKPD</a>
                     <a class="nav-link" onclick="showTab('tabPelaksanaan')">📋 Absen & Jurnal</a>
@@ -78,58 +67,60 @@
             <div class="col-md-10 content-area" id="mainContentArea">
                 
                 <div id="tabDashboard" class="tab-content">
-                    <h3 class="mb-4">Selamat Datang di SIM PAI Terpadu</h3>
-                    <div class="row">
-                        <div class="col-md-6">
-                            <div class="alert alert-success shadow-sm">
-                                <h5>🌟 Fitur Baru:</h5>
-                                <ul>
-                                    <li><b>Sistem NPSN Terpusat:</b> Jika guru lain di sekolah yang sama login, jadwal mengajar tidak akan bentrok satu sama lain.</li>
-                                    <li><b>Import CSV Online:</b> Tarik data siswa langsung dari link Google Sheets tanpa download file.</li>
-                                    <li><b>Penilaian Otomatis:</b> Modul nilai siap cetak berdasarkan kelas.</li>
-                                </ul>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <div id="tabPanduan" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Buku Panduan Penggunaan</h3>
-                    <div class="card p-4 shadow-sm">
-                        <ol style="line-height: 1.8;">
-                            <li><b>Pengaturan Profil (Wajib):</b> Buka menu <i>Profil Instansi</i>. Isi data diri dan wajib isi <b>NPSN</b>. NPSN digunakan sistem untuk mengelompokkan guru dalam satu sekolah yang sama.</li>
-                            <li><b>Input Data Siswa:</b> Buka menu <i>Data Siswa</i>. Ketik nama Kelas (Misal: 3A). Anda bisa upload file CSV lokal atau cukup *paste* link CSV (contoh link dari *Google Sheets -> File -> Share -> Publish to Web -> CSV*).</li>
-                            <li><b>Pembuatan Jadwal:</b> Buka menu <i>Jadwal</i>. Tambahkan jam dan kelas. Sistem akan mengecek Database. Jika ada guru lain di sekolah Anda (NPSN sama) yang sudah mengajar di kelas/jam tersebut, sistem akan menolak jadwal Anda (Anti-Bentrok).</li>
-                            <li><b>Perangkat Ajar:</b> Generate Prota/Promes dan Modul Ajar secara otomatis lalu cetak langsung ke format PDF dengan rapi.</li>
-                            <li><b>Absen & Nilai:</b> Gunakan menu Absensi setiap selesai kelas untuk mencetak Jurnal. Gunakan menu <i>Penilaian</i> untuk merekap nilai ulangan/tugas harian.</li>
-                        </ol>
+                    <h3 class="mb-4">Sistem Manajemen Kurikulum Merdeka</h3>
+                    <div class="alert alert-success shadow-sm">
+                        <h5>🌟 Aplikasi Kini Mendukung Semua Mapel!</h5>
+                        <p>1. Buka <b>Profil & Mapel</b> untuk mengatur Identitas Sekolah dan Nama Mata Pelajaran.<br>
+                        2. Buka <b>Setup CP & TP</b> untuk memasukkan target pembelajaran spesifik mata pelajaran Anda.<br>
+                        3. Buka <b>Data Siswa</b> untuk mengimpor CSV. Header kolom sekarang wajib: <code>nisn, nama, jk, kelas, rombel</code>.</p>
                     </div>
                 </div>
 
                 <div id="tabProfil" class="tab-content d-none no-print">
                     <h3 class="mb-3">Profil Instansi & Guru</h3>
                     <div class="card p-4 shadow-sm border-warning">
-                        <div class="alert alert-warning small"><b>Penting:</b> Pastikan NPSN diisi dengan benar. Sinkronisasi jadwal antar guru di sekolah Anda bergantung pada nomor NPSN ini.</div>
                         <div class="row g-3">
-                            <div class="col-md-4"><label class="fw-bold small">NPSN Sekolah <span class="text-danger">*</span></label><input type="number" id="profNpsn" class="form-control" placeholder="12345678"></div>
+                            <div class="col-md-4"><label class="fw-bold small">Mata Pelajaran <span class="text-danger">*</span></label><input type="text" id="profMapel" class="form-control" placeholder="Contoh: Matematika / PAI / IPA"></div>
+                            <div class="col-md-4"><label class="fw-bold small">NPSN Sekolah</label><input type="number" id="profNpsn" class="form-control" placeholder="12345678"></div>
                             <div class="col-md-4"><label class="fw-bold small">Nama Sekolah</label><input type="text" id="profSekolah" class="form-control" placeholder="SDN 1 ..."></div>
-                            <div class="col-md-4"><label class="fw-bold small">Tahun Ajaran</label><input type="text" id="profTahun" class="form-control" value="2025/2026"></div>
                             <div class="col-md-6"><label class="fw-bold small">Kepala Sekolah</label><input type="text" id="profKepsek" class="form-control"></div>
                             <div class="col-md-6"><label class="fw-bold small">NIP Kepsek</label><input type="text" id="profNipKepsek" class="form-control"></div>
-                            <div class="col-md-6"><label class="fw-bold small">Guru PAI</label><input type="text" id="profGuru" class="form-control"></div>
-                            <div class="col-md-6"><label class="fw-bold small">NIP Guru</label><input type="text" id="profNipGuru" class="form-control"></div>
-                            <div class="col-md-12"><label class="fw-bold small">Tempat, Tgl Pengesahan</label><input type="text" id="profTanggal" class="form-control" placeholder="Jakarta, 15 Juli 2025"></div>
-                            <div class="col-md-12 mt-3"><button class="btn btn-success" onclick="simpanProfil()">💾 Simpan Profil</button></div>
+                            <div class="col-md-4"><label class="fw-bold small">Nama Guru Pengampu</label><input type="text" id="profGuru" class="form-control"></div>
+                            <div class="col-md-4"><label class="fw-bold small">NIP Guru</label><input type="text" id="profNipGuru" class="form-control"></div>
+                            <div class="col-md-4"><label class="fw-bold small">Tahun Ajaran</label><input type="text" id="profTahun" class="form-control" value="2025/2026"></div>
+                            <div class="col-md-12"><label class="fw-bold small">Tempat, Tgl Pengesahan Dokumen</label><input type="text" id="profTanggal" class="form-control" placeholder="Jakarta, 15 Juli 2025"></div>
+                            <div class="col-md-12 mt-3"><button class="btn btn-warning fw-bold" onclick="simpanProfil()">💾 Simpan Profil</button></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="tabCPTP" class="tab-content d-none no-print">
+                    <h3 class="mb-3">Setup Capaian & Tujuan Pembelajaran</h3>
+                    <div class="card p-4 shadow-sm border-info">
+                        <div class="mb-3">
+                            <label class="fw-bold">Capaian Pembelajaran (CP) Keseluruhan Fase:</label>
+                            <textarea id="inputCP" class="form-control" rows="3" placeholder="Masukkan narasi CP sesuai SK BSKAP terbaru..."></textarea>
+                        </div>
+                        <hr>
+                        <label class="fw-bold mb-2">Daftar Tujuan Pembelajaran (TP) / Materi Per Bab:</label>
+                        <table class="table table-bordered">
+                            <thead class="table-light"><tr><th width="10%">Bab Ke-</th><th width="75%">Tujuan Pembelajaran (Topik Materi)</th><th width="15%">Alokasi JP</th></tr></thead>
+                            <tbody id="bodyInputTP"></tbody>
+                        </table>
+                        <div class="d-flex justify-content-between">
+                            <button class="btn btn-outline-primary btn-sm" onclick="tambahBarisTP()">➕ Tambah Bab/Materi</button>
+                            <button class="btn btn-info fw-bold" onclick="simpanCPTP()">💾 Simpan Data CP & TP</button>
                         </div>
                     </div>
                 </div>
 
                 <div id="tabSiswa" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Import Data Siswa</h3>
+                    <h3 class="mb-3">Import Data Siswa Terintegrasi</h3>
+                    <div class="alert alert-info small">
+                        Pastikan file CSV memiliki Header (baris pertama) persis seperti ini: <b>nisn, nama, jk, kelas, rombel</b>. Sistem akan otomatis memfilter rombel.
+                    </div>
                     <div class="card p-3 mb-4 shadow-sm border-primary">
-                        <label class="fw-bold text-primary mb-2">Tujuan Kelas / Rombel: <input type="text" id="inputSiswaKelas" class="form-control w-25 d-inline" placeholder="Misal: Kelas 3A"></label>
-                        
-                        <div class="row mt-2 border-top pt-3">
+                        <div class="row">
                             <div class="col-md-6 border-end">
                                 <h6>Opsi 1: Link CSV Online (Google Sheets)</h6>
                                 <input type="url" id="inputCsvUrl" class="form-control mb-2" placeholder="https://docs.google.com/spreadsheets/.../pub?output=csv">
@@ -141,64 +132,96 @@
                                 <button class="btn btn-outline-secondary w-100" onclick="importSiswaLokal()">📁 Upload File CSV</button>
                             </div>
                         </div>
-                        <small class="text-muted mt-2"><i>*Format Kolom Header Wajib: <b>NIS, Nama, L/P</b></i></small>
                     </div>
 
                     <div class="d-flex justify-content-between mb-2">
                         <select id="filterKelasSiswa" class="form-select w-25" onchange="renderTabelSiswa()"></select>
                         <button class="btn btn-danger btn-sm" onclick="clearDataSiswa()">Hapus Semua Siswa</button>
                     </div>
-                    <table class="table table-bordered bg-white shadow-sm"><thead class="table-dark"><tr><th>NIS</th><th>Nama Siswa</th><th>L/P</th><th>Kelas</th></tr></thead><tbody id="tabelSiswaBody"></tbody></table>
+                    <table class="table table-bordered bg-white shadow-sm">
+                        <thead class="table-dark"><tr><th>NISN</th><th>Nama Siswa</th><th>JK</th><th>Kelas</th><th>Rombel</th></tr></thead>
+                        <tbody id="tabelSiswaBody"></tbody>
+                    </table>
                 </div>
 
                 <div id="tabJadwal" class="tab-content d-none no-print">
-                    <h3 class="mb-3">Jadwal Pelajaran Kolaboratif</h3>
-                    <div class="alert alert-info py-2 small">Sistem melacak database menggunakan NPSN <b><span class="vNpsn">Belum diset</span></b>. Guru lain di instansi Anda akan tersinkronisasi.</div>
+                    <h3 class="mb-3">Jadwal Mengajar Anda</h3>
                     <div class="card p-3 shadow-sm mb-3">
                         <div class="row g-2">
                             <div class="col-md-2"><select id="jadwalHari" class="form-select"><option>Senin</option><option>Selasa</option><option>Rabu</option><option>Kamis</option><option>Jumat</option></select></div>
                             <div class="col-md-2"><input type="number" id="jadwalJam" class="form-control" placeholder="Jam Ke-"></div>
-                            <div class="col-md-3"><input type="text" id="jadwalRombel" class="form-control" placeholder="Kelas (Misal: 3A)"></div>
-                            <div class="col-md-3"><select id="jadwalFase" class="form-select"><option value="A">Fase A (Kls 1-2)</option><option value="B">Fase B (Kls 3-4)</option><option value="C">Fase C (Kls 5-6)</option></select></div>
-                            <div class="col-md-2"><button class="btn btn-success w-100" id="btnTambahJadwal">Tambah</button></div>
+                            <div class="col-md-3"><select id="jadwalFase" class="form-select"><option value="A">Fase A</option><option value="B">Fase B</option><option value="C">Fase C</option><option value="D">Fase D (SMP)</option><option value="E">Fase E (SMA)</option><option value="F">Fase F (SMA)</option></select></div>
+                            <div class="col-md-3"><input type="text" id="jadwalRombel" class="form-control" placeholder="Rombel (Cth: 7A)"></div>
+                            <div class="col-md-2"><button class="btn btn-success w-100" onclick="tambahJadwalLokal()">Tambah</button></div>
                         </div>
-                        <small class="text-danger mt-1 fw-bold" id="msgJadwal"></small>
                     </div>
-                    <table class="table table-striped bg-white shadow-sm"><thead class="table-dark"><tr><th>Hari</th><th>Jam</th><th>Kelas</th><th>Fase</th><th>Aksi</th></tr></thead><tbody id="tabelJadwalBody"></tbody></table>
+                    <table class="table table-striped bg-white shadow-sm"><thead class="table-dark"><tr><th>Hari</th><th>Jam</th><th>Fase</th><th>Rombel</th><th>Aksi</th></tr></thead><tbody id="tabelJadwalBody"></tbody></table>
                 </div>
 
                 <div id="tabTahunan" class="tab-content d-none">
                      <div class="no-print card p-3 shadow-sm mb-3 border-primary">
                         <div class="row g-2 align-items-end">
-                            <div class="col-md-3"><label class="small fw-bold">Pilih Fase & Kelas</label><select id="tFase" class="form-select"><option value="A">Fase A (Kelas 1)</option><option value="B">Fase B (Kelas 3)</option><option value="C">Fase C (Kelas 5)</option></select></div>
-                            <div class="col-md-3"><button class="btn btn-primary w-100" onclick="generateTahunan()">Generate Dokumen</button></div>
+                            <div class="col-md-4"><label class="small fw-bold">Pilih Fase & Rombel</label><select id="tFaseRombel" class="form-select"></select></div>
+                            <div class="col-md-2"><button class="btn btn-primary w-100" onclick="generateTahunan()">Load Data</button></div>
                             <div class="col-md-6 text-end">
-                                <button class="btn btn-outline-danger" onclick="triggerPrint('docATP', 'ATP_PAI', 'portrait')">PDF ATP</button>
-                                <button class="btn btn-outline-danger" onclick="triggerPrint('docProta', 'Prota_PAI', 'portrait')">PDF Prota</button>
-                                <button class="btn btn-outline-danger" onclick="triggerPrint('docPromes', 'Promes_PAI', 'landscape')">PDF Promes</button>
+                                <button class="btn btn-danger" onclick="triggerPrint('docATP', 'ATP', 'landscape')">Cetak ATP</button>
+                                <button class="btn btn-danger" onclick="triggerPrint('docProta', 'Prota', 'portrait')">Cetak Prota</button>
+                                <button class="btn btn-danger" onclick="triggerPrint('docPromes', 'Promes', 'landscape')">Cetak Promes</button>
                             </div>
                         </div>
                     </div>
-                    <div id="docATP" class="document-page d-none"><div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)</div><table class="identity-table mb-3"><tr><td width="15%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="15%">Fase / Kelas</td><td>:</td><td class="vFaseKelas"></td></tr></table><table class="doc-table"><tr><th width="10%">Semester</th><th width="15%">Elemen</th><th width="60%">Tujuan Pembelajaran</th><th width="15%">JP</th></tr><tbody id="tblAtpBody"></tbody></table></div>
-                    <div id="docProta" class="document-page d-none"><div class="doc-header">PROGRAM TAHUNAN (PROTA)</div><table class="identity-table mb-3"><tr><td width="15%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="15%">Kelas</td><td>:</td><td class="vFaseKelas"></td></tr></table><table class="doc-table"><tr><th>Semester</th><th>Materi Pokok</th><th>JP</th><th>Ket</th></tr><tbody id="tblProtaBody"></tbody></table></div>
-                    <div id="docPromes" class="document-page d-none"><div class="doc-header">PROGRAM SEMESTER (PROMES)</div><table class="doc-table" style="font-size: 9pt;"><tr><th rowspan="2">Materi</th><th rowspan="2">JP</th><th colspan="4">Juli</th><th colspan="4">Agustus</th></tr><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tbody id="tblPromesBody"></tbody></table></div>
                     
-                    <div id="previewTahunan" class="alert alert-secondary text-center">Tekan "Generate Dokumen" untuk mengaktifkan cetak.</div>
+                    <div id="docATP" class="document-page print-view d-none">
+                        <div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)</div>
+                        <table class="identity-table mb-3"><tr><td width="15%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr><tr><td>Fase / Rombel</td><td>:</td><td class="vFaseRombel"></td><td>Tahun Ajaran</td><td>:</td><td class="vTahun"></td></tr></table>
+                        <div class="mb-2"><b>Capaian Pembelajaran:</b> <span id="vCPATP"></span></div>
+                        <table class="doc-table"><tr><th width="10%">Bab</th><th width="75%">Alur Tujuan Pembelajaran (Materi)</th><th width="15%">Alokasi JP</th></tr><tbody id="tblAtpBody"></tbody></table>
+                        <div class="signature-area"><div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div>NIP. <span class="vNipKepsek"></span></div><div class="signature-box"><span class="vTanggal"></span><br>Guru <span class="vMapel"></span><div class="signature-name vGuru"></div>NIP. <span class="vNipGuru"></span></div></div>
+                    </div>
+
+                    <div id="docProta" class="document-page print-view d-none">
+                        <div class="doc-header">PROGRAM TAHUNAN (PROTA)</div>
+                        <table class="identity-table mb-3"><tr><td width="15%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td><td width="15%">Fase/Rombel</td><td>:</td><td class="vFaseRombel"></td></tr></table>
+                        <table class="doc-table"><tr><th>Semester</th><th>Bab / Tujuan Pembelajaran</th><th>Alokasi JP</th><th>Keterangan</th></tr><tbody id="tblProtaBody"></tbody></table>
+                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                    </div>
+
+                    <div id="docPromes" class="document-page print-view d-none">
+                        <div class="doc-header">PROGRAM SEMESTER (PROMES)</div>
+                        <table class="identity-table mb-2"><tr><td width="10%">Sekolah</td><td>:</td><td class="vSekolah"></td><td width="10%">Mapel</td><td>:</td><td class="vMapel"></td></tr></table>
+                        <table class="doc-table" style="font-size: 9pt;"><tr><th rowspan="2">Tujuan Pembelajaran / Materi</th><th rowspan="2">JP</th><th colspan="4">Juli</th><th colspan="4">Agustus</th><th colspan="4">September</th><th colspan="4">Oktober</th></tr><tr><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th><th>1</th><th>2</th><th>3</th><th>4</th></tr><tbody id="tblPromesBody"></tbody></table>
+                        <div class="signature-area mt-4"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                    </div>
+                    
+                    <div id="previewTahunan" class="alert alert-secondary text-center no-print">Tekan "Load Data" untuk mengaktifkan cetak ATP, Prota, dan Promes.</div>
                 </div>
 
                 <div id="tabPerangkat" class="tab-content d-none">
-                     <div class="no-print card p-3 shadow-sm mb-3">
+                     <div class="no-print card p-3 shadow-sm mb-3 border-success">
                         <div class="row g-2 align-items-end">
                             <div class="col-md-4"><label class="small fw-bold">Jadwal Mengajar</label><select id="pSelectJadwal" class="form-select"></select></div>
-                            <div class="col-md-3"><label class="small fw-bold">Bab Ke-</label><input type="number" id="pBab" class="form-control" value="1"></div>
-                            <div class="col-md-3"><button class="btn btn-success w-100" onclick="generateModul()">Buat Modul</button></div>
-                            <div class="col-md-2"><button class="btn btn-danger w-100" onclick="triggerPrint('docModul', 'Modul_Ajar', 'portrait')">PDF Modul</button></div>
+                            <div class="col-md-4"><label class="small fw-bold">Pilih Materi (Sesuai TP)</label><select id="pSelectTP" class="form-select"></select></div>
+                            <div class="col-md-2"><button class="btn btn-success w-100" onclick="generateModul()">Buat Data</button></div>
+                            <div class="col-md-2"><button class="btn btn-danger w-100" onclick="triggerPrint('docModul', 'Modul', 'portrait')">Cetak Modul</button></div>
                         </div>
                     </div>
-                    <div id="docModul" class="document-page">
-                        <div class="doc-header">MODUL AJAR PAI & BUDI PEKERTI</div>
-                        <p id="outMateri" class="mb-3 text-justify">Silakan pilih jadwal dan generate materi.</p>
-                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru PAI<div class="signature-name vGuru"></div></div></div>
+                    <div id="docModul" class="document-page print-view d-none">
+                        <div class="doc-header">MODUL AJAR KURIKULUM MERDEKA</div>
+                        <b>A. INFORMASI UMUM</b>
+                        <table class="identity-table mt-2 mb-3">
+                            <tr><td width="20%">Penyusun</td><td>:</td><td class="vGuru fw-bold"></td><td width="15%">Instansi</td><td>:</td><td class="vSekolah"></td></tr>
+                            <tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td><td>Fase / Rombel</td><td>:</td><td><span class="vFaseRombel"></span></td></tr>
+                        </table>
+                        <b>B. CAPAIAN & TUJUAN PEMBELAJARAN</b>
+                        <p class="mb-3 text-justify">Peserta didik mampu memahami dan menguasai materi tentang: <b><span id="outMateriModul">...</span></b>.</p>
+                        <b>C. KEGIATAN PEMBELAJARAN</b>
+                        <table class="doc-table mt-2">
+                            <tr><th width="20%">Tahap</th><th>Deskripsi Kegiatan</th></tr>
+                            <tr><td><b>Pendahuluan</b></td><td>1. Berdoa.<br>2. Cek kebersihan dan presensi.<br>3. Apersepsi materi.</td></tr>
+                            <tr><td><b>Inti</b></td><td>1. Penjelasan materi.<br>2. Diskusi kelompok peserta didik.<br>3. Presentasi dan pengerjaan LKPD.</td></tr>
+                            <tr><td><b>Penutup</b></td><td>1. Kesimpulan bersama.<br>2. Doa penutup.</td></tr>
+                        </table>
+                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
                     </div>
                 </div>
 
@@ -206,244 +229,333 @@
                     <div class="no-print card p-3 shadow-sm mb-3 border-danger">
                         <div class="row g-2 align-items-end">
                             <div class="col-md-4"><label class="small fw-bold">Jadwal Hari Ini</label><select id="selectJadwalAbsen" class="form-select"></select></div>
-                            <div class="col-md-4"><button class="btn btn-danger w-100" onclick="loadAbsensi()">Mulai Kelas (Absen)</button></div>
-                            <div class="col-md-4 text-end"><button class="btn btn-outline-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">Cetak Jurnal (PDF)</button></div>
+                            <div class="col-md-4"><label class="small fw-bold">Pilih Materi (TP)</label><select id="selectTPAbsen" class="form-select"></select></div>
+                            <div class="col-md-2"><button class="btn btn-danger w-100" onclick="loadAbsensi()">Mulai Absen</button></div>
+                            <div class="col-md-2 text-end"><button class="btn btn-outline-danger w-100" onclick="triggerPrint('docJurnal', 'Jurnal', 'landscape')">Cetak Jurnal</button></div>
                         </div>
                     </div>
                     <div id="areaAbsen" class="d-none no-print mb-4 p-3 bg-white border rounded shadow-sm">
                         <div id="listSiswaAbsen" class="row mt-2"></div><button class="btn btn-primary mt-3" onclick="simpanJurnal()">Simpan ke Jurnal</button>
                     </div>
-                    <div id="docJurnal" class="document-page"><div class="doc-header">JURNAL PEMBELAJARAN</div><table class="doc-table mt-2 text-center"><thead><tr><th>Hari/Tgl</th><th>Kelas</th><th>Materi</th><th>Absensi Siswa</th></tr></thead><tbody><tr><td id="jurTanggal"></td><td id="jurRombel"></td><td>Pelaksanaan Bab <span class="vBab">1</span></td><td>Hadir: <span id="jurHadir">0</span> | Absen: <span id="jurAbsen">0</span></td></tr></tbody></table></div>
+                    <div id="docJurnal" class="document-page print-view d-none">
+                        <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN</div>
+                        <table class="identity-table" style="width: 50%;"><tr><td width="30%">Nama Sekolah</td><td>:</td><td class="vSekolah fw-bold"></td></tr><tr><td>Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr><tr><td>Nama Guru</td><td>:</td><td class="vGuru"></td></tr></table>
+                        <table class="doc-table mt-2 text-center">
+                            <thead><tr><th width="15%">Hari/Tgl</th><th width="10%">Rombel</th><th width="35%">Materi / Tujuan Pembelajaran</th><th width="20%">Absensi Siswa</th><th width="20%">Catatan Guru</th></tr></thead>
+                            <tbody><tr><td id="jurTanggal"></td><td id="jurRombel"></td><td id="jurMateri" class="text-start"></td><td class="text-start">Hadir: <span id="jurHadir">0</span><br>Absen: <span id="jurAbsen">0</span><br><div id="jurListAbsen" class="small"></div></td><td>Tuntas</td></tr></tbody>
+                        </table>
+                        <div class="signature-area mt-4"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
+                    </div>
                 </div>
 
                 <div id="tabPenilaian" class="tab-content d-none">
                     <div class="no-print card p-3 shadow-sm mb-3 border-info">
                         <div class="row g-2 align-items-end">
-                            <div class="col-md-4"><label class="small fw-bold">Pilih Kelas</label><select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select></div>
-                            <div class="col-md-4"><label class="small fw-bold">Topik / Bab Penilaian</label><input type="text" id="topikNilai" class="form-control" value="Ulangan Harian Bab 1"></div>
-                            <div class="col-md-4 text-end">
-                                <button class="btn btn-info w-100" onclick="simpanNilai()">💾 Simpan Nilai</button>
-                            </div>
+                            <div class="col-md-4"><label class="small fw-bold">Pilih Rombel</label><select id="selectKelasNilai" class="form-select" onchange="loadPenilaian()"></select></div>
+                            <div class="col-md-4"><label class="small fw-bold">Topik / Bab Penilaian</label><input type="text" id="topikNilai" class="form-control" value="Ulangan Harian"></div>
+                            <div class="col-md-2"><button class="btn btn-info w-100" onclick="simpanNilai()">Simpan</button></div>
+                            <div class="col-md-2 text-end"><button class="btn btn-outline-danger w-100" onclick="triggerPrint('docNilai', 'Nilai', 'portrait')">Cetak Nilai</button></div>
                         </div>
                     </div>
                     
-                    <div class="mb-3 text-end no-print"><button class="btn btn-outline-danger" onclick="triggerPrint('docNilai', 'Rekap_Nilai', 'portrait')">Cetak Rekap Nilai PDF</button></div>
-
-                    <div id="docNilai" class="document-page">
+                    <div id="docNilai" class="document-page print-view d-none">
                         <div class="doc-header">REKAPITULASI NILAI SISWA</div>
                         <table class="identity-table" style="width: 60%;">
-                            <tr><td width="20%">Sekolah</td><td>:</td><td class="vSekolah"></td></tr>
-                            <tr><td>Kelas / Rombel</td><td>:</td><td><b id="lblKelasNilai">...</b></td></tr>
+                            <tr><td width="25%">Mata Pelajaran</td><td>:</td><td class="vMapel"></td></tr>
+                            <tr><td>Rombel</td><td>:</td><td><b id="lblKelasNilai">...</b></td></tr>
                             <tr><td>Topik Penilaian</td><td>:</td><td><b id="lblTopikNilai">...</b></td></tr>
                         </table>
-                        
                         <table class="doc-table mt-3 text-center">
-                            <thead>
-                                <tr>
-                                    <th width="5%">No</th><th width="15%">NIS</th><th width="50%" class="text-start">Nama Siswa</th><th width="15%">L/P</th><th width="15%">Nilai Angka</th>
-                                </tr>
-                            </thead>
-                            <tbody id="tblNilaiBody">
-                                <tr><td colspan="5">Pilih kelas di atas untuk memuat data.</td></tr>
-                            </tbody>
+                            <thead><tr><th width="5%">No</th><th width="15%">NISN</th><th width="50%" class="text-start">Nama Siswa</th><th width="10%">JK</th><th width="20%">Nilai</th></tr></thead>
+                            <tbody id="tblNilaiBody"><tr><td colspan="5">Pilih Rombel.</td></tr></tbody>
                         </table>
-                        <div class="signature-area"><div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box"><span class="vTanggal"></span><br>Guru PAI<div class="signature-name vGuru"></div></div></div>
+                        <div class="signature-area"><div class="signature-box">Kepala Sekolah<div class="signature-name vKepsek"></div></div><div class="signature-box">Guru <span class="vMapel"></span><div class="signature-name vGuru"></div></div></div>
                     </div>
                 </div>
 
-                <div id="printArea" class="d-none"></div>
             </div>
         </div>
     </div>
 
-    <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
-        import { getAuth, signInWithPopup, GoogleAuthProvider, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-auth.js";
-        import { getFirestore, collection, addDoc, getDocs, query, where, onSnapshot } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
+    <script>
+        // Data State
+        let dataSiswa = JSON.parse(localStorage.getItem('sim_siswa')) || [];
+        let dataJadwal = JSON.parse(localStorage.getItem('sim_jadwal')) || [];
+        let dataNilai = JSON.parse(localStorage.getItem('sim_nilai')) || {};
+        let dataCPTP = JSON.parse(localStorage.getItem('sim_cptp')) || { cp: "", tps: [{bab:1, judul:"Materi Pertama", jp:4}] };
 
-        const firebaseConfig = { apiKey: "AIzaSyCTEbggjJ5cguXAlq-QpbY5mO2G16S7rvQ", authDomain: "si-gumart.firebaseapp.com", projectId: "si-gumart", storageBucket: "si-gumart.firebasestorage.app", messagingSenderId: "544375918988", appId: "1:544375918988:web:a8459825c68810f22546a9" };
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app); const db = getFirestore(app); const provider = new GoogleAuthProvider();
-
-        let currentUser = null, isBypass = false;
-        let dataSiswa = JSON.parse(localStorage.getItem('pai_dataSiswa')) || [];
-        let dataNilai = JSON.parse(localStorage.getItem('pai_dataNilai')) || {}; 
-
+        // Navigation
         window.showTab = function(tabId) {
             document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
             document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
             document.getElementById(tabId).classList.remove('d-none');
             event.target.classList.add('active');
+            
+            // Re-render specifics
             updateUIProfile();
+            if(tabId === 'tabCPTP') renderCPTP();
+            if(tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
+            if(tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
             if(tabId === 'tabPenilaian') renderKelasPenilaian();
         };
 
+        // Print Logic (Fixing Blank Pages)
         window.triggerPrint = function(sourceId, pdfName, orientation) {
-            updateUIProfile(); document.title = pdfName + "_" + new Date().getTime();
+            updateUIProfile();
+            document.title = pdfName + "_" + new Date().getTime();
+            
             document.body.classList.remove('landscape-print', 'portrait-print');
             document.body.classList.add(orientation + '-print');
             
-            const printArea = document.getElementById('printArea'); printArea.innerHTML = '';
-            const clone = document.getElementById(sourceId).cloneNode(true);
-            clone.classList.remove('d-none'); clone.style.boxShadow = 'none'; clone.style.padding = '0';
+            // Hide all pages, show target
+            document.querySelectorAll('.print-view').forEach(el => el.classList.add('hide-on-print'));
+            document.querySelectorAll('.document-page').forEach(el => el.style.display = 'none');
             
-            printArea.appendChild(clone); printArea.classList.remove('d-none');
-            document.getElementById('mainContentArea').classList.add('d-none');
+            const target = document.getElementById(sourceId);
+            target.classList.remove('d-none', 'hide-on-print');
+            target.style.display = 'block';
+            
             window.print();
-            printArea.classList.add('d-none'); document.getElementById('mainContentArea').classList.remove('d-none');
-            document.title = "SIM PAI Terpadu Pro"; 
+            
+            target.style.display = 'none';
         };
 
-        // AUTH
-        document.getElementById('btnLogin').addEventListener('click', () => signInWithPopup(auth, provider).catch(e => alert(e.message)));
-        document.getElementById('btnLogout').addEventListener('click', () => { if(isBypass) location.reload(); else signOut(auth); });
-        window.bypassLogin = function() { isBypass = true; currentUser = { uid: "local_1", displayName: "Guru PAI Lokal" }; handleLoginSuccess(); };
-        
-        onAuthStateChanged(auth, (user) => {
-            if (user) { currentUser = user; handleLoginSuccess(); } 
-            else if (!isBypass) { document.getElementById('loginScreen').classList.remove('d-none'); document.getElementById('mainApp').classList.add('d-none'); }
-        });
-
-        function handleLoginSuccess() {
-            document.getElementById('loginScreen').classList.add('d-none'); document.getElementById('mainApp').classList.remove('d-none');
-            document.getElementById('userName').innerText = currentUser.displayName;
-            loadProfil(); renderTabelSiswa(); loadJadwal();
-        }
-
-        // PROFIL & NPSN
+        // 1. PROFIL
         window.simpanProfil = function() {
-            const p = { npsn: document.getElementById('profNpsn').value, sek: document.getElementById('profSekolah').value, thn: document.getElementById('profTahun').value, kep: document.getElementById('profKepsek').value, nkep: document.getElementById('profNipKepsek').value, gur: document.getElementById('profGuru').value, ngur: document.getElementById('profNipGuru').value, tgl: document.getElementById('profTanggal').value };
-            if(!p.npsn) return alert("NPSN Sekolah Wajib Diisi!");
-            localStorage.setItem('pai_prof', JSON.stringify(p)); alert("Profil Tersimpan!"); updateUIProfile(); loadJadwal();
+            const p = { 
+                mapel: document.getElementById('profMapel').value,
+                npsn: document.getElementById('profNpsn').value, 
+                sek: document.getElementById('profSekolah').value, 
+                thn: document.getElementById('profTahun').value, 
+                kep: document.getElementById('profKepsek').value, 
+                nkep: document.getElementById('profNipKepsek').value, 
+                gur: document.getElementById('profGuru').value, 
+                ngur: document.getElementById('profNipGuru').value, 
+                tgl: document.getElementById('profTanggal').value 
+            };
+            if(!p.mapel) return alert("Mata Pelajaran Wajib Diisi!");
+            localStorage.setItem('sim_prof', JSON.stringify(p)); alert("Profil Tersimpan!"); updateUIProfile();
         };
+
         function loadProfil() {
-            const p = JSON.parse(localStorage.getItem('pai_prof'));
-            if(p) { document.getElementById('profNpsn').value = p.npsn||''; document.getElementById('profSekolah').value = p.sek; document.getElementById('profTahun').value = p.thn; document.getElementById('profKepsek').value = p.kep; document.getElementById('profNipKepsek').value = p.nkep; document.getElementById('profGuru').value = p.gur; document.getElementById('profNipGuru').value = p.ngur; document.getElementById('profTanggal').value = p.tgl; }
+            const p = JSON.parse(localStorage.getItem('sim_prof'));
+            if(p) { 
+                document.getElementById('profMapel').value = p.mapel||''; document.getElementById('profNpsn').value = p.npsn||''; document.getElementById('profSekolah').value = p.sek||''; document.getElementById('profTahun').value = p.thn||''; document.getElementById('profKepsek').value = p.kep||''; document.getElementById('profNipKepsek').value = p.nkep||''; document.getElementById('profGuru').value = p.gur||''; document.getElementById('profNipGuru').value = p.ngur||''; document.getElementById('profTanggal').value = p.tgl||''; 
+            }
             updateUIProfile();
         }
+
         function updateUIProfile() {
-            const p = JSON.parse(localStorage.getItem('pai_prof')) || {};
-            document.querySelectorAll('.vNpsn').forEach(e => e.innerText = p.npsn || 'Belum Diset');
+            const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+            document.querySelectorAll('.vMapel').forEach(e => e.innerText = p.mapel || 'Mata Pelajaran');
             document.querySelectorAll('.vSekolah').forEach(e => e.innerText = p.sek || '...');
-            // [Inject rest of properties to class vTanggal, vKepsek, etc as usual...]
+            document.querySelectorAll('.vTahun').forEach(e => e.innerText = p.thn || '...');
+            document.querySelectorAll('.vKepsek').forEach(e => e.innerText = p.kep || '...');
+            document.querySelectorAll('.vNipKepsek').forEach(e => e.innerText = p.nkep || '...');
+            document.querySelectorAll('.vGuru').forEach(e => e.innerText = p.gur || '...');
+            document.querySelectorAll('.vNipGuru').forEach(e => e.innerText = p.ngur || '...');
+            document.querySelectorAll('.vTanggal').forEach(e => e.innerText = p.tgl || '...');
         }
 
-        // CSV DATA SISWA (Lokal & Online)
-        function prosesDataCsv(dataArray, kelasTujuan) {
+        // 2. SETUP CP & TP
+        function renderCPTP() {
+            document.getElementById('inputCP').value = dataCPTP.cp;
+            let h = '';
+            dataCPTP.tps.forEach((tp, i) => {
+                h += `<tr>
+                    <td><input type="number" class="form-control tp-bab" value="${tp.bab}"></td>
+                    <td><input type="text" class="form-control tp-judul" value="${tp.judul}"></td>
+                    <td><input type="number" class="form-control tp-jp" value="${tp.jp}"></td>
+                </tr>`;
+            });
+            document.getElementById('bodyInputTP').innerHTML = h;
+        }
+
+        window.tambahBarisTP = function() {
+            dataCPTP.tps.push({ bab: dataCPTP.tps.length+1, judul: "", jp: 4 });
+            renderCPTP();
+        }
+
+        window.simpanCPTP = function() {
+            dataCPTP.cp = document.getElementById('inputCP').value;
+            dataCPTP.tps = [];
+            const babs = document.querySelectorAll('.tp-bab');
+            const juduls = document.querySelectorAll('.tp-judul');
+            const jps = document.querySelectorAll('.tp-jp');
+            for(let i=0; i<babs.length; i++){
+                if(juduls[i].value.trim() !== "") {
+                    dataCPTP.tps.push({ bab: babs[i].value, judul: juduls[i].value, jp: jps[i].value });
+                }
+            }
+            localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
+            alert("Data CP & TP Berhasil Disimpan!");
+        }
+
+        // 3. IMPORT SISWA
+        function processCsvData(d) {
             let hitung = 0;
-            dataArray.forEach(s => { 
-                if(s.Nama || s.nama) {
-                    dataSiswa.push({ nis: s.NIS||s.nis||'-', nama: s.Nama||s.nama, lp: s['L/P']||s.LP||s.JK||'-', kelas: kelasTujuan });
+            d.forEach(s => {
+                // Get properties regardless of case
+                let kls = s.kelas||s.Kelas||s.KELAS;
+                let rmb = s.rombel||s.Rombel||s.ROMBEL;
+                let nm = s.nama||s.Nama||s.NAMA;
+                if(nm && kls && rmb) {
+                    dataSiswa.push({ 
+                        nisn: s.nisn||s.NISN||s.Nisn||'-', 
+                        nama: nm, 
+                        jk: s.jk||s.JK||s.Jk||'-', 
+                        kelas: kls, 
+                        rombel: rmb 
+                    });
                     hitung++;
                 }
             });
-            localStorage.setItem('pai_dataSiswa', JSON.stringify(dataSiswa)); 
-            renderTabelSiswa(); alert(`${hitung} data siswa berhasil diimport ke ${kelasTujuan}!`);
+            localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
+            renderTabelSiswa(); alert(`${hitung} data siswa ter-import!`);
         }
 
         window.importSiswaLokal = function() {
-            const file = document.getElementById('fileCsvSiswa').files[0]; const kls = document.getElementById('inputSiswaKelas').value.trim();
-            if(!file || !kls) return alert("Pilih file dan ketik kelas tujuan!");
-            Papa.parse(file, { header: true, skipEmptyLines: true, complete: function(r) { prosesDataCsv(r.data, kls); }});
+            const f = document.getElementById('fileCsvSiswa').files[0];
+            if(!f) return alert("Pilih file!");
+            Papa.parse(f, { header: true, skipEmptyLines: true, complete: function(r) { processCsvData(r.data); }});
         };
-
         window.importSiswaUrl = function() {
-            const url = document.getElementById('inputCsvUrl').value.trim(); const kls = document.getElementById('inputSiswaKelas').value.trim();
-            if(!url || !kls) return alert("Masukkan URL CSV dan ketik kelas tujuan!");
-            Papa.parse(url, { download: true, header: true, skipEmptyLines: true, 
-                complete: function(r) { prosesDataCsv(r.data, kls); },
-                error: function(e) { alert("Gagal mengambil data dari URL. Pastikan URL valid dan bersifat Publik."); }
-            });
+            const u = document.getElementById('inputCsvUrl').value;
+            if(!u) return alert("Isi URL!");
+            Papa.parse(u, { download: true, header: true, skipEmptyLines: true, complete: function(r) { processCsvData(r.data); }});
         };
-
-        window.clearDataSiswa = function() { if(confirm("Hapus semua siswa?")){ dataSiswa=[]; localStorage.removeItem('pai_dataSiswa'); renderTabelSiswa();} }
-
+        window.clearDataSiswa = function() { if(confirm("Hapus semua?")){ dataSiswa=[]; localStorage.removeItem('sim_siswa'); renderTabelSiswa();} }
+        
         window.renderTabelSiswa = function() {
             const f = document.getElementById('filterKelasSiswa').value;
-            let o = '<option value="ALL">-- Semua Kelas --</option>';
-            new Set(dataSiswa.map(s => s.kelas)).forEach(k => o += `<option value="${k}" ${f===k?'selected':''}>${k}</option>`);
-            document.getElementById('filterKelasSiswa').innerHTML = o;
-            let tb = ''; (f==="ALL"?dataSiswa:dataSiswa.filter(s=>s.kelas===f)).forEach(s => tb += `<tr><td>${s.nis}</td><td>${s.nama}</td><td>${s.lp}</td><td>${s.kelas}</td></tr>`);
-            document.getElementById('tabelSiswaBody').innerHTML = tb || '<tr><td colspan="4">Kosong</td></tr>';
+            let opt = '<option value="ALL">-- Semua Rombel --</option>';
+            new Set(dataSiswa.map(s => s.rombel)).forEach(r => opt += `<option value="${r}" ${f===r?'selected':''}>${r}</option>`);
+            document.getElementById('filterKelasSiswa').innerHTML = opt;
+            
+            let tb = ''; (f==="ALL"?dataSiswa:dataSiswa.filter(s=>s.rombel===f)).forEach(s => tb += `<tr><td>${s.nisn}</td><td>${s.nama}</td><td>${s.jk}</td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`);
+            document.getElementById('tabelSiswaBody').innerHTML = tb || '<tr><td colspan="5" class="text-center">Kosong</td></tr>';
         };
 
-        // JADWAL (NPSN Anti-Bentrok Firebase Client-Side Validation)
-        document.getElementById('btnTambahJadwal').addEventListener('click', async () => {
-            const p = JSON.parse(localStorage.getItem('pai_prof'));
-            if(!p || !p.npsn) return alert("Buka tab Profil Instansi dan isi NPSN terlebih dahulu!");
-            
-            const h = document.getElementById('jadwalHari').value, j = document.getElementById('jadwalJam').value, r = document.getElementById('jadwalRombel').value, f = document.getElementById('jadwalFase').value, m = document.getElementById('msgJadwal');
-            if(!j || !r) return alert("Isi Jam & Rombel!"); m.innerText = "Mengecek Server...";
-
-            if(!isBypass) {
-                // Tarik semua jadwal berdasarkan NPSN sekolah ini
-                const qs = await getDocs(query(collection(db, "jadwal"), where("npsn", "==", p.npsn)));
-                let b = false; 
-                qs.forEach(d => { 
-                    let dt = d.data();
-                    if(dt.hari === h && dt.jam === j) { // Cek bentrok jam
-                        if(dt.uid === currentUser.uid) { b = true; m.innerText = `BENTROK: Anda sudah mengajar di kelas ${dt.rombel} pada jam ini!`; }
-                        else if(dt.rombel === r) { b = true; m.innerText = `BENTROK: Kelas ${r} sedang diajar oleh guru lain di jam ini!`; }
-                    }
-                });
-                if(!b) { await addDoc(collection(db, "jadwal"), { npsn: p.npsn, uid: currentUser.uid, hari:h, jam:j, rombel:r, fase:f }); m.innerText = "Jadwal sukses ditambahkan!"; }
-            } else { m.innerText = "Lokal: Jadwal ditambahkan."; }
-        });
-
-        function loadJadwal() {
-            if(!isBypass) {
-                onSnapshot(query(collection(db, "jadwal"), where("uid", "==", currentUser.uid)), (snap) => {
-                    let h='', o='<option value="">Pilih Jadwal</option>'; 
-                    snap.forEach(doc => { let d=doc.data(); h+=`<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td>${d.rombel}</td><td>${d.fase}</td><td>Hapus</td></tr>`; o+=`<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - ${d.rombel}</option>`; });
-                    document.getElementById('tabelJadwalBody').innerHTML = h; document.getElementById('pSelectJadwal').innerHTML = o; document.getElementById('selectJadwalAbsen').innerHTML = o;
-                });
-            }
+        // 4. JADWAL (Lokal, No Firebase for reliability based on user error context)
+        window.tambahJadwalLokal = function() {
+            const h = document.getElementById('jadwalHari').value, j = document.getElementById('jadwalJam').value, f = document.getElementById('jadwalFase').value, r = document.getElementById('jadwalRombel').value;
+            if(!j || !r) return alert("Jam & Rombel wajib isi!");
+            dataJadwal.push({ hari:h, jam:j, fase:f, rombel:r });
+            localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+            renderJadwal(); document.getElementById('jadwalJam').value=''; document.getElementById('jadwalRombel').value='';
+        }
+        window.hapusJadwal = function(idx) { dataJadwal.splice(idx,1); localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal)); renderJadwal(); }
+        
+        function renderJadwal() {
+            let tb = ''; dataJadwal.forEach((d,i) => tb+=`<tr><td>${d.hari}</td><td>Ke-${d.jam}</td><td>${d.fase}</td><td>${d.rombel}</td><td><button class="btn btn-sm btn-danger" onclick="hapusJadwal(${i})">Hapus</button></td></tr>`);
+            document.getElementById('tabelJadwalBody').innerHTML = tb;
         }
 
-        // PENILAIAN
+        function populateDropdowns() {
+            let oj = '<option value="">-- Pilih Jadwal/Rombel --</option>';
+            dataJadwal.forEach((d,i) => oj += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - Rombel ${d.rombel}</option>`);
+            document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = oj);
+
+            let ot = '<option value="">-- Pilih Materi (TP) --</option>';
+            dataCPTP.tps.forEach(t => ot += `<option value='${t.judul}'>Bab ${t.bab} - ${t.judul}</option>`);
+            document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = ot);
+        }
+
+        function populateFaseRombelOptions(elementId) {
+            let setFr = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
+            let o = ''; setFr.forEach(fr => o += `<option value="${fr}">${fr}</option>`);
+            document.getElementById(elementId).innerHTML = o || '<option value="">Buat Jadwal Dulu</option>';
+        }
+
+        // 5. GENERATOR DOKUMEN
+        window.generateTahunan = function() {
+            const fr = document.getElementById('tFaseRombel').value;
+            document.querySelectorAll('.vFaseRombel').forEach(el => el.innerText = fr);
+            document.getElementById('vCPATP').innerText = dataCPTP.cp;
+
+            let hatp='', hprota='', hpromes='';
+            dataCPTP.tps.forEach(t => {
+                hatp += `<tr><td>${t.bab}</td><td>Peserta didik mampu memahami: ${t.judul}</td><td>${t.jp} JP</td></tr>`;
+                hprota += `<tr><td>Ganjil</td><td>Bab ${t.bab} - ${t.judul}</td><td>${t.jp}</td><td>Dilaksanakan Sesuai Kalender</td></tr>`;
+                hpromes += `<tr><td>Bab ${t.bab}: ${t.judul}</td><td>${t.jp}</td><td>${Math.ceil(t.jp/2)}</td><td>${Math.floor(t.jp/2)}</td><td></td><td></td> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td> <td></td><td></td><td></td><td></td></tr>`;
+            });
+            document.getElementById('tblAtpBody').innerHTML = hatp;
+            document.getElementById('tblProtaBody').innerHTML = hprota;
+            document.getElementById('tblPromesBody').innerHTML = hpromes;
+
+            document.getElementById('previewTahunan').classList.add('d-none');
+            document.getElementById('docATP').classList.remove('d-none');
+        }
+
+        window.generateModul = function() {
+            const j = document.getElementById('pSelectJadwal').value; const tp = document.getElementById('pSelectTP').value;
+            if(!j || !tp) return alert("Pilih Jadwal & Materi!");
+            const jv = JSON.parse(j);
+            document.querySelectorAll('.vFaseRombel').forEach(e => e.innerText = `Fase ${jv.fase} / ${jv.rombel}`);
+            document.getElementById('outMateriModul').innerText = tp;
+            document.getElementById('docModul').classList.remove('d-none');
+            alert("Modul Dibuat! Silakan Cetak.");
+        }
+
+        // 6. ABSENSI
+        window.loadAbsensi = function() {
+            const jVal = document.getElementById('selectJadwalAbsen').value; if(!jVal) return alert("Pilih Jadwal!");
+            const rmb = JSON.parse(jVal).rombel; const sKelas = dataSiswa.filter(s => s.rombel === rmb);
+            document.getElementById('areaAbsen').classList.remove('d-none');
+            let h = ''; sKelas.forEach(s => h += `<div class="col-3"><input type="checkbox" class="absen-check" value="${s.nama}" checked> <span class="small">${s.nama}</span></div>`);
+            document.getElementById('listSiswaAbsen').innerHTML = h || '<div class="text-danger">Siswa kosong di rombel ini.</div>';
+        };
+
+        window.simpanJurnal = function() {
+            const jVal = JSON.parse(document.getElementById('selectJadwalAbsen').value);
+            const mt = document.getElementById('selectTPAbsen').value;
+            const boxes = document.querySelectorAll('.absen-check'); let h=0, abs=[];
+            boxes.forEach(b => { if(b.checked) h++; else abs.push(b.value); });
+            
+            document.getElementById('jurTanggal').innerText = new Date().toLocaleDateString('id-ID');
+            document.getElementById('jurRombel').innerText = jVal.rombel;
+            document.getElementById('jurMateri').innerText = mt;
+            document.getElementById('jurHadir').innerText = h; document.getElementById('jurAbsen').innerText = abs.length;
+            document.getElementById('jurListAbsen').innerText = abs.length > 0 ? abs.join(", ") : "-";
+            
+            document.getElementById('docJurnal').classList.remove('d-none');
+            alert("Tersimpan ke Jurnal! Silakan Cetak PDF.");
+        };
+
+        // 7. PENILAIAN
         window.renderKelasPenilaian = function() {
-            let o = '<option value="">-- Pilih Kelas --</option>';
-            new Set(dataSiswa.map(s => s.kelas)).forEach(k => o += `<option value="${k}">${k}</option>`);
+            let o = '<option value="">-- Pilih Rombel --</option>';
+            new Set(dataSiswa.map(s => s.rombel)).forEach(k => o += `<option value="${k}">${k}</option>`);
             document.getElementById('selectKelasNilai').innerHTML = o;
         };
 
         window.loadPenilaian = function() {
-            const kls = document.getElementById('selectKelasNilai').value;
-            document.getElementById('lblKelasNilai').innerText = kls;
+            const rmb = document.getElementById('selectKelasNilai').value;
+            document.getElementById('lblKelasNilai').innerText = rmb;
             document.getElementById('lblTopikNilai').innerText = document.getElementById('topikNilai').value;
             
-            const siswaKelas = dataSiswa.filter(s => s.kelas === kls);
             let tb = '';
-            siswaKelas.forEach((s, idx) => {
-                let keyNilai = `${kls}_${s.nis}`;
-                let nilaiSiswa = dataNilai[keyNilai] || '';
-                tb += `<tr>
-                    <td>${idx+1}</td><td>${s.nis}</td><td class="text-start">${s.nama}</td><td>${s.lp}</td>
-                    <td class="no-print"><input type="number" class="form-control input-nilai text-center" data-nis="${s.nis}" value="${nilaiSiswa}"></td>
-                    <td class="d-none print-only-td">${nilaiSiswa}</td>
-                </tr>`;
+            dataSiswa.filter(s => s.rombel === rmb).forEach((s, i) => {
+                let v = dataNilai[`${rmb}_${s.nisn}`] || '';
+                tb += `<tr><td>${i+1}</td><td>${s.nisn}</td><td class="text-start">${s.nama}</td><td>${s.jk}</td>
+                <td class="no-print"><input type="number" class="form-control input-nilai text-center" data-id="${s.nisn}" value="${v}"></td>
+                <td class="hide-on-print print-only-td" style="display:none;">${v}</td></tr>`;
             });
-            // Update CSS rule for print dynamic TD
             tb += `<style>@media print { .input-nilai { display: none !important; } .print-only-td { display: table-cell !important; } }</style>`;
-            document.getElementById('tblNilaiBody').innerHTML = tb || '<tr><td colspan="5">Kosong</td></tr>';
+            document.getElementById('tblNilaiBody').innerHTML = tb || '<tr><td colspan="5">Pilih Rombel.</td></tr>';
+            document.getElementById('docNilai').classList.remove('d-none');
         };
 
         window.simpanNilai = function() {
-            const kls = document.getElementById('selectKelasNilai').value;
-            if(!kls) return alert("Pilih kelas dulu!");
-            document.querySelectorAll('.input-nilai').forEach(el => {
-                dataNilai[`${kls}_${el.getAttribute('data-nis')}`] = el.value;
-            });
-            localStorage.setItem('pai_dataNilai', JSON.stringify(dataNilai));
-            alert("Nilai berhasil disimpan!"); loadPenilaian(); // Refresh to inject to print TD
+            const rmb = document.getElementById('selectKelasNilai').value; if(!rmb) return alert("Pilih rombel!");
+            document.querySelectorAll('.input-nilai').forEach(el => dataNilai[`${rmb}_${el.getAttribute('data-id')}`] = el.value);
+            localStorage.setItem('sim_nilai', JSON.stringify(dataNilai)); alert("Nilai Disimpan!"); loadPenilaian();
         };
 
-        // BUNDLED DUMMY GENERATORS
-        window.generateTahunan=function(){ document.getElementById('docATP').classList.remove('d-none');document.getElementById('docProta').classList.remove('d-none');document.getElementById('docPromes').classList.remove('d-none');document.getElementById('previewTahunan').innerText="Dokumen Siap Dicetak!"; };
-        window.generateModul=function(){ alert("Modul siap dicetak."); };
-        window.loadAbsensi=function(){ document.getElementById('areaAbsen').classList.remove('d-none'); document.getElementById('listSiswaAbsen').innerHTML='<p>Asumsikan daftar siswa tampil disini.</p>';};
-        window.simpanJurnal=function(){ alert("Jurnal disimpan."); };
-
+        // Init
+        window.onload = function() {
+            loadProfil(); renderTabelSiswa(); renderJadwal(); renderCPTP();
+        };
     </script>
 </body>
 </html>
