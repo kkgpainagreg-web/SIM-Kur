@@ -737,3 +737,349 @@ window.generateTahunan = function() {
     
     document.getElementById('tblAtpBody').innerHTML = htmlAtp;
     document.getElementById('tblProtaBody').innerHTML = htmlProta;
+    document.getElementById('tblPromesBody').innerHTML = htmlPromes;
+    
+    showToast('Data berhasil di-load! Silakan cetak dokumen.', 'success');
+};
+
+window.generateModul = function() {
+    const jadwal = document.getElementById('pSelectJadwal').value;
+    const tp = document.getElementById('pSelectTP').value;
+    
+    if(!jadwal || !tp) return showToast('Pilih Jadwal & Materi!', 'warning');
+    
+    const jv = JSON.parse(jadwal);
+    document.querySelectorAll('.vFaseRombel').forEach(e => e.innerText = `Fase ${jv.fase} / ${jv.rombel}`);
+    document.getElementById('outMateriModul').innerText = tp;
+    
+    showToast('Modul siap! Klik tombol Cetak.', 'success');
+};
+
+// ==========================================
+// ATTENDANCE & JOURNAL
+// ==========================================
+window.loadAbsensi = function() {
+    const jVal = document.getElementById('selectJadwalAbsen').value;
+    if(!jVal) return showToast('Pilih Jadwal!', 'warning');
+    
+    const rombel = JSON.parse(jVal).rombel;
+    const siswaKelas = dataSiswa.filter(s => s.rombel === rombel);
+    
+    document.getElementById('areaAbsen').classList.remove('d-none');
+    
+    let html = '';
+    if (siswaKelas.length === 0) {
+        html = '<div class="col-12 text-danger"><i class="fas fa-exclamation-triangle me-2"></i>Tidak ada siswa di rombel ini. Import data siswa terlebih dahulu.</div>';
+    } else {
+        siswaKelas.forEach((s, i) => {
+            html += `<div class="col-md-3 col-6">
+                <div class="form-check p-2 border rounded mb-2">
+                    <input type="checkbox" class="form-check-input absen-check" value="${s.nama}" id="abs${i}" checked>
+                    <label class="form-check-label small" for="abs${i}">${s.nama}</label>
+                </div>
+            </div>`;
+        });
+    }
+    document.getElementById('listSiswaAbsen').innerHTML = html;
+};
+
+window.simpanJurnal = function() {
+    const jVal = document.getElementById('selectJadwalAbsen').value;
+    const materi = document.getElementById('selectTPAbsen').value;
+    
+    if(!jVal || !materi) return showToast('Lengkapi jadwal dan materi!', 'warning');
+    
+    const jadwal = JSON.parse(jVal);
+    const checkboxes = document.querySelectorAll('.absen-check');
+    let hadir = 0;
+    let tidakHadir = [];
+    
+    checkboxes.forEach(cb => {
+        if(cb.checked) {
+            hadir++;
+        } else {
+            tidakHadir.push(cb.value);
+        }
+    });
+    
+    const today = new Date();
+    const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
+    const tanggalStr = `${days[today.getDay()]}, ${today.toLocaleDateString('id-ID')}`;
+    
+    document.getElementById('jurTanggal').innerText = tanggalStr;
+    document.getElementById('jurRombel').innerText = jadwal.rombel;
+    document.getElementById('jurMateri').innerText = materi;
+    document.getElementById('jurHadir').innerText = hadir;
+    document.getElementById('jurAbsen').innerText = tidakHadir.length;
+    document.getElementById('jurListAbsen').innerText = tidakHadir.length > 0 ? tidakHadir.join(", ") : "-";
+    
+    showToast('Jurnal tersimpan! Silakan cetak.', 'success');
+};
+
+// ==========================================
+// GRADING / PENILAIAN
+// ==========================================
+window.renderKelasPenilaian = function() {
+    let options = '<option value="">-- Pilih Rombel --</option>';
+    new Set(dataSiswa.map(s => s.rombel)).forEach(k => {
+        options += `<option value="${k}">${k}</option>`;
+    });
+    document.getElementById('selectKelasNilai').innerHTML = options;
+};
+
+window.loadPenilaian = function() {
+    const rombel = document.getElementById('selectKelasNilai').value;
+    if (!rombel) return;
+    
+    document.getElementById('lblKelasNilai').innerText = rombel;
+    document.getElementById('lblTopikNilai').innerText = document.getElementById('topikNilai').value;
+    
+    let html = '';
+    const siswaRombel = dataSiswa.filter(s => s.rombel === rombel);
+    
+    if (siswaRombel.length === 0) {
+        html = '<tr><td colspan="5" class="text-center py-4">Tidak ada siswa di rombel ini</td></tr>';
+    } else {
+        siswaRombel.forEach((s, i) => {
+            const nilai = dataNilai[`${rombel}_${s.nisn}`] || '';
+            html += `<tr>
+                <td>${i + 1}</td>
+                <td>${s.nisn}</td>
+                <td style="text-align: left;">${s.nama}</td>
+                <td>${s.jk}</td>
+                <td class="no-print">
+                    <input type="number" class="form-control form-control-sm input-nilai text-center" 
+                           data-id="${s.nisn}" value="${nilai}" min="0" max="100">
+                </td>
+                <td class="d-none print-nilai">${nilai}</td>
+            </tr>`;
+        });
+    }
+    
+    // Add print style
+    html += `<style>
+        @media print { 
+            .no-print { display: none !important; } 
+            .print-nilai { display: table-cell !important; }
+        }
+    </style>`;
+    
+    document.getElementById('tblNilaiBody').innerHTML = html;
+    document.getElementById('docNilai').classList.remove('d-none');
+};
+
+window.simpanNilai = function() {
+    const rombel = document.getElementById('selectKelasNilai').value;
+    if(!rombel) return showToast('Pilih rombel terlebih dahulu!', 'warning');
+    
+    document.querySelectorAll('.input-nilai').forEach(el => {
+        const id = el.getAttribute('data-id');
+        const nilai = el.value;
+        dataNilai[`${rombel}_${id}`] = nilai;
+    });
+    
+    localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
+    showToast('Nilai berhasil disimpan!', 'success');
+    loadPenilaian();
+};
+
+// ==========================================
+// PRINT FUNCTIONS
+// ==========================================
+window.triggerPrint = function(sourceId, pdfName, orientation) {
+    updateUIProfile();
+    document.title = `${pdfName}_${new Date().getTime()}`;
+    
+    // Hide all print views first
+    document.querySelectorAll('.print-view').forEach(el => {
+        el.classList.add('d-none');
+        el.classList.remove('print-active');
+    });
+    
+    // Show only target document
+    const target = document.getElementById(sourceId);
+    target.classList.remove('d-none');
+    target.classList.add('print-active');
+    
+    // Trigger print
+    setTimeout(() => {
+        window.print();
+        // Reset after print
+        setTimeout(() => {
+            target.classList.remove('print-active');
+        }, 500);
+    }, 300);
+};
+
+// ==========================================
+// UTILITY FUNCTIONS
+// ==========================================
+window.copyToClipboard = function(elementId) {
+    const textarea = document.getElementById(elementId);
+    textarea.select();
+    textarea.setSelectionRange(0, 99999);
+    navigator.clipboard.writeText(textarea.value);
+    showToast('Prompt berhasil disalin!', 'success');
+};
+
+function showToast(message, type = 'info') {
+    // Remove existing toasts
+    document.querySelectorAll('.toast-notification').forEach(t => t.remove());
+    
+    const bgColors = {
+        'success': 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+        'danger': 'linear-gradient(135deg, #ff416c 0%, #ff4b2b 100%)',
+        'warning': 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+        'info': 'linear-gradient(135deg, #4facfe 0%, #00f2fe 100%)'
+    };
+    
+    const icons = {
+        'success': 'fa-check-circle',
+        'danger': 'fa-times-circle',
+        'warning': 'fa-exclamation-circle',
+        'info': 'fa-info-circle'
+    };
+    
+    const toast = document.createElement('div');
+    toast.className = 'toast-notification';
+    toast.innerHTML = `<i class="fas ${icons[type]} me-2"></i>${message}`;
+    toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        padding: 15px 25px;
+        background: ${bgColors[type]};
+        color: white;
+        border-radius: 12px;
+        box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        z-index: 9999;
+        font-weight: 500;
+        animation: slideIn 0.3s ease;
+    `;
+    
+    // Add animation style
+    const style = document.createElement('style');
+    style.textContent = `
+        @keyframes slideIn {
+            from { transform: translateX(100%); opacity: 0; }
+            to { transform: translateX(0); opacity: 1; }
+        }
+        @keyframes slideOut {
+            from { transform: translateX(0); opacity: 1; }
+            to { transform: translateX(100%); opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+    
+    document.body.appendChild(toast);
+    
+    setTimeout(() => {
+        toast.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => toast.remove(), 300);
+    }, 3000);
+}
+
+// ==========================================
+// EXPORT / BACKUP DATA
+// ==========================================
+window.exportAllData = function() {
+    const allData = {
+        siswa: dataSiswa,
+        jadwal: dataJadwal,
+        cptp: dataCPTP,
+        nilai: dataNilai,
+        holidays: customHolidays,
+        profil: JSON.parse(localStorage.getItem('sim_prof')) || {},
+        exportDate: new Date().toISOString()
+    };
+    
+    const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `backup_sim_kurikulum_${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+    
+    showToast('Data berhasil diekspor!', 'success');
+};
+
+window.importAllData = function(event) {
+    const file = event.target.files[0];
+    if (!file) return;
+    
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const data = JSON.parse(e.target.result);
+            
+            if (data.siswa) {
+                dataSiswa = data.siswa;
+                localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
+            }
+            if (data.jadwal) {
+                dataJadwal = data.jadwal;
+                localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+            }
+            if (data.cptp) {
+                dataCPTP = data.cptp;
+                localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
+            }
+            if (data.nilai) {
+                dataNilai = data.nilai;
+                localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
+            }
+            if (data.holidays) {
+                customHolidays = data.holidays;
+                localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
+            }
+            if (data.profil) {
+                localStorage.setItem('sim_prof', JSON.stringify(data.profil));
+            }
+            
+            // Refresh UI
+            loadProfil();
+            renderTabelSiswa();
+            renderJadwal();
+            renderCPTP();
+            renderCalendar();
+            updateStats();
+            
+            showToast('Data berhasil diimpor!', 'success');
+        } catch (err) {
+            showToast('Format file tidak valid!', 'danger');
+        }
+    };
+    reader.readAsText(file);
+};
+
+// ==========================================
+// KEYBOARD SHORTCUTS
+// ==========================================
+document.addEventListener('keydown', function(e) {
+    // Ctrl + S to save (prevent default and show toast)
+    if (e.ctrlKey && e.key === 's') {
+        e.preventDefault();
+        showToast('Data otomatis tersimpan di browser!', 'info');
+    }
+    
+    // Escape to close modals
+    if (e.key === 'Escape') {
+        document.querySelectorAll('.modal.show').forEach(modal => {
+            bootstrap.Modal.getInstance(modal)?.hide();
+        });
+    }
+});
+
+// ==========================================
+// SERVICE WORKER REGISTRATION (PWA Ready)
+// ==========================================
+if ('serviceWorker' in navigator) {
+    window.addEventListener('load', function() {
+        // Service worker can be added later for offline support
+        console.log('SIM Kurikulum Merdeka Pro - Ready');
+    });
+}
+
+console.log('🎓 SIM Kurikulum Merdeka Pro v2.0 Loaded');
+console.log('📱 Device ID:', deviceId);
