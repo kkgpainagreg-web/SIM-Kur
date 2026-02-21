@@ -39,7 +39,7 @@ const dbKurikulumPAI = {
             { bab: 1, judul: "Mari Belajar Q.S. Al-Hujurat & Tajwid", jp: 16 },
             { bab: 2, judul: "Teladan Asmaulhusna (Al-Malik, Al-Aziz, Al-Quddus)", jp: 16 },
             { bab: 3, judul: "Indahnya Saling Menghargai (Tasamuh)", jp: 12 },
-            { bab: 4, judul: "Menyambut Usia Balig (Tanda-tanda Biologi & Fikih)", jp: 16 },
+            { bab: 4, judul: "Menyambut Usia Balig", jp: 16 },
             { bab: 5, judul: "Kisah Hijrah Nabi Muhammad SAW", jp: 16 }
         ]
     },
@@ -48,7 +48,7 @@ const dbKurikulumPAI = {
         tps: [
             { bab: 1, judul: "Belajar Surah Al-Ma'un", jp: 14 },
             { bab: 2, judul: "Mengenal Nama Allah (Al-Mumit, Al-Hayyu, Al-Qayyum)", jp: 14 },
-            { bab: 3, judul: "Indahnya Hidup Damai (Saling Menghargai Beda Agama)", jp: 12 },
+            { bab: 3, judul: "Indahnya Hidup Damai", jp: 12 },
             { bab: 4, judul: "Ibadah Haji dan Kurban", jp: 12 },
             { bab: 5, judul: "Kisah Keteladanan Nabi Daud & Sulaiman", jp: 12 }
         ]
