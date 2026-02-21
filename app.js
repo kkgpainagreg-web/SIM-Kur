@@ -1,6 +1,6 @@
 // ==========================================
 // SIM KURIKULUM MERDEKA PRO v2.1
-// COMPLETE FIXED VERSION
+// FIXED - AUTO FASE BY KELAS
 // ==========================================
 
 // ============ DATA STATE ============
@@ -45,67 +45,81 @@ var nationalHolidays = {
     "12-25": "Hari Natal"
 };
 
-// ============ JENJANG CONFIG ============
+// ============ JENJANG CONFIG WITH AUTO FASE ============
 var JENJANG_CONFIG = {
     PAUD: {
-        fases: [{ value: 'Fondasi', label: 'Fase Fondasi' }],
         kelas: [
-            { value: 'Kelompok A', label: 'Kelompok A' },
-            { value: 'Kelompok B', label: 'Kelompok B' },
-            { value: 'TK A', label: 'TK A' },
-            { value: 'TK B', label: 'TK B' }
+            { value: 'Kelompok A', label: 'Kelompok A', fase: 'Fondasi' },
+            { value: 'Kelompok B', label: 'Kelompok B', fase: 'Fondasi' },
+            { value: 'TK A', label: 'TK A', fase: 'Fondasi' },
+            { value: 'TK B', label: 'TK B', fase: 'Fondasi' }
         ]
     },
     SD: {
-        fases: [
-            { value: 'A', label: 'Fase A (Kelas 1-2)' },
-            { value: 'B', label: 'Fase B (Kelas 3-4)' },
-            { value: 'C', label: 'Fase C (Kelas 5-6)' }
-        ],
         kelas: [
-            { value: '1', label: 'Kelas 1' },
-            { value: '2', label: 'Kelas 2' },
-            { value: '3', label: 'Kelas 3' },
-            { value: '4', label: 'Kelas 4' },
-            { value: '5', label: 'Kelas 5' },
-            { value: '6', label: 'Kelas 6' }
+            { value: '1', label: 'Kelas 1', fase: 'A' },
+            { value: '2', label: 'Kelas 2', fase: 'A' },
+            { value: '3', label: 'Kelas 3', fase: 'B' },
+            { value: '4', label: 'Kelas 4', fase: 'B' },
+            { value: '5', label: 'Kelas 5', fase: 'C' },
+            { value: '6', label: 'Kelas 6', fase: 'C' }
         ]
     },
     SMP: {
-        fases: [{ value: 'D', label: 'Fase D (Kelas 7-9)' }],
         kelas: [
-            { value: '7', label: 'Kelas 7' },
-            { value: '8', label: 'Kelas 8' },
-            { value: '9', label: 'Kelas 9' }
+            { value: '7', label: 'Kelas 7', fase: 'D' },
+            { value: '8', label: 'Kelas 8', fase: 'D' },
+            { value: '9', label: 'Kelas 9', fase: 'D' }
         ]
     },
     SMA: {
-        fases: [
-            { value: 'E', label: 'Fase E (Kelas 10)' },
-            { value: 'F', label: 'Fase F (Kelas 11-12)' }
-        ],
         kelas: [
-            { value: '10', label: 'Kelas 10' },
-            { value: '11', label: 'Kelas 11' },
-            { value: '12', label: 'Kelas 12' }
+            { value: '10', label: 'Kelas 10', fase: 'E' },
+            { value: '11', label: 'Kelas 11', fase: 'F' },
+            { value: '12', label: 'Kelas 12', fase: 'F' }
         ]
     },
     SMK: {
-        fases: [
-            { value: 'E', label: 'Fase E (Kelas 10)' },
-            { value: 'F', label: 'Fase F (Kelas 11-12)' }
-        ],
         kelas: [
-            { value: '10', label: 'Kelas 10' },
-            { value: '11', label: 'Kelas 11' },
-            { value: '12', label: 'Kelas 12' },
-            { value: '13', label: 'Kelas 13' }
+            { value: '10', label: 'Kelas 10', fase: 'E' },
+            { value: '11', label: 'Kelas 11', fase: 'F' },
+            { value: '12', label: 'Kelas 12', fase: 'F' },
+            { value: '13', label: 'Kelas 13', fase: 'F' }
         ]
     }
 };
 
+// Helper: Get Fase by Jenjang and Kelas
+function getFaseByKelas(jenjang, kelas) {
+    if (!jenjang || !kelas || !JENJANG_CONFIG[jenjang]) return '-';
+    var config = JENJANG_CONFIG[jenjang];
+    for (var i = 0; i < config.kelas.length; i++) {
+        if (config.kelas[i].value === kelas) {
+            return config.kelas[i].fase;
+        }
+    }
+    return '-';
+}
+
+// Helper: Get Fase Label
+function getFaseLabel(jenjang, fase) {
+    var labels = {
+        'Fondasi': 'Fase Fondasi (PAUD)',
+        'A': 'Fase A (Kelas 1-2)',
+        'B': 'Fase B (Kelas 3-4)',
+        'C': 'Fase C (Kelas 5-6)',
+        'D': 'Fase D (Kelas 7-9)',
+        'E': 'Fase E (Kelas 10)',
+        'F': 'Fase F (Kelas 11-12)'
+    };
+    return labels[fase] || 'Fase ' + fase;
+}
+
 // ============ INITIALIZATION ============
 window.onload = function() {
+    // Clean old jadwal data that might have undefined jenjang
+    cleanOldJadwalData();
+    
     loadProfil();
     renderTabelSiswa();
     renderJadwal();
@@ -123,6 +137,23 @@ window.onload = function() {
     updateActiveMapelIndicator();
     console.log('App loaded successfully!');
 };
+
+// Clean old jadwal data
+function cleanOldJadwalData() {
+    var cleaned = [];
+    for (var i = 0; i < dataJadwal.length; i++) {
+        var j = dataJadwal[i];
+        if (j && j.jenjang && j.kelas) {
+            // Ensure fase exists
+            if (!j.fase) {
+                j.fase = getFaseByKelas(j.jenjang, j.kelas);
+            }
+            cleaned.push(j);
+        }
+    }
+    dataJadwal = cleaned;
+    localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
+}
 
 // ============ NAVIGATION ============
 function showTab(tabId) {
@@ -183,68 +214,88 @@ function toggleSidebar() {
 }
 window.toggleSidebar = toggleSidebar;
 
-// ============ JENJANG FORM UPDATES ============
+// ============ JENJANG FORM UPDATES - AUTO FASE ============
 function updateMapelFormByJenjang() {
     var jenjang = document.getElementById('newMapelJenjang').value;
-    var faseSelect = document.getElementById('newMapelFase');
     var kelasSelect = document.getElementById('newMapelKelas');
+    var faseDisplay = document.getElementById('newMapelFaseDisplay');
+    var faseInput = document.getElementById('newMapelFase');
     
     if (!jenjang || !JENJANG_CONFIG[jenjang]) {
-        faseSelect.innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
         kelasSelect.innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
-        faseSelect.disabled = true;
         kelasSelect.disabled = true;
+        if (faseDisplay) faseDisplay.textContent = '-';
+        if (faseInput) faseInput.value = '';
         return;
     }
     
     var config = JENJANG_CONFIG[jenjang];
-    
-    var faseOpts = '<option value="">-- Pilih Fase --</option>';
-    for (var i = 0; i < config.fases.length; i++) {
-        faseOpts += '<option value="' + config.fases[i].value + '">' + config.fases[i].label + '</option>';
-    }
-    faseSelect.innerHTML = faseOpts;
-    faseSelect.disabled = false;
     
     var kelasOpts = '<option value="">-- Pilih Kelas --</option>';
     for (var j = 0; j < config.kelas.length; j++) {
-        kelasOpts += '<option value="' + config.kelas[j].value + '">' + config.kelas[j].label + '</option>';
+        kelasOpts += '<option value="' + config.kelas[j].value + '" data-fase="' + config.kelas[j].fase + '">' + config.kelas[j].label + '</option>';
     }
     kelasSelect.innerHTML = kelasOpts;
     kelasSelect.disabled = false;
+    
+    if (faseDisplay) faseDisplay.textContent = '-';
+    if (faseInput) faseInput.value = '';
 }
 window.updateMapelFormByJenjang = updateMapelFormByJenjang;
 
+function updateMapelFaseByKelas() {
+    var jenjang = document.getElementById('newMapelJenjang').value;
+    var kelas = document.getElementById('newMapelKelas').value;
+    var faseDisplay = document.getElementById('newMapelFaseDisplay');
+    var faseInput = document.getElementById('newMapelFase');
+    
+    var fase = getFaseByKelas(jenjang, kelas);
+    
+    if (faseDisplay) faseDisplay.textContent = fase ? getFaseLabel(jenjang, fase) : '-';
+    if (faseInput) faseInput.value = fase;
+}
+window.updateMapelFaseByKelas = updateMapelFaseByKelas;
+
 function updateJadwalDropdowns() {
     var jenjang = document.getElementById('jadwalJenjang').value;
-    var faseSelect = document.getElementById('jadwalFase');
     var kelasSelect = document.getElementById('jadwalKelas');
+    var faseDisplay = document.getElementById('jadwalFaseDisplay');
+    var faseInput = document.getElementById('jadwalFase');
     
     if (!jenjang || !JENJANG_CONFIG[jenjang]) {
-        faseSelect.innerHTML = '<option value="">Pilih Jenjang</option>';
         kelasSelect.innerHTML = '<option value="">Pilih Jenjang</option>';
-        faseSelect.disabled = true;
         kelasSelect.disabled = true;
+        if (faseDisplay) faseDisplay.textContent = '-';
+        if (faseInput) faseInput.value = '';
         return;
     }
     
     var config = JENJANG_CONFIG[jenjang];
     
-    var faseOpts = '';
-    for (var i = 0; i < config.fases.length; i++) {
-        faseOpts += '<option value="' + config.fases[i].value + '">' + config.fases[i].label + '</option>';
-    }
-    faseSelect.innerHTML = faseOpts;
-    faseSelect.disabled = false;
-    
-    var kelasOpts = '';
+    var kelasOpts = '<option value="">-- Pilih Kelas --</option>';
     for (var j = 0; j < config.kelas.length; j++) {
-        kelasOpts += '<option value="' + config.kelas[j].value + '">' + config.kelas[j].label + '</option>';
+        kelasOpts += '<option value="' + config.kelas[j].value + '" data-fase="' + config.kelas[j].fase + '">' + config.kelas[j].label + '</option>';
     }
     kelasSelect.innerHTML = kelasOpts;
     kelasSelect.disabled = false;
+    
+    if (faseDisplay) faseDisplay.textContent = '-';
+    if (faseInput) faseInput.value = '';
 }
 window.updateJadwalDropdowns = updateJadwalDropdowns;
+
+function updateJadwalFaseByKelas() {
+    var jenjang = document.getElementById('jadwalJenjang').value;
+    var kelas = document.getElementById('jadwalKelas').value;
+    var faseDisplay = document.getElementById('jadwalFaseDisplay');
+    var faseInput = document.getElementById('jadwalFase');
+    
+    var fase = getFaseByKelas(jenjang, kelas);
+    
+    if (faseDisplay) faseDisplay.textContent = fase ? 'Fase ' + fase : '-';
+    if (faseInput) faseInput.value = fase;
+}
+window.updateJadwalFaseByKelas = updateJadwalFaseByKelas;
 
 // ============ JADWAL VALIDATION ============
 function validateJadwal(newJadwal) {
@@ -253,7 +304,7 @@ function validateJadwal(newJadwal) {
     
     for (var i = 0; i < dataJadwal.length; i++) {
         var j = dataJadwal[i];
-        if (j.hari === newJadwal.hari && j.jam === newJadwal.jam && j.kelas === newJadwal.kelas && j.rombel === newJadwal.rombel) {
+        if (j.hari === newJadwal.hari && j.jam === newJadwal.jam && j.kelas === newJadwal.kelas && j.rombel === newJadwal.rombel && j.jenjang === newJadwal.jenjang) {
             conflicts.push({ type: 'duplicate', message: 'Jadwal sama sudah ada' });
             break;
         }
@@ -276,19 +327,31 @@ function tambahJadwal() {
     var hari = document.getElementById('jadwalHari').value;
     var jam = document.getElementById('jadwalJam').value;
     var jenjang = document.getElementById('jadwalJenjang').value;
-    var fase = document.getElementById('jadwalFase').value;
     var kelas = document.getElementById('jadwalKelas').value;
     var rombel = document.getElementById('jadwalRombel').value.trim().toUpperCase() || 'A';
     
     if (!jenjang) { showToast('Pilih Jenjang!', 'warning'); return; }
-    if (!fase) { showToast('Pilih Fase!', 'warning'); return; }
     if (!kelas) { showToast('Pilih Kelas!', 'warning'); return; }
     
-    var newJadwal = { hari: hari, jam: jam, jenjang: jenjang, fase: fase, kelas: kelas, rombel: rombel };
+    // Auto get fase from kelas
+    var fase = getFaseByKelas(jenjang, kelas);
+    
+    var newJadwal = { 
+        hari: hari, 
+        jam: jam, 
+        jenjang: jenjang, 
+        fase: fase, 
+        kelas: kelas, 
+        rombel: rombel 
+    };
+    
     var conflicts = validateJadwal(newJadwal);
     
     if (conflicts.length > 0) {
-        var msg = conflicts.map(function(c) { return c.message; }).join(', ');
+        var msg = '';
+        for (var i = 0; i < conflicts.length; i++) {
+            msg += conflicts[i].message + '. ';
+        }
         showToast('Bentrok: ' + msg, 'danger');
         return;
     }
@@ -298,6 +361,14 @@ function tambahJadwal() {
     renderJadwal();
     updateStats();
     document.getElementById('jadwalRombel').value = '';
+    
+    // Reset form
+    document.getElementById('jadwalJenjang').value = '';
+    document.getElementById('jadwalKelas').innerHTML = '<option value="">Pilih Jenjang</option>';
+    document.getElementById('jadwalKelas').disabled = true;
+    var faseDisplay = document.getElementById('jadwalFaseDisplay');
+    if (faseDisplay) faseDisplay.textContent = '-';
+    
     showToast('Jadwal ditambahkan!', 'success');
 }
 window.tambahJadwal = tambahJadwal;
@@ -314,17 +385,26 @@ window.hapusJadwal = hapusJadwal;
 function renderJadwal() {
     var html = '';
     if (dataJadwal.length === 0) {
-        html = '<tr><td colspan="7" class="text-center py-4">Belum ada jadwal</td></tr>';
+        html = '<tr><td colspan="6" class="text-center py-4">Belum ada jadwal</td></tr>';
     } else {
         for (var i = 0; i < dataJadwal.length; i++) {
             var d = dataJadwal[i];
+            // Safe check for undefined values
+            var jenjang = d.jenjang || '-';
+            var fase = d.fase || '-';
+            var kelas = d.kelas || '-';
+            var rombel = d.rombel || '-';
+            var hari = d.hari || '-';
+            var jam = d.jam || '-';
+            
+            var jenjangClass = jenjang !== '-' ? 'jenjang-' + jenjang.toLowerCase() : '';
+            
             html += '<tr>';
-            html += '<td>' + d.hari + '</td>';
-            html += '<td>Jam ' + d.jam + '</td>';
-            html += '<td><span class="jenjang-badge jenjang-' + d.jenjang.toLowerCase() + '">' + d.jenjang + '</span></td>';
-            html += '<td>Fase ' + d.fase + '</td>';
-            html += '<td>' + d.kelas + '</td>';
-            html += '<td>' + d.rombel + '</td>';
+            html += '<td>' + hari + '</td>';
+            html += '<td>Jam ' + jam + '</td>';
+            html += '<td><span class="jenjang-badge ' + jenjangClass + '">' + jenjang + '</span></td>';
+            html += '<td>' + kelas + rombel + '</td>';
+            html += '<td><span class="badge bg-info">Fase ' + fase + '</span></td>';
             html += '<td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusJadwal(' + i + ')"><i class="fas fa-trash"></i></button></td>';
             html += '</tr>';
         }
@@ -350,13 +430,23 @@ function renderJadwalMatrix() {
     html += '</tr></thead><tbody>';
     
     for (var h = 1; h <= 10; h++) {
-        html += '<tr><td>Jam ' + h + '</td>';
+        html += '<tr><td class="fw-bold">Jam ' + h + '</td>';
         for (var dd = 0; dd < days.length; dd++) {
-            html += '<td class="jadwal-cell">';
+            var cellContent = '';
+            var count = 0;
             for (var jj = 0; jj < dataJadwal.length; jj++) {
-                if (dataJadwal[jj].hari === days[dd] && parseInt(dataJadwal[jj].jam) === h) {
-                    html += '<div class="jadwal-item">' + dataJadwal[jj].jenjang + ' ' + dataJadwal[jj].kelas + dataJadwal[jj].rombel + '</div>';
+                var jadwal = dataJadwal[jj];
+                if (jadwal.hari === days[dd] && parseInt(jadwal.jam) === h) {
+                    var jenjang = jadwal.jenjang || '-';
+                    var kelas = jadwal.kelas || '';
+                    var rombel = jadwal.rombel || '';
+                    cellContent += '<div class="jadwal-item">' + jenjang + ' ' + kelas + rombel + '</div>';
+                    count++;
                 }
+            }
+            html += '<td class="jadwal-cell">' + cellContent;
+            if (count >= 2) {
+                html += '<span class="badge bg-danger" style="font-size:0.6rem;">PENUH</span>';
             }
             html += '</td>';
         }
@@ -370,10 +460,13 @@ function renderJadwalMatrix() {
 function showAddMapelModal() {
     document.getElementById('newMapelJenjang').value = '';
     document.getElementById('newMapelNama').value = '';
-    document.getElementById('newMapelFase').innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
     document.getElementById('newMapelKelas').innerHTML = '<option value="">Pilih Jenjang Dulu</option>';
-    document.getElementById('newMapelFase').disabled = true;
     document.getElementById('newMapelKelas').disabled = true;
+    var faseDisplay = document.getElementById('newMapelFaseDisplay');
+    if (faseDisplay) faseDisplay.textContent = '-';
+    var faseInput = document.getElementById('newMapelFase');
+    if (faseInput) faseInput.value = '';
+    
     var modal = new bootstrap.Modal(document.getElementById('addMapelModal'));
     modal.show();
 }
@@ -383,12 +476,13 @@ function simpanMapelBaru() {
     var jenjang = document.getElementById('newMapelJenjang').value;
     var nama = document.getElementById('newMapelNama').value.trim();
     var kelas = document.getElementById('newMapelKelas').value;
-    var fase = document.getElementById('newMapelFase').value;
     
     if (!jenjang) { showToast('Pilih Jenjang!', 'warning'); return; }
     if (!nama) { showToast('Isi Nama Mapel!', 'warning'); return; }
     if (!kelas) { showToast('Pilih Kelas!', 'warning'); return; }
-    if (!fase) { showToast('Pilih Fase!', 'warning'); return; }
+    
+    // Auto get fase
+    var fase = getFaseByKelas(jenjang, kelas);
     
     var newMapel = {
         id: 'MAPEL_' + Date.now(),
@@ -462,14 +556,16 @@ function renderMapelList(filter) {
     for (var i = 0; i < filtered.length; i++) {
         var m = filtered[i];
         var isActive = m.id === activeMapelId;
+        var jenjangClass = m.jenjang ? 'jenjang-' + m.jenjang.toLowerCase() : '';
+        
         html += '<div class="col-md-4 col-sm-6">';
         html += '<div class="mapel-card ' + (isActive ? 'active' : '') + '" onclick="setActiveMapel(\'' + m.id + '\')">';
         html += '<div class="d-flex justify-content-between mb-2">';
-        html += '<span class="jenjang-badge jenjang-' + m.jenjang.toLowerCase() + '">' + m.jenjang + '</span>';
+        html += '<span class="jenjang-badge ' + jenjangClass + '">' + (m.jenjang || '-') + '</span>';
         if (isActive) html += '<span class="badge bg-primary"><i class="fas fa-check"></i></span>';
         html += '</div>';
         html += '<h6 class="fw-bold mb-1">' + m.nama + '</h6>';
-        html += '<small class="text-muted">Kelas ' + m.kelas + ' • Fase ' + m.fase + '</small>';
+        html += '<small class="text-muted">Kelas ' + (m.kelas || '-') + ' • Fase ' + (m.fase || '-') + '</small>';
         html += '<div class="mt-3 d-flex gap-2">';
         html += '<button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); hapusMapel(\'' + m.id + '\')"><i class="fas fa-trash"></i></button>';
         html += '</div></div></div>';
@@ -483,7 +579,7 @@ function updateActiveMapelIndicator() {
     if (activeMapelId) {
         var mapel = dataMapel.find(function(m) { return m.id === activeMapelId; });
         if (mapel) {
-            nameEl.textContent = mapel.nama + ' - ' + mapel.jenjang + ' Kelas ' + mapel.kelas;
+            nameEl.textContent = mapel.nama + ' - ' + (mapel.jenjang || '') + ' Kelas ' + (mapel.kelas || '');
             indicator.style.display = 'block';
             return;
         }
@@ -696,7 +792,7 @@ function renderCalendar() {
             }
         }
         
-        html += '<div class="' + cls + '" onclick="showHolidayInfo(\'' + fullDate + '\',\'' + name + '\')" title="' + name + '">' + day;
+        html += '<div class="' + cls + '" onclick="showHolidayInfo(\'' + fullDate + '\',\'' + (name || '') + '\')" title="' + (name || '') + '">' + day;
         if (name) html += '<div class="holiday-dot"></div>';
         html += '</div>';
     }
@@ -990,7 +1086,8 @@ function populateDropdowns() {
     var oj = '<option value="">Pilih</option>';
     for (var i = 0; i < dataJadwal.length; i++) {
         var d = dataJadwal[i];
-        oj += '<option value=\'' + JSON.stringify(d) + '\'>' + d.hari + ' J' + d.jam + ' - ' + d.jenjang + ' ' + d.kelas + d.rombel + '</option>';
+        var label = (d.hari || '') + ' J' + (d.jam || '') + ' - ' + (d.jenjang || '') + ' ' + (d.kelas || '') + (d.rombel || '');
+        oj += '<option value=\'' + JSON.stringify(d) + '\'>' + label + '</option>';
     }
     var els = document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen');
     for (var j = 0; j < els.length; j++) els[j].innerHTML = oj;
@@ -1008,7 +1105,8 @@ function populateFaseRombelOptions(id) {
     var setFr = {};
     for (var i = 0; i < dataJadwal.length; i++) {
         var d = dataJadwal[i];
-        setFr['Fase ' + d.fase + ' - ' + d.jenjang + ' ' + d.kelas + d.rombel] = true;
+        var key = 'Fase ' + (d.fase || '-') + ' - ' + (d.jenjang || '') + ' ' + (d.kelas || '') + (d.rombel || '');
+        setFr[key] = true;
     }
     var keys = Object.keys(setFr);
     var html = keys.length === 0 ? '<option>Buat jadwal dulu</option>' : '';
@@ -1028,7 +1126,7 @@ function generateTahunan() {
     var atpBody = '';
     for (var i = 0; i < dataCPTP.tps.length; i++) {
         var t = dataCPTP.tps[i];
-        totalJP += parseInt(t.jp);
+        totalJP += parseInt(t.jp) || 0;
         atpBody += '<tr><td style="text-align:center;">' + t.bab + '</td><td>' + t.judul + '</td><td style="text-align:center;">' + t.jp + '</td></tr>';
     }
     atpBody += '<tr style="font-weight:bold;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:center;">' + totalJP + ' JP</td></tr>';
@@ -1046,7 +1144,7 @@ function generateTahunan() {
     var weekCounter = 0;
     var promesBody = '';
     for (var k = 0; k < dataCPTP.tps.length; k++) {
-        var weeks = Math.ceil(parseInt(dataCPTP.tps[k].jp) / 2);
+        var weeks = Math.ceil((parseInt(dataCPTP.tps[k].jp) || 0) / 2);
         var cells = '';
         for (var w = 0; w < 24; w++) {
             cells += (w >= weekCounter && w < weekCounter + weeks) ? '<td style="text-align:center;background:#d4edda;">✓</td>' : '<td></td>';
@@ -1070,7 +1168,7 @@ function generateModul() {
     var p = JSON.parse(localStorage.getItem('sim_prof')) || {};
     var mapel = getActiveMapelName();
     
-    document.getElementById('docModul').innerHTML = '<div class="doc-header">MODUL AJAR</div><p><b>A. INFORMASI UMUM</b></p><table style="width:100%;margin-bottom:15px;"><tr><td>Penyusun: <b>' + (p.gur||'...') + '</b></td><td>Instansi: ' + (p.sek||'...') + '</td></tr><tr><td>Mapel: ' + mapel + '</td><td>Kelas: ' + j.jenjang + ' ' + j.kelas + j.rombel + '</td></tr></table><p><b>B. TUJUAN PEMBELAJARAN</b></p><p>Peserta didik mampu memahami <b>"' + tp + '"</b></p><p><b>C. KEGIATAN PEMBELAJARAN</b></p><table class="doc-table"><tr><th>Tahap</th><th>Kegiatan</th></tr><tr><td><b>Pendahuluan</b><br>(10 menit)</td><td>Salam, doa, apersepsi</td></tr><tr><td><b>Inti</b><br>(50 menit)</td><td>Penjelasan materi, diskusi, LKPD</td></tr><tr><td><b>Penutup</b><br>(10 menit)</td><td>Kesimpulan, refleksi, doa</td></tr></table><div style="display:flex;justify-content:space-between;margin-top:40px;"><div style="width:45%;text-align:center;">Kepala Sekolah<br><br><br><br><u><b>' + (p.kep||'...') + '</b></u></div><div style="width:45%;text-align:center;">Guru ' + mapel + '<br><br><br><br><u><b>' + (p.gur||'...') + '</b></u></div></div>';
+    document.getElementById('docModul').innerHTML = '<div class="doc-header">MODUL AJAR</div><p><b>A. INFORMASI UMUM</b></p><table style="width:100%;margin-bottom:15px;"><tr><td>Penyusun: <b>' + (p.gur||'...') + '</b></td><td>Instansi: ' + (p.sek||'...') + '</td></tr><tr><td>Mapel: ' + mapel + '</td><td>Kelas: ' + (j.jenjang||'') + ' ' + (j.kelas||'') + (j.rombel||'') + ' (Fase ' + (j.fase||'') + ')</td></tr></table><p><b>B. TUJUAN PEMBELAJARAN</b></p><p>Peserta didik mampu memahami <b>"' + tp + '"</b></p><p><b>C. KEGIATAN PEMBELAJARAN</b></p><table class="doc-table"><tr><th>Tahap</th><th>Kegiatan</th></tr><tr><td><b>Pendahuluan</b><br>(10 menit)</td><td>Salam, doa, apersepsi</td></tr><tr><td><b>Inti</b><br>(50 menit)</td><td>Penjelasan materi, diskusi, LKPD</td></tr><tr><td><b>Penutup</b><br>(10 menit)</td><td>Kesimpulan, refleksi, doa</td></tr></table><div style="display:flex;justify-content:space-between;margin-top:40px;"><div style="width:45%;text-align:center;">Kepala Sekolah<br><br><br><br><u><b>' + (p.kep||'...') + '</b></u></div><div style="width:45%;text-align:center;">Guru ' + mapel + '<br><br><br><br><u><b>' + (p.gur||'...') + '</b></u></div></div>';
     
     showToast('Modul siap!', 'success');
 }
@@ -1081,12 +1179,14 @@ function loadAbsensi() {
     var jVal = document.getElementById('selectJadwalAbsen').value;
     if (!jVal) { showToast('Pilih Jadwal!', 'warning'); return; }
     var j = JSON.parse(jVal);
-    var siswaKelas = dataSiswa.filter(function(s) { return s.kelas === j.kelas || s.rombel === j.rombel; });
+    var siswaKelas = dataSiswa.filter(function(s) { 
+        return s.kelas === j.kelas || s.rombel === j.rombel || s.rombel === (j.kelas + j.rombel); 
+    });
     
     document.getElementById('areaAbsen').classList.remove('d-none');
     
     if (siswaKelas.length === 0) {
-        document.getElementById('listSiswaAbsen').innerHTML = '<div class="col-12 text-danger">Tidak ada siswa</div>';
+        document.getElementById('listSiswaAbsen').innerHTML = '<div class="col-12 text-danger">Tidak ada siswa di kelas ini</div>';
         return;
     }
     
@@ -1118,7 +1218,7 @@ function simpanJurnal() {
     var today = new Date();
     var tgl = days[today.getDay()] + ', ' + today.toLocaleDateString('id-ID');
     
-    document.getElementById('docJurnal').innerHTML = '<div class="doc-header">JURNAL PEMBELAJARAN</div><table style="width:60%;margin-bottom:15px;"><tr><td>Sekolah: ' + (p.sek||'...') + '</td></tr><tr><td>Mapel: ' + mapel + '</td></tr><tr><td>Guru: ' + (p.gur||'...') + '</td></tr></table><table class="doc-table" style="text-align:center;"><thead><tr><th>Tanggal</th><th>Kelas</th><th>Materi</th><th>Absensi</th></tr></thead><tbody><tr><td>' + tgl + '</td><td>' + j.jenjang + ' ' + j.kelas + j.rombel + '</td><td style="text-align:left;">' + materi + '</td><td style="text-align:left;">Hadir: ' + hadir + '<br>Tidak: ' + tidakHadir.length + '</td></tr></tbody></table>';
+    document.getElementById('docJurnal').innerHTML = '<div class="doc-header">JURNAL PEMBELAJARAN</div><table style="width:60%;margin-bottom:15px;"><tr><td>Sekolah: ' + (p.sek||'...') + '</td></tr><tr><td>Mapel: ' + mapel + '</td></tr><tr><td>Guru: ' + (p.gur||'...') + '</td></tr></table><table class="doc-table" style="text-align:center;"><thead><tr><th>Tanggal</th><th>Kelas</th><th>Materi</th><th>Absensi</th></tr></thead><tbody><tr><td>' + tgl + '</td><td>' + (j.jenjang||'') + ' ' + (j.kelas||'') + (j.rombel||'') + '</td><td style="text-align:left;">' + materi + '</td><td style="text-align:left;">Hadir: ' + hadir + '<br>Tidak: ' + tidakHadir.length + '</td></tr></tbody></table>';
     
     showToast('Jurnal siap!', 'success');
 }
