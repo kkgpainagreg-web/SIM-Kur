@@ -1,5 +1,6 @@
 // ==========================================
-// SIM KURIKULUM MERDEKA PRO - MAIN APP JS
+// SIM KURIKULUM MERDEKA PRO v2.0
+// Support: SD, SMP, SMA, SMK, PAUD
 // ==========================================
 
 // Data State
@@ -9,24 +10,18 @@ let dataNilai = JSON.parse(localStorage.getItem('sim_nilai')) || {};
 let dataCPTP = JSON.parse(localStorage.getItem('sim_cptp')) || { cp: "", tps: [{bab:1, judul:"Materi Pertama", jp:4}] };
 let customHolidays = JSON.parse(localStorage.getItem('sim_holidays')) || [];
 let premiumUsers = JSON.parse(localStorage.getItem('sim_premium_users')) || [];
+let dataMapel = JSON.parse(localStorage.getItem('sim_mapel')) || [];
+let activeMapelId = localStorage.getItem('sim_active_mapel') || null;
 
-// Admin Default Settings
-const DEFAULT_ADMIN = {
-    email: "afifaro@gmail.com",
-    password: "admin123"
-};
-
+// Admin Default
+const DEFAULT_ADMIN = { email: "afifaro@gmail.com", password: "admin123" };
 let adminSettings = JSON.parse(localStorage.getItem('sim_admin')) || DEFAULT_ADMIN;
 let pricingSettings = JSON.parse(localStorage.getItem('sim_pricing')) || {
-    whatsapp: "6281234567890",
-    harga: 99000,
-    hargaDesc: "Akses Selamanya / Lifetime",
-    bank: "BCA",
-    rekening: "1234567890",
-    namaRek: "Admin SIM Kurikulum"
+    whatsapp: "6281234567890", harga: 99000, hargaDesc: "Akses Selamanya / Lifetime",
+    bank: "BCA", rekening: "1234567890", namaRek: "Admin SIM Kurikulum"
 };
 
-// Device ID for premium check
+// Device ID
 let deviceId = localStorage.getItem('sim_device_id');
 if (!deviceId) {
     deviceId = 'DEV_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
@@ -37,20 +32,12 @@ if (!deviceId) {
 let currentMonth = new Date().getMonth();
 let currentYear = new Date().getFullYear();
 
-// National Holidays (Fixed dates)
+// National Holidays (Fixed)
 const nationalHolidays = {
     "01-01": "Tahun Baru Masehi",
-    "02-01": "Tahun Baru Imlek",
-    "03-12": "Hari Raya Nyepi",
-    "03-29": "Wafat Isa Al Masih",
-    "04-10": "Hari Buruh Internasional",
     "05-01": "Hari Buruh Internasional",
-    "05-12": "Hari Raya Waisak",
-    "05-29": "Kenaikan Isa Al Masih",
     "06-01": "Hari Lahir Pancasila",
     "08-17": "Hari Kemerdekaan RI",
-    "10-05": "Hari Tentara Nasional Indonesia",
-    "11-10": "Hari Pahlawan",
     "12-25": "Hari Natal"
 };
 
@@ -63,18 +50,19 @@ window.onload = function() {
     renderJadwal();
     renderCPTP();
     renderCalendar();
+    renderMapelList();
     updateStats();
     checkPremiumStatus();
     loadPricingDisplay();
+    document.getElementById('showDeviceId').textContent = deviceId;
+    updateActiveMapelIndicator();
 };
 
 // ==========================================
 // NAVIGATION
 // ==========================================
 window.showTab = function(tabId) {
-    // Check premium for restricted tabs
     const premiumTabs = ['tabCPTP', 'tabSiswa', 'tabPerangkat', 'tabPelaksanaan', 'tabPenilaian'];
-    const promesOnly = ['tabTahunan']; // Promes is premium, ATP and Prota are free
     
     if (premiumTabs.includes(tabId) && !isPremiumUser()) {
         showUpgradeModal();
@@ -82,31 +70,184 @@ window.showTab = function(tabId) {
     }
     
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('d-none'));
-    document.querySelectorAll('.nav-link').forEach(el => el.classList.remove('active'));
+    document.querySelectorAll('.sidebar .nav-link').forEach(el => el.classList.remove('active'));
     
     const targetTab = document.getElementById(tabId);
-    if (targetTab) {
-        targetTab.classList.remove('d-none');
-    }
+    if (targetTab) targetTab.classList.remove('d-none');
     
     if (event && event.target) {
-        event.target.classList.add('active');
+        let navLink = event.target.closest('.nav-link');
+        if (navLink) navLink.classList.add('active');
     }
     
     updateUIProfile();
     
-    // Tab-specific initializations
     if(tabId === 'tabCPTP') renderCPTP();
     if(tabId === 'tabTahunan') populateFaseRombelOptions('tFaseRombel');
     if(tabId === 'tabPerangkat' || tabId === 'tabPelaksanaan') populateDropdowns();
     if(tabId === 'tabPenilaian') renderKelasPenilaian();
     if(tabId === 'tabKalender') renderCalendar();
     if(tabId === 'tabAdmin') loadAdminPanel();
+    if(tabId === 'tabMapel') renderMapelList();
+    
+    // Close sidebar on mobile
+    if (window.innerWidth < 992) {
+        document.getElementById('sidebarMenu').classList.remove('show');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+    }
 };
 
 window.toggleSidebar = function() {
     document.getElementById('sidebarMenu').classList.toggle('show');
+    document.getElementById('sidebarOverlay').classList.toggle('show');
 };
+
+// ==========================================
+// MAPEL MANAGEMENT (NEW)
+// ==========================================
+window.showAddMapelModal = function() {
+    const modal = new bootstrap.Modal(document.getElementById('addMapelModal'));
+    modal.show();
+};
+
+window.simpanMapelBaru = function() {
+    const jenjang = document.getElementById('newMapelJenjang').value;
+    const nama = document.getElementById('newMapelNama').value.trim();
+    const kelas = document.getElementById('newMapelKelas').value.trim();
+    const fase = document.getElementById('newMapelFase').value;
+    
+    if (!nama) {
+        showToast('Nama mata pelajaran wajib diisi!', 'warning');
+        return;
+    }
+    
+    const newMapel = {
+        id: 'MAPEL_' + Date.now(),
+        jenjang: jenjang,
+        nama: nama,
+        kelas: kelas,
+        fase: fase,
+        createdAt: new Date().toISOString()
+    };
+    
+    dataMapel.push(newMapel);
+    localStorage.setItem('sim_mapel', JSON.stringify(dataMapel));
+    
+    // Set as active if first mapel
+    if (dataMapel.length === 1) {
+        setActiveMapel(newMapel.id);
+    }
+    
+    // Reset form
+    document.getElementById('newMapelNama').value = '';
+    document.getElementById('newMapelKelas').value = '';
+    
+    bootstrap.Modal.getInstance(document.getElementById('addMapelModal')).hide();
+    renderMapelList();
+    updateStats();
+    showToast('Mata pelajaran berhasil ditambahkan!', 'success');
+};
+
+window.setActiveMapel = function(mapelId) {
+    activeMapelId = mapelId;
+    localStorage.setItem('sim_active_mapel', mapelId);
+    renderMapelList();
+    updateActiveMapelIndicator();
+    showToast('Mata pelajaran aktif diubah!', 'success');
+};
+
+window.hapusMapel = function(mapelId) {
+    if (!confirm('Hapus mata pelajaran ini?')) return;
+    
+    dataMapel = dataMapel.filter(m => m.id !== mapelId);
+    localStorage.setItem('sim_mapel', JSON.stringify(dataMapel));
+    
+    if (activeMapelId === mapelId) {
+        activeMapelId = dataMapel.length > 0 ? dataMapel[0].id : null;
+        localStorage.setItem('sim_active_mapel', activeMapelId);
+    }
+    
+    renderMapelList();
+    updateActiveMapelIndicator();
+    updateStats();
+    showToast('Mata pelajaran dihapus!', 'info');
+};
+
+window.filterMapelByJenjang = function(jenjang) {
+    document.querySelectorAll('#tabMapel .btn-group .btn').forEach(btn => {
+        btn.classList.remove('active');
+        if (btn.textContent.includes(jenjang) || (jenjang === 'ALL' && btn.textContent === 'Semua')) {
+            btn.classList.add('active');
+        }
+    });
+    renderMapelList(jenjang);
+};
+
+function renderMapelList(filterJenjang = 'ALL') {
+    const container = document.getElementById('mapelList');
+    let filtered = filterJenjang === 'ALL' ? dataMapel : dataMapel.filter(m => m.jenjang === filterJenjang);
+    
+    if (filtered.length === 0) {
+        container.innerHTML = `
+            <div class="col-12 text-center py-5 text-muted">
+                <i class="fas fa-book fa-4x mb-3 opacity-25"></i>
+                <p>Belum ada mata pelajaran${filterJenjang !== 'ALL' ? ' untuk jenjang ini' : ''}.</p>
+                <button class="btn btn-gradient-primary" onclick="showAddMapelModal()">
+                    <i class="fas fa-plus me-2"></i>Tambah Mapel
+                </button>
+            </div>`;
+        return;
+    }
+    
+    let html = '';
+    filtered.forEach(m => {
+        const isActive = m.id === activeMapelId;
+        const jenjangClass = `jenjang-${m.jenjang.toLowerCase()}`;
+        html += `
+            <div class="col-md-4 col-sm-6">
+                <div class="mapel-card ${isActive ? 'active' : ''}" onclick="setActiveMapel('${m.id}')">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="jenjang-badge ${jenjangClass}">${m.jenjang}</span>
+                        ${isActive ? '<span class="badge bg-primary"><i class="fas fa-check"></i> Aktif</span>' : ''}
+                    </div>
+                    <h6 class="fw-bold mb-1">${m.nama}</h6>
+                    <small class="text-muted">Kelas ${m.kelas} • Fase ${m.fase}</small>
+                    <div class="mt-3 d-flex gap-2">
+                        <button class="btn btn-sm btn-outline-primary flex-grow-1" onclick="event.stopPropagation(); setActiveMapel('${m.id}')">
+                            <i class="fas fa-check-circle"></i> Pilih
+                        </button>
+                        <button class="btn btn-sm btn-outline-danger" onclick="event.stopPropagation(); hapusMapel('${m.id}')">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>`;
+    });
+    container.innerHTML = html;
+}
+
+function updateActiveMapelIndicator() {
+    const indicator = document.getElementById('activeMapelIndicator');
+    const nameEl = document.getElementById('activeMapelName');
+    
+    if (activeMapelId && dataMapel.length > 0) {
+        const mapel = dataMapel.find(m => m.id === activeMapelId);
+        if (mapel) {
+            nameEl.textContent = `${mapel.nama} - ${mapel.jenjang} Kelas ${mapel.kelas}`;
+            indicator.style.display = 'block';
+            return;
+        }
+    }
+    indicator.style.display = 'none';
+}
+
+function getActiveMapelName() {
+    if (activeMapelId) {
+        const mapel = dataMapel.find(m => m.id === activeMapelId);
+        if (mapel) return mapel.nama;
+    }
+    return localStorage.getItem('sim_prof') ? JSON.parse(localStorage.getItem('sim_prof')).mapel || 'Mata Pelajaran' : 'Mata Pelajaran';
+}
 
 // ==========================================
 // PREMIUM SYSTEM
@@ -122,11 +263,11 @@ function checkPremiumStatus() {
     if (isPremiumUser()) {
         badge.className = 'badge';
         badge.style.background = 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)';
-        badge.innerHTML = '<i class="fas fa-crown me-1"></i>Premium';
+        badge.innerHTML = '<i class="fas fa-crown me-1"></i>Pro';
         if (banner) banner.style.display = 'none';
     } else {
         badge.className = 'badge bg-secondary';
-        badge.innerHTML = 'Free User';
+        badge.innerHTML = 'Free';
         if (banner) banner.style.display = 'flex';
     }
 }
@@ -145,8 +286,8 @@ function loadPricingDisplay() {
     document.getElementById('displayNamaRek').textContent = pricingSettings.namaRek;
     
     const waBtn = document.getElementById('waUpgradeBtn');
-    const waMessage = encodeURIComponent(`Halo, saya ingin upgrade ke SIM Kurikulum Merdeka Pro.\n\nDevice ID: ${deviceId}\n\nMohon informasi lebih lanjut. Terima kasih!`);
-    waBtn.href = `https://wa.me/${pricingSettings.whatsapp}?text=${waMessage}`;
+    const msg = encodeURIComponent(`Halo, saya ingin upgrade SIM Kurikulum Pro.\n\nDevice ID: ${deviceId}\n\nMohon informasi. Terima kasih!`);
+    waBtn.href = `https://wa.me/${pricingSettings.whatsapp}?text=${msg}`;
 }
 
 window.checkPremiumAndPrint = function(docId, name, orientation) {
@@ -203,14 +344,9 @@ function loadAdminPanel() {
 }
 
 window.simpanAdminSettings = function() {
-    const newEmail = document.getElementById('adminEmailSetting').value;
-    const newPassword = document.getElementById('adminPasswordSetting').value;
-    
-    adminSettings.email = newEmail;
-    if (newPassword.trim()) {
-        adminSettings.password = newPassword;
-    }
-    
+    adminSettings.email = document.getElementById('adminEmailSetting').value;
+    const newPwd = document.getElementById('adminPasswordSetting').value;
+    if (newPwd.trim()) adminSettings.password = newPwd;
     localStorage.setItem('sim_admin', JSON.stringify(adminSettings));
     showToast('Pengaturan admin tersimpan!', 'success');
 };
@@ -222,23 +358,19 @@ window.simpanPricingSettings = function() {
     pricingSettings.bank = document.getElementById('settingBank').value;
     pricingSettings.rekening = document.getElementById('settingRekening').value;
     pricingSettings.namaRek = document.getElementById('settingNamaRek').value;
-    
     localStorage.setItem('sim_pricing', JSON.stringify(pricingSettings));
-    showToast('Pengaturan harga tersimpan!', 'success');
+    showToast('Pengaturan tersimpan!', 'success');
 };
 
 window.addPremiumUser = function() {
     const userId = document.getElementById('newPremiumUser').value.trim();
-    if (!userId) {
-        showToast('Masukkan User ID!', 'warning');
-        return;
-    }
-    
+    if (!userId) return showToast('Masukkan User ID!', 'warning');
     if (!premiumUsers.includes(userId)) {
         premiumUsers.push(userId);
         localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
         document.getElementById('newPremiumUser').value = '';
         renderPremiumUsers();
+        checkPremiumStatus();
         showToast('User premium ditambahkan!', 'success');
     } else {
         showToast('User sudah ada!', 'warning');
@@ -263,25 +395,23 @@ window.removePremiumUser = function(userId) {
         localStorage.setItem('sim_premium_users', JSON.stringify(premiumUsers));
         renderPremiumUsers();
         checkPremiumStatus();
-        showToast('User dihapus!', 'info');
     }
 };
 
 function renderPremiumUsers() {
     const tbody = document.getElementById('premiumUsersList');
     if (premiumUsers.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada user premium</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="4" class="text-center">Belum ada</td></tr>';
         return;
     }
-    
     let html = '';
     premiumUsers.forEach((user, i) => {
-        const isCurrentDevice = user === deviceId ? ' <span class="badge bg-success">Device Ini</span>' : '';
+        const isCurrent = user === deviceId ? ' <span class="badge bg-success">Ini</span>' : '';
         html += `<tr>
             <td>${i+1}</td>
-            <td>${user}${isCurrentDevice}</td>
-            <td>${new Date().toLocaleDateString('id-ID')}</td>
-            <td><button class="btn btn-sm btn-danger" onclick="removePremiumUser('${user}')"><i class="fas fa-trash"></i></button></td>
+            <td><small>${user}${isCurrent}</small></td>
+            <td><small>${new Date().toLocaleDateString('id-ID')}</small></td>
+            <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="removePremiumUser('${user}')"><i class="fas fa-times"></i></button></td>
         </tr>`;
     });
     tbody.innerHTML = html;
@@ -291,86 +421,71 @@ function renderPremiumUsers() {
 // CALENDAR SYSTEM
 // ==========================================
 function renderCalendar() {
-    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", 
-                       "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
-    
+    const monthNames = ["Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember"];
     document.getElementById('calendarTitle').textContent = `${monthNames[currentMonth]} ${currentYear}`;
     
     const firstDay = new Date(currentYear, currentMonth, 1).getDay();
     const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
     const today = new Date();
     
-    let html = '';
+    const grid = document.getElementById('calendarGrid');
+    // Keep headers, remove days
+    let headerHtml = '';
+    ['Min','Sen','Sel','Rab','Kam','Jum','Sab'].forEach(d => {
+        headerHtml += `<div class="calendar-day-header">${d}</div>`;
+    });
     
-    // Empty cells before first day
+    let daysHtml = '';
     for (let i = 0; i < firstDay; i++) {
-        html += '<div class="calendar-day" style="opacity: 0.3;"></div>';
+        daysHtml += '<div class="calendar-day" style="opacity: 0.2;"></div>';
     }
     
-    // Days of month
     for (let day = 1; day <= daysInMonth; day++) {
         const dateStr = `${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-        const fullDateStr = `${currentYear}-${dateStr}`;
+        const fullDateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
         
         let classes = 'calendar-day';
         let holidayName = '';
         
-        // Check if today
         if (day === today.getDate() && currentMonth === today.getMonth() && currentYear === today.getFullYear()) {
             classes += ' today';
         }
         
-        // Check national holiday
         if (nationalHolidays[dateStr]) {
             classes += ' holiday';
             holidayName = nationalHolidays[dateStr];
         }
         
-        // Check custom holiday
         const customHoliday = customHolidays.find(h => h.date === fullDateStr);
         if (customHoliday) {
             classes += ' holiday-custom';
             holidayName = customHoliday.name;
         }
         
-        html += `<div class="${classes}" onclick="showHolidayInfo('${fullDateStr}', '${holidayName}')" title="${holidayName}">
-            ${day}
-            ${holidayName ? '<div class="holiday-dot"></div>' : ''}
+        daysHtml += `<div class="${classes}" onclick="showHolidayInfo('${fullDateStr}', '${holidayName}')" title="${holidayName}">
+            ${day}${holidayName ? '<div class="holiday-dot"></div>' : ''}
         </div>`;
     }
     
-    document.getElementById('calendarDays').innerHTML = html;
+    grid.innerHTML = headerHtml + daysHtml;
     renderHolidayList();
-    updateStats();
 }
 
 window.changeMonth = function(delta) {
     currentMonth += delta;
-    if (currentMonth > 11) {
-        currentMonth = 0;
-        currentYear++;
-    } else if (currentMonth < 0) {
-        currentMonth = 11;
-        currentYear--;
-    }
+    if (currentMonth > 11) { currentMonth = 0; currentYear++; }
+    else if (currentMonth < 0) { currentMonth = 11; currentYear--; }
     renderCalendar();
 };
 
 window.showHolidayInfo = function(date, name) {
-    if (name) {
-        showToast(`${date}: ${name}`, 'info');
-    }
+    if (name) showToast(`${date}: ${name}`, 'info');
 };
 
 window.addCustomHoliday = function() {
     const date = document.getElementById('customHolidayDate').value;
     const name = document.getElementById('customHolidayName').value.trim();
-    
-    if (!date || !name) {
-        showToast('Lengkapi tanggal dan nama hari libur!', 'warning');
-        return;
-    }
-    
+    if (!date || !name) return showToast('Lengkapi tanggal dan nama!', 'warning');
     if (!customHolidays.find(h => h.date === date)) {
         customHolidays.push({ date, name });
         localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
@@ -387,33 +502,25 @@ window.removeCustomHoliday = function(date) {
     customHolidays = customHolidays.filter(h => h.date !== date);
     localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
     renderCalendar();
-    showToast('Hari libur dihapus!', 'info');
 };
 
 function renderHolidayList() {
     const container = document.getElementById('holidayList');
-    let html = '<h6 class="fw-bold mb-3 text-danger"><i class="fas fa-flag me-2"></i>Libur Nasional</h6>';
-    
+    let html = '<h6 class="fw-bold mb-2 text-danger small"><i class="fas fa-flag me-2"></i>Libur Nasional</h6>';
     for (const [date, name] of Object.entries(nationalHolidays)) {
-        const [month, day] = date.split('-');
-        html += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-            <span><small class="text-muted">${day}/${month}</small> ${name}</span>
-        </div>`;
+        html += `<div class="d-flex justify-content-between mb-1 small p-2 bg-light rounded"><span>${name}</span><small class="text-muted">${date}</small></div>`;
     }
-    
-    html += '<hr><h6 class="fw-bold mb-3 text-success"><i class="fas fa-star me-2"></i>Libur Kustom</h6>';
-    
+    html += '<hr><h6 class="fw-bold mb-2 text-success small"><i class="fas fa-star me-2"></i>Libur Kustom</h6>';
     if (customHolidays.length === 0) {
-        html += '<p class="text-muted small">Belum ada hari libur kustom</p>';
+        html += '<p class="text-muted small">Belum ada</p>';
     } else {
         customHolidays.forEach(h => {
-            html += `<div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded">
-                <span><small class="text-muted">${h.date}</small><br>${h.name}</span>
-                <button class="btn btn-sm btn-outline-danger" onclick="removeCustomHoliday('${h.date}')"><i class="fas fa-times"></i></button>
+            html += `<div class="d-flex justify-content-between align-items-center mb-1 small p-2 bg-light rounded">
+                <span>${h.name}<br><small class="text-muted">${h.date}</small></span>
+                <button class="btn btn-sm btn-outline-danger py-0 px-1" onclick="removeCustomHoliday('${h.date}')"><i class="fas fa-times"></i></button>
             </div>`;
         });
     }
-    
     container.innerHTML = html;
 }
 
@@ -421,10 +528,10 @@ function renderHolidayList() {
 // STATISTICS
 // ==========================================
 function updateStats() {
+    document.getElementById('statMapel').textContent = dataMapel.length;
     document.getElementById('statSiswa').textContent = dataSiswa.length;
     document.getElementById('statJadwal').textContent = dataJadwal.length;
     document.getElementById('statTP').textContent = dataCPTP.tps.length;
-    document.getElementById('statLibur').textContent = Object.keys(nationalHolidays).length + customHolidays.length;
 }
 
 // ==========================================
@@ -432,9 +539,10 @@ function updateStats() {
 // ==========================================
 window.simpanProfil = function() {
     const p = {
-        mapel: document.getElementById('profMapel').value,
+        jenjang: document.getElementById('profJenjang').value,
         npsn: document.getElementById('profNpsn').value,
         sek: document.getElementById('profSekolah').value,
+        alamat: document.getElementById('profAlamat').value,
         thn: document.getElementById('profTahun').value,
         kep: document.getElementById('profKepsek').value,
         nkep: document.getElementById('profNipKepsek').value,
@@ -450,9 +558,10 @@ window.simpanProfil = function() {
 function loadProfil() {
     const p = JSON.parse(localStorage.getItem('sim_prof'));
     if(p) {
-        document.getElementById('profMapel').value = p.mapel || '';
+        if(document.getElementById('profJenjang')) document.getElementById('profJenjang').value = p.jenjang || 'SD';
         document.getElementById('profNpsn').value = p.npsn || '';
         document.getElementById('profSekolah').value = p.sek || '';
+        if(document.getElementById('profAlamat')) document.getElementById('profAlamat').value = p.alamat || '';
         document.getElementById('profTahun').value = p.thn || '';
         document.getElementById('profKepsek').value = p.kep || '';
         document.getElementById('profNipKepsek').value = p.nkep || '';
@@ -465,7 +574,8 @@ function loadProfil() {
 
 function updateUIProfile() {
     const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
-    document.querySelectorAll('.vMapel').forEach(e => e.innerText = p.mapel || 'Mata Pelajaran');
+    const mapelName = getActiveMapelName();
+    document.querySelectorAll('.vMapel').forEach(e => e.innerText = mapelName);
     document.querySelectorAll('.vSekolah').forEach(e => e.innerText = p.sek || '...');
     document.querySelectorAll('.vTahun').forEach(e => e.innerText = p.thn || '...');
     document.querySelectorAll('.vKepsek').forEach(e => e.innerText = p.kep || '...');
@@ -481,12 +591,12 @@ function updateUIProfile() {
 function renderCPTP() {
     document.getElementById('inputCP').value = dataCPTP.cp;
     let html = '';
-    dataCPTP.tps.forEach((tp, index) => {
+    dataCPTP.tps.forEach((tp, idx) => {
         html += `<tr>
-            <td><input type="number" class="form-control tp-bab" value="${tp.bab}"></td>
-            <td><input type="text" class="form-control tp-judul" value="${tp.judul}"></td>
-            <td><input type="number" class="form-control tp-jp" value="${tp.jp}"></td>
-            <td><button class="btn btn-sm btn-outline-danger" onclick="hapusTP(${index})"><i class="fas fa-trash"></i></button></td>
+            <td><input type="number" class="form-control form-control-sm tp-bab" value="${tp.bab}"></td>
+            <td><input type="text" class="form-control form-control-sm tp-judul" value="${tp.judul}"></td>
+            <td><input type="number" class="form-control form-control-sm tp-jp" value="${tp.jp}"></td>
+            <td><button class="btn btn-sm btn-outline-danger" onclick="hapusTP(${idx})"><i class="fas fa-trash"></i></button></td>
         </tr>`;
     });
     document.getElementById('bodyInputTP').innerHTML = html;
@@ -497,8 +607,8 @@ window.tambahBarisTP = function() {
     renderCPTP();
 };
 
-window.hapusTP = function(index) {
-    dataCPTP.tps.splice(index, 1);
+window.hapusTP = function(idx) {
+    dataCPTP.tps.splice(idx, 1);
     renderCPTP();
 };
 
@@ -508,14 +618,9 @@ window.simpanCPTP = function() {
     const babs = document.querySelectorAll('.tp-bab');
     const juduls = document.querySelectorAll('.tp-judul');
     const jps = document.querySelectorAll('.tp-jp');
-    
     for(let i = 0; i < babs.length; i++) {
-        if(juduls[i].value.trim() !== "") {
-            dataCPTP.tps.push({
-                bab: babs[i].value,
-                judul: juduls[i].value,
-                jp: jps[i].value
-            });
+        if(juduls[i].value.trim()) {
+            dataCPTP.tps.push({ bab: babs[i].value, judul: juduls[i].value, jp: jps[i].value });
         }
     }
     localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
@@ -524,61 +629,41 @@ window.simpanCPTP = function() {
 };
 
 window.loadDefaultPAI = function() {
-    if(typeof dbKurikulumPAI === 'undefined') {
-        return showToast('File data_default.js tidak ditemukan!', 'danger');
-    }
+    if(typeof dbKurikulumPAI === 'undefined') return showToast('File data_default.js tidak ditemukan!', 'danger');
     const kls = document.getElementById('loadDefaultKls').value;
-    const dataKelas = dbKurikulumPAI[kls];
-    if(dataKelas) {
-        dataCPTP.cp = dataKelas.cp;
-        dataCPTP.tps = dataKelas.tps;
+    const data = dbKurikulumPAI[kls];
+    if(data) {
+        dataCPTP.cp = data.cp;
+        dataCPTP.tps = data.tps;
         localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
         renderCPTP();
         updateStats();
-        showToast(`Data PAI Kelas ${kls} berhasil dimuat!`, 'success');
+        showToast(`Data PAI Kelas ${kls} dimuat!`, 'success');
     }
 };
 
 // ==========================================
-// STUDENT DATA MANAGEMENT
+// STUDENT DATA
 // ==========================================
 function processCsvData(d) {
     let count = 0;
     d.forEach(s => {
-        let nisn = s.nisn || s.NISN;
-        let nama = s.nama || s.Nama;
-        let jk = s.jk || s.JK;
-        let kelas = s.kelas || s.Kelas;
-        let rombel = s.rombel || s.Rombel;
-        
+        let nisn = s.nisn || s.NISN, nama = s.nama || s.Nama, jk = s.jk || s.JK, kelas = s.kelas || s.Kelas, rombel = s.rombel || s.Rombel;
         if(nama && kelas && rombel) {
-            dataSiswa.push({
-                nisn: nisn || '-',
-                nama: nama,
-                jk: jk || '-',
-                kelas: kelas,
-                rombel: rombel
-            });
+            dataSiswa.push({ nisn: nisn || '-', nama, jk: jk || '-', kelas, rombel });
             count++;
         }
     });
     localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
     renderTabelSiswa();
     updateStats();
-    showToast(`${count} siswa berhasil diimport!`, 'success');
+    showToast(`${count} siswa diimport!`, 'success');
 }
 
 window.importSiswaLokal = function() {
     const file = document.getElementById('fileCsvSiswa').files[0];
     if(!file) return showToast('Pilih file CSV!', 'warning');
-    
-    Papa.parse(file, {
-        header: true,
-        skipEmptyLines: true,
-        complete: function(results) {
-            processCsvData(results.data);
-        }
-    });
+    Papa.parse(file, { header: true, skipEmptyLines: true, complete: r => processCsvData(r.data) });
 };
 
 window.clearDataSiswa = function() {
@@ -587,49 +672,35 @@ window.clearDataSiswa = function() {
         localStorage.removeItem('sim_siswa');
         renderTabelSiswa();
         updateStats();
-        showToast('Data siswa dihapus!', 'info');
     }
 };
 
 window.renderTabelSiswa = function() {
     const filter = document.getElementById('filterKelasSiswa').value;
-    let options = '<option value="ALL">-- Semua Rombel --</option>';
-    new Set(dataSiswa.map(s => s.rombel)).forEach(r => {
-        options += `<option value="${r}" ${filter === r ? 'selected' : ''}>${r}</option>`;
-    });
-    document.getElementById('filterKelasSiswa').innerHTML = options;
+    let opts = '<option value="ALL">-- Semua Rombel --</option>';
+    new Set(dataSiswa.map(s => s.rombel)).forEach(r => opts += `<option value="${r}" ${filter===r?'selected':''}>${r}</option>`);
+    document.getElementById('filterKelasSiswa').innerHTML = opts;
     
     let html = '';
     const filtered = filter === "ALL" ? dataSiswa : dataSiswa.filter(s => s.rombel === filter);
-    filtered.forEach(s => {
-        html += `<tr>
-            <td>${s.nisn}</td>
-            <td>${s.nama}</td>
-            <td>${s.jk}</td>
-            <td>${s.kelas}</td>
-            <td>${s.rombel}</td>
-        </tr>`;
-    });
-    document.getElementById('tabelSiswaBody').innerHTML = html || '<tr><td colspan="5" class="text-center py-4">Belum ada data siswa</td></tr>';
+    filtered.forEach(s => html += `<tr><td>${s.nisn}</td><td>${s.nama}</td><td>${s.jk}</td><td>${s.kelas}</td><td>${s.rombel}</td></tr>`);
+    document.getElementById('tabelSiswaBody').innerHTML = html || '<tr><td colspan="5" class="text-center py-4">Belum ada data</td></tr>';
 };
 
 // ==========================================
-// SCHEDULE MANAGEMENT
+// SCHEDULE
 // ==========================================
 window.tambahJadwalLokal = function() {
     const hari = document.getElementById('jadwalHari').value;
     const jam = document.getElementById('jadwalJam').value;
     const fase = document.getElementById('jadwalFase').value;
     const rombel = document.getElementById('jadwalRombel').value;
-    
     if(!jam || !rombel) return showToast('Jam & Rombel wajib diisi!', 'warning');
-    
     dataJadwal.push({ hari, jam, fase, rombel });
     localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
     renderJadwal();
     updateStats();
     showToast('Jadwal ditambahkan!', 'success');
-    
     document.getElementById('jadwalJam').value = '';
     document.getElementById('jadwalRombel').value = '';
 };
@@ -639,7 +710,6 @@ window.hapusJadwal = function(idx) {
     localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
     renderJadwal();
     updateStats();
-    showToast('Jadwal dihapus!', 'info');
 };
 
 function renderJadwal() {
@@ -653,7 +723,7 @@ function renderJadwal() {
                 <td>Jam Ke-${d.jam}</td>
                 <td><span class="badge bg-primary">Fase ${d.fase}</span></td>
                 <td>${d.rombel}</td>
-                <td><button class="btn btn-sm btn-danger" onclick="hapusJadwal(${i})"><i class="fas fa-trash"></i></button></td>
+                <td><button class="btn btn-sm btn-danger py-0 px-2" onclick="hapusJadwal(${i})"><i class="fas fa-trash"></i></button></td>
             </tr>`;
         });
     }
@@ -661,27 +731,23 @@ function renderJadwal() {
 }
 
 // ==========================================
-// DROPDOWN HELPERS
+// DROPDOWNS
 // ==========================================
 function populateDropdowns() {
-    let optJadwal = '<option value="">-- Pilih Jadwal/Rombel --</option>';
-    dataJadwal.forEach((d) => {
-        optJadwal += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - Rombel ${d.rombel}</option>`;
-    });
-    document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = optJadwal);
+    let oj = '<option value="">-- Pilih Jadwal --</option>';
+    dataJadwal.forEach(d => oj += `<option value='${JSON.stringify(d)}'>${d.hari} Jam ${d.jam} - ${d.rombel}</option>`);
+    document.querySelectorAll('#pSelectJadwal, #selectJadwalAbsen').forEach(el => el.innerHTML = oj);
     
-    let optTP = '<option value="">-- Pilih Materi (TP) --</option>';
-    dataCPTP.tps.forEach(t => {
-        optTP += `<option value='${t.judul}'>Bab ${t.bab} - ${t.judul}</option>`;
-    });
-    document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = optTP);
+    let ot = '<option value="">-- Pilih Materi --</option>';
+    dataCPTP.tps.forEach(t => ot += `<option value='${t.judul}'>Bab ${t.bab}: ${t.judul}</option>`);
+    document.querySelectorAll('#pSelectTP, #selectTPAbsen').forEach(el => el.innerHTML = ot);
 }
 
 function populateFaseRombelOptions(elementId) {
-    let setFr = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
-    let options = '';
-    setFr.forEach(fr => options += `<option value="${fr}">${fr}</option>`);
-    document.getElementById(elementId).innerHTML = options || '<option value="">Buat Jadwal Dulu</option>';
+    let set = new Set(dataJadwal.map(d => `Fase ${d.fase} - ${d.rombel}`));
+    let o = '';
+    set.forEach(fr => o += `<option value="${fr}">${fr}</option>`);
+    document.getElementById(elementId).innerHTML = o || '<option>Buat Jadwal Dulu</option>';
 }
 
 // ==========================================
@@ -689,70 +755,216 @@ function populateFaseRombelOptions(elementId) {
 // ==========================================
 window.generateTahunan = function() {
     const fr = document.getElementById('tFaseRombel').value;
-    document.querySelectorAll('.vFaseRombel').forEach(el => el.innerText = fr);
-    document.getElementById('vCPATP').innerText = dataCPTP.cp;
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
     
-    let htmlAtp = '', htmlProta = '', htmlPromes = '';
+    // ATP Document
+    let atpHtml = `
+        <div class="doc-header">ALUR TUJUAN PEMBELAJARAN (ATP)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Sekolah</td><td width="2%">:</td><td>${p.sek||'...'}</td><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
+            <tr><td>Fase/Rombel</td><td>:</td><td>${fr}</td><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td></tr>
+        </table>
+        <p><b>Capaian Pembelajaran:</b><br>${dataCPTP.cp}</p>
+        <table class="doc-table">
+            <thead><tr><th width="8%">Bab</th><th>Alur Tujuan Pembelajaran</th><th width="12%">JP</th></tr></thead>
+            <tbody>`;
     let totalJP = 0;
-    
-    dataCPTP.tps.forEach((t, idx) => {
+    dataCPTP.tps.forEach(t => {
         totalJP += parseInt(t.jp);
-        
-        htmlAtp += `<tr>
-            <td style="text-align: center;">${t.bab}</td>
-            <td>Peserta didik mampu memahami dan menerapkan: ${t.judul}</td>
-            <td style="text-align: center;">${t.jp} JP</td>
-        </tr>`;
-        
-        const semester = idx < Math.ceil(dataCPTP.tps.length / 2) ? 'Ganjil' : 'Genap';
-        htmlProta += `<tr>
-            <td style="text-align: center;">${semester}</td>
-            <td>Bab ${t.bab} - ${t.judul}</td>
-            <td style="text-align: center;">${t.jp}</td>
-            <td>Sesuai Kalender Akademik</td>
-        </tr>`;
-        
-        // Promes with weekly distribution
-        const weeksNeeded = Math.ceil(t.jp / 2);
+        atpHtml += `<tr><td style="text-align:center;">${t.bab}</td><td>Peserta didik mampu memahami: ${t.judul}</td><td style="text-align:center;">${t.jp}</td></tr>`;
+    });
+    atpHtml += `<tr style="font-weight:bold;"><td colspan="2" style="text-align:right;">Total:</td><td style="text-align:center;">${totalJP} JP</td></tr>
+        </tbody></table>
+        <div style="display:flex; justify-content:space-between; margin-top:40px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    document.getElementById('docATP').innerHTML = atpHtml;
+    
+    // PROTA Document
+    let protaHtml = `
+        <div class="doc-header">PROGRAM TAHUNAN (PROTA)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td><td width="15%">Fase/Rombel</td><td width="2%">:</td><td>${fr}</td></tr>
+            <tr><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td><td>Sekolah</td><td>:</td><td>${p.sek||'...'}</td></tr>
+        </table>
+        <table class="doc-table">
+            <thead><tr><th width="12%">Semester</th><th>Bab / Tujuan Pembelajaran</th><th width="10%">JP</th><th width="18%">Keterangan</th></tr></thead>
+            <tbody>`;
+    dataCPTP.tps.forEach((t, idx) => {
+        const sem = idx < Math.ceil(dataCPTP.tps.length / 2) ? 'Ganjil' : 'Genap';
+        protaHtml += `<tr><td style="text-align:center;">${sem}</td><td>Bab ${t.bab} - ${t.judul}</td><td style="text-align:center;">${t.jp}</td><td>Sesuai Kalender</td></tr>`;
+    });
+    protaHtml += `</tbody></table>
+        <div style="display:flex; justify-content:space-between; margin-top:40px;">
+            <div style="width:45%; text-align:center;">Mengetahui,<br>Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}</div>
+            <div style="width:45%; text-align:center;">${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}</div>
+        </div>`;
+    document.getElementById('docProta').innerHTML = protaHtml;
+    
+    // PROMES Document
+    let promesHtml = `
+        <div class="doc-header">PROGRAM SEMESTER (PROMES)<br>KURIKULUM MERDEKA</div>
+        <table style="width:100%; margin-bottom:10px; font-size:10pt;">
+            <tr>
+                <td>Sekolah: <b>${p.sek||'...'}</b></td>
+                <td>Mapel: <b>${mapel}</b></td>
+                <td>Fase: <b>${fr}</b></td>
+                <td>TA: <b>${p.thn||'...'}</b></td>
+            </tr>
+        </table>
+        <table class="doc-table" style="font-size:8pt;">
+            <thead>
+                <tr>
+                    <th rowspan="2" width="22%">Tujuan Pembelajaran</th>
+                    <th rowspan="2" width="5%">JP</th>
+                    <th colspan="4">Juli</th>
+                    <th colspan="4">Agustus</th>
+                    <th colspan="4">September</th>
+                    <th colspan="4">Oktober</th>
+                    <th colspan="4">November</th>
+                    <th colspan="4">Desember</th>
+                </tr>
+                <tr>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                    <th>1</th><th>2</th><th>3</th><th>4</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    
+    let weekCounter = 0;
+    dataCPTP.tps.forEach(t => {
+        const weeksNeeded = Math.ceil(parseInt(t.jp) / 2);
         let weekCells = '';
         for (let w = 0; w < 24; w++) {
-            if (w < weeksNeeded) {
-                weekCells += `<td style="text-align: center; background: #e3f2fd;">✓</td>`;
+            if (w >= weekCounter && w < weekCounter + weeksNeeded) {
+                weekCells += `<td style="text-align:center; background:#d4edda;">✓</td>`;
             } else {
                 weekCells += `<td></td>`;
             }
         }
-        htmlPromes += `<tr>
-            <td style="text-align: left;">Bab ${t.bab}: ${t.judul}</td>
-            <td style="text-align: center;">${t.jp}</td>
-            ${weekCells}
-        </tr>`;
+        weekCounter += weeksNeeded;
+        promesHtml += `<tr><td style="text-align:left; font-size:8pt;">Bab ${t.bab}: ${t.judul}</td><td style="text-align:center;">${t.jp}</td>${weekCells}</tr>`;
     });
     
-    // Add total row to ATP
-    htmlAtp += `<tr style="font-weight: bold; background: #f8f9fa;">
-        <td colspan="2" style="text-align: right;">Total Alokasi Waktu:</td>
-        <td style="text-align: center;">${totalJP} JP</td>
-    </tr>`;
+    promesHtml += `</tbody></table>
+        <div style="display:flex; justify-content:space-between; margin-top:30px; font-size:10pt;">
+            <div style="width:45%; text-align:center;">Kepala Sekolah<br><br><br><br><u><b>${p.kep||'...'}</b></u></div>
+            <div style="width:45%; text-align:center;">Guru ${mapel}<br><br><br><br><u><b>${p.gur||'...'}</b></u></div>
+        </div>`;
+    document.getElementById('docPromes').innerHTML = promesHtml;
     
-    document.getElementById('tblAtpBody').innerHTML = htmlAtp;
-    document.getElementById('tblProtaBody').innerHTML = htmlProta;
-    document.getElementById('tblPromesBody').innerHTML = htmlPromes;
-    
-    showToast('Data berhasil di-load! Silakan cetak dokumen.', 'success');
+    showToast('Dokumen berhasil di-generate! Klik Cetak.', 'success');
 };
 
+// ==========================================
+// MODUL GENERATOR
+// ==========================================
 window.generateModul = function() {
-    const jadwal = document.getElementById('pSelectJadwal').value;
+    const jadwalVal = document.getElementById('pSelectJadwal').value;
     const tp = document.getElementById('pSelectTP').value;
     
-    if(!jadwal || !tp) return showToast('Pilih Jadwal & Materi!', 'warning');
+    if(!jadwalVal || !tp) return showToast('Pilih Jadwal & Materi!', 'warning');
     
-    const jv = JSON.parse(jadwal);
-    document.querySelectorAll('.vFaseRombel').forEach(e => e.innerText = `Fase ${jv.fase} / ${jv.rombel}`);
-    document.getElementById('outMateriModul').innerText = tp;
+    const jadwal = JSON.parse(jadwalVal);
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
+    const faseRombel = `Fase ${jadwal.fase} / ${jadwal.rombel}`;
     
-    showToast('Modul siap! Klik tombol Cetak.', 'success');
+    let modulHtml = `
+        <div class="doc-header">MODUL AJAR<br>KURIKULUM MERDEKA</div>
+        
+        <p style="margin-bottom:5px;"><b>A. INFORMASI UMUM</b></p>
+        <table style="width:100%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="15%">Penyusun</td><td width="2%">:</td><td><b>${p.gur||'...'}</b></td><td width="15%">Instansi</td><td width="2%">:</td><td>${p.sek||'...'}</td></tr>
+            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td><td>Fase / Rombel</td><td>:</td><td>${faseRombel}</td></tr>
+            <tr><td>Alokasi Waktu</td><td>:</td><td>2 x 35 Menit</td><td>Hari/Tanggal</td><td>:</td><td>${jadwal.hari}, ........................</td></tr>
+        </table>
+        
+        <p style="margin-bottom:5px;"><b>B. CAPAIAN & TUJUAN PEMBELAJARAN</b></p>
+        <p style="text-align:justify; margin-bottom:15px;">
+            <b>Capaian Pembelajaran:</b> ${dataCPTP.cp || '...'}<br><br>
+            <b>Tujuan Pembelajaran:</b> Peserta didik mampu memahami dan menerapkan materi tentang <b>"${tp}"</b> dengan baik.
+        </p>
+        
+        <p style="margin-bottom:5px;"><b>C. PROFIL PELAJAR PANCASILA</b></p>
+        <p style="margin-bottom:15px;">Beriman dan Bertakwa kepada Tuhan YME, Berkebinekaan Global, Bergotong Royong, Mandiri, Bernalar Kritis, dan Kreatif.</p>
+        
+        <p style="margin-bottom:5px;"><b>D. SARANA & PRASARANA</b></p>
+        <p style="margin-bottom:15px;">Buku Paket, LKPD, Papan Tulis, Spidol, Media Pembelajaran, LCD Proyektor (jika tersedia).</p>
+        
+        <p style="margin-bottom:5px;"><b>E. KEGIATAN PEMBELAJARAN</b></p>
+        <table class="doc-table" style="margin-bottom:15px;">
+            <tr><th width="18%">Tahap</th><th>Deskripsi Kegiatan</th></tr>
+            <tr>
+                <td style="text-align:center;"><b>Pendahuluan</b><br>(10 Menit)</td>
+                <td>
+                    <ol style="margin:0; padding-left:20px;">
+                        <li>Guru membuka pelajaran dengan salam dan berdoa bersama <i>(Beriman, Bertakwa kepada Tuhan YME)</i></li>
+                        <li>Guru mengecek kehadiran siswa dan kesiapan belajar</li>
+                        <li>Guru melakukan apersepsi dengan mengaitkan materi sebelumnya</li>
+                        <li>Guru menyampaikan tujuan pembelajaran dan motivasi</li>
+                    </ol>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;"><b>Inti</b><br>(50 Menit)</td>
+                <td>
+                    <ol style="margin:0; padding-left:20px;">
+                        <li>Guru menjelaskan materi tentang <b>"${tp}"</b> secara sistematis</li>
+                        <li>Peserta didik mengamati dan mencatat poin-poin penting <i>(Mandiri)</i></li>
+                        <li>Peserta didik berdiskusi dalam kelompok kecil <i>(Gotong Royong, Berkebinekaan Global)</i></li>
+                        <li>Peserta didik mengerjakan LKPD / latihan soal <i>(Bernalar Kritis, Kreatif)</i></li>
+                        <li>Perwakilan kelompok mempresentasikan hasil diskusi</li>
+                        <li>Guru memberikan umpan balik dan penguatan</li>
+                    </ol>
+                </td>
+            </tr>
+            <tr>
+                <td style="text-align:center;"><b>Penutup</b><br>(10 Menit)</td>
+                <td>
+                    <ol style="margin:0; padding-left:20px;">
+                        <li>Guru dan peserta didik menyimpulkan pembelajaran bersama</li>
+                        <li>Guru memberikan refleksi dan tindak lanjut (PR/tugas)</li>
+                        <li>Guru menyampaikan rencana pembelajaran pertemuan berikutnya</li>
+                        <li>Doa penutup dan salam</li>
+                    </ol>
+                </td>
+            </tr>
+        </table>
+        
+        <p style="margin-bottom:5px;"><b>F. ASESMEN / PENILAIAN</b></p>
+        <table class="doc-table" style="margin-bottom:15px;">
+            <tr><th width="25%">Jenis Asesmen</th><th>Teknik</th><th width="30%">Instrumen</th></tr>
+            <tr><td>Asesmen Diagnostik</td><td>Tanya jawab awal pembelajaran</td><td>Pertanyaan lisan</td></tr>
+            <tr><td>Asesmen Formatif</td><td>Observasi aktivitas & LKPD</td><td>Lembar observasi, LKPD</td></tr>
+            <tr><td>Asesmen Sumatif</td><td>Tes tertulis / Portofolio</td><td>Soal tes, rubrik penilaian</td></tr>
+        </table>
+        
+        <p style="margin-bottom:5px;"><b>G. PENGAYAAN & REMEDIAL</b></p>
+        <p style="margin-bottom:15px;">
+            <b>Pengayaan:</b> Peserta didik yang sudah tuntas diberikan soal/tugas pengembangan.<br>
+            <b>Remedial:</b> Peserta didik yang belum tuntas diberikan bimbingan dan ujian ulang.
+        </p>
+        
+        <div style="display:flex; justify-content:space-between; margin-top:40px; page-break-inside:avoid;">
+            <div style="width:45%; text-align:center;">
+                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
+                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
+            </div>
+            <div style="width:45%; text-align:center;">
+                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
+                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
+            </div>
+        </div>`;
+    
+    document.getElementById('docModul').innerHTML = modulHtml;
+    showToast('Modul berhasil dibuat! Klik Cetak.', 'success');
 };
 
 // ==========================================
@@ -773,7 +985,7 @@ window.loadAbsensi = function() {
     } else {
         siswaKelas.forEach((s, i) => {
             html += `<div class="col-md-3 col-6">
-                <div class="form-check p-2 border rounded mb-2">
+                <div class="form-check p-2 border rounded">
                     <input type="checkbox" class="form-check-input absen-check" value="${s.nama}" id="abs${i}" checked>
                     <label class="form-check-label small" for="abs${i}">${s.nama}</label>
                 </div>
@@ -795,91 +1007,158 @@ window.simpanJurnal = function() {
     let tidakHadir = [];
     
     checkboxes.forEach(cb => {
-        if(cb.checked) {
-            hadir++;
-        } else {
-            tidakHadir.push(cb.value);
-        }
+        if(cb.checked) hadir++;
+        else tidakHadir.push(cb.value);
     });
     
     const today = new Date();
     const days = ['Minggu', 'Senin', 'Selasa', 'Rabu', 'Kamis', 'Jumat', 'Sabtu'];
     const tanggalStr = `${days[today.getDay()]}, ${today.toLocaleDateString('id-ID')}`;
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
     
-    document.getElementById('jurTanggal').innerText = tanggalStr;
-    document.getElementById('jurRombel').innerText = jadwal.rombel;
-    document.getElementById('jurMateri').innerText = materi;
-    document.getElementById('jurHadir').innerText = hadir;
-    document.getElementById('jurAbsen').innerText = tidakHadir.length;
-    document.getElementById('jurListAbsen').innerText = tidakHadir.length > 0 ? tidakHadir.join(", ") : "-";
+    let jurnalHtml = `
+        <div class="doc-header">JURNAL PELAKSANAAN PEMBELAJARAN</div>
+        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="25%">Nama Sekolah</td><td width="2%">:</td><td><b>${p.sek||'...'}</b></td></tr>
+            <tr><td>Mata Pelajaran</td><td>:</td><td>${mapel}</td></tr>
+            <tr><td>Nama Guru</td><td>:</td><td>${p.gur||'...'}</td></tr>
+        </table>
+        <table class="doc-table" style="text-align:center;">
+            <thead>
+                <tr>
+                    <th width="15%">Hari/Tanggal</th>
+                    <th width="10%">Rombel</th>
+                    <th width="10%">Jam Ke</th>
+                    <th width="35%">Materi / Tujuan Pembelajaran</th>
+                    <th width="15%">Absensi</th>
+                    <th width="15%">Catatan</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>${tanggalStr}</td>
+                    <td>${jadwal.rombel}</td>
+                    <td>${jadwal.jam}</td>
+                    <td style="text-align:left;">${materi}</td>
+                    <td style="text-align:left;">
+                        Hadir: <b>${hadir}</b><br>
+                        Tidak Hadir: <b>${tidakHadir.length}</b>
+                        ${tidakHadir.length > 0 ? '<br><small class="text-danger">(' + tidakHadir.join(', ') + ')</small>' : ''}
+                    </td>
+                    <td>Tuntas</td>
+                </tr>
+            </tbody>
+        </table>
+        <div style="display:flex; justify-content:space-between; margin-top:50px;">
+            <div style="width:45%; text-align:center;">
+                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
+                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
+            </div>
+            <div style="width:45%; text-align:center;">
+                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
+                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
+            </div>
+        </div>`;
     
-    showToast('Jurnal tersimpan! Silakan cetak.', 'success');
+    document.getElementById('docJurnal').innerHTML = jurnalHtml;
+    showToast('Jurnal tersimpan! Klik Cetak.', 'success');
 };
 
 // ==========================================
 // GRADING / PENILAIAN
 // ==========================================
 window.renderKelasPenilaian = function() {
-    let options = '<option value="">-- Pilih Rombel --</option>';
-    new Set(dataSiswa.map(s => s.rombel)).forEach(k => {
-        options += `<option value="${k}">${k}</option>`;
-    });
-    document.getElementById('selectKelasNilai').innerHTML = options;
+    let opts = '<option value="">-- Pilih Rombel --</option>';
+    new Set(dataSiswa.map(s => s.rombel)).forEach(k => opts += `<option value="${k}">${k}</option>`);
+    document.getElementById('selectKelasNilai').innerHTML = opts;
 };
 
 window.loadPenilaian = function() {
     const rombel = document.getElementById('selectKelasNilai').value;
     if (!rombel) return;
     
-    document.getElementById('lblKelasNilai').innerText = rombel;
-    document.getElementById('lblTopikNilai').innerText = document.getElementById('topikNilai').value;
+    const topik = document.getElementById('topikNilai').value;
+    const p = JSON.parse(localStorage.getItem('sim_prof')) || {};
+    const mapel = getActiveMapelName();
     
-    let html = '';
+    let html = `
+        <div class="doc-header">DAFTAR NILAI SISWA</div>
+        <table style="width:60%; margin-bottom:15px; font-size:11pt;">
+            <tr><td width="25%">Mata Pelajaran</td><td width="2%">:</td><td><b>${mapel}</b></td></tr>
+            <tr><td>Kelas / Rombel</td><td>:</td><td><b>${rombel}</b></td></tr>
+            <tr><td>Topik Penilaian</td><td>:</td><td><b>${topik}</b></td></tr>
+            <tr><td>Tahun Ajaran</td><td>:</td><td>${p.thn||'...'}</td></tr>
+        </table>
+        <table class="doc-table" style="text-align:center;">
+            <thead>
+                <tr>
+                    <th width="5%">No</th>
+                    <th width="15%">NISN</th>
+                    <th width="45%">Nama Siswa</th>
+                    <th width="10%">JK</th>
+                    <th width="15%">Nilai</th>
+                    <th width="10%">Ket</th>
+                </tr>
+            </thead>
+            <tbody>`;
+    
     const siswaRombel = dataSiswa.filter(s => s.rombel === rombel);
     
     if (siswaRombel.length === 0) {
-        html = '<tr><td colspan="5" class="text-center py-4">Tidak ada siswa di rombel ini</td></tr>';
+        html += '<tr><td colspan="6">Tidak ada siswa</td></tr>';
     } else {
         siswaRombel.forEach((s, i) => {
             const nilai = dataNilai[`${rombel}_${s.nisn}`] || '';
+            const ket = nilai >= 75 ? 'Tuntas' : (nilai ? 'Belum' : '-');
             html += `<tr>
                 <td>${i + 1}</td>
                 <td>${s.nisn}</td>
-                <td style="text-align: left;">${s.nama}</td>
+                <td style="text-align:left;">${s.nama}</td>
                 <td>${s.jk}</td>
                 <td class="no-print">
                     <input type="number" class="form-control form-control-sm input-nilai text-center" 
-                           data-id="${s.nisn}" value="${nilai}" min="0" max="100">
+                           data-id="${s.nisn}" value="${nilai}" min="0" max="100" style="width:70px; margin:0 auto;">
                 </td>
                 <td class="d-none print-nilai">${nilai}</td>
+                <td class="d-none print-ket">${ket}</td>
             </tr>`;
         });
     }
     
-    // Add print style
-    html += `<style>
-        @media print { 
-            .no-print { display: none !important; } 
-            .print-nilai { display: table-cell !important; }
-        }
-    </style>`;
+    html += `</tbody></table>
+        <style>
+            @media print { 
+                .no-print { display: none !important; } 
+                .print-nilai, .print-ket { display: table-cell !important; }
+            }
+        </style>
+        <div style="display:flex; justify-content:space-between; margin-top:50px;">
+            <div style="width:45%; text-align:center;">
+                Mengetahui,<br>Kepala Sekolah<br><br><br><br>
+                <u><b>${p.kep||'...'}</b></u><br>NIP. ${p.nkep||'...'}
+            </div>
+            <div style="width:45%; text-align:center;">
+                ${p.tgl||'...'}<br>Guru ${mapel}<br><br><br><br>
+                <u><b>${p.gur||'...'}</b></u><br>NIP. ${p.ngur||'...'}
+            </div>
+        </div>`;
     
-    document.getElementById('tblNilaiBody').innerHTML = html;
+    document.getElementById('docNilai').innerHTML = html;
     document.getElementById('docNilai').classList.remove('d-none');
 };
 
 window.simpanNilai = function() {
     const rombel = document.getElementById('selectKelasNilai').value;
-    if(!rombel) return showToast('Pilih rombel terlebih dahulu!', 'warning');
+    if(!rombel) return showToast('Pilih rombel!', 'warning');
     
     document.querySelectorAll('.input-nilai').forEach(el => {
         const id = el.getAttribute('data-id');
-        const nilai = el.value;
-        dataNilai[`${rombel}_${id}`] = nilai;
+        dataNilai[`${rombel}_${id}`] = el.value;
     });
     
     localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
-    showToast('Nilai berhasil disimpan!', 'success');
+    showToast('Nilai tersimpan!', 'success');
     loadPenilaian();
 };
 
@@ -890,21 +1169,33 @@ window.triggerPrint = function(sourceId, pdfName, orientation) {
     updateUIProfile();
     document.title = `${pdfName}_${new Date().getTime()}`;
     
-    // Hide all print views first
+    // Hide all print views
     document.querySelectorAll('.print-view').forEach(el => {
         el.classList.add('d-none');
         el.classList.remove('print-active');
     });
     
-    // Show only target document
+    // Show only target
     const target = document.getElementById(sourceId);
+    if (!target) {
+        showToast('Dokumen belum di-generate!', 'warning');
+        return;
+    }
+    
     target.classList.remove('d-none');
     target.classList.add('print-active');
     
-    // Trigger print
+    // Add orientation style
+    let styleEl = document.getElementById('printOrientationStyle');
+    if (!styleEl) {
+        styleEl = document.createElement('style');
+        styleEl.id = 'printOrientationStyle';
+        document.head.appendChild(styleEl);
+    }
+    styleEl.textContent = `@media print { @page { size: ${orientation}; } }`;
+    
     setTimeout(() => {
         window.print();
-        // Reset after print
         setTimeout(() => {
             target.classList.remove('print-active');
         }, 500);
@@ -919,11 +1210,10 @@ window.copyToClipboard = function(elementId) {
     textarea.select();
     textarea.setSelectionRange(0, 99999);
     navigator.clipboard.writeText(textarea.value);
-    showToast('Prompt berhasil disalin!', 'success');
+    showToast('Prompt disalin!', 'success');
 };
 
 function showToast(message, type = 'info') {
-    // Remove existing toasts
     document.querySelectorAll('.toast-notification').forEach(t => t.remove());
     
     const bgColors = {
@@ -947,40 +1237,44 @@ function showToast(message, type = 'info') {
         position: fixed;
         top: 20px;
         right: 20px;
-        padding: 15px 25px;
+        padding: 12px 20px;
         background: ${bgColors[type]};
         color: white;
-        border-radius: 12px;
+        border-radius: 10px;
         box-shadow: 0 10px 40px rgba(0,0,0,0.2);
         z-index: 9999;
         font-weight: 500;
-        animation: slideIn 0.3s ease;
+        font-size: 0.9rem;
+        animation: toastSlideIn 0.3s ease;
+        max-width: 300px;
     `;
     
-    // Add animation style
-    const style = document.createElement('style');
-    style.textContent = `
-        @keyframes slideIn {
-            from { transform: translateX(100%); opacity: 0; }
-            to { transform: translateX(0); opacity: 1; }
-        }
-        @keyframes slideOut {
-            from { transform: translateX(0); opacity: 1; }
-            to { transform: translateX(100%); opacity: 0; }
-        }
-    `;
-    document.head.appendChild(style);
+    if (!document.getElementById('toastAnimStyle')) {
+        const style = document.createElement('style');
+        style.id = 'toastAnimStyle';
+        style.textContent = `
+            @keyframes toastSlideIn {
+                from { transform: translateX(100%); opacity: 0; }
+                to { transform: translateX(0); opacity: 1; }
+            }
+            @keyframes toastSlideOut {
+                from { transform: translateX(0); opacity: 1; }
+                to { transform: translateX(100%); opacity: 0; }
+            }
+        `;
+        document.head.appendChild(style);
+    }
     
     document.body.appendChild(toast);
     
     setTimeout(() => {
-        toast.style.animation = 'slideOut 0.3s ease';
+        toast.style.animation = 'toastSlideOut 0.3s ease';
         setTimeout(() => toast.remove(), 300);
     }, 3000);
 }
 
 // ==========================================
-// EXPORT / BACKUP DATA
+// BACKUP & RESTORE
 // ==========================================
 window.exportAllData = function() {
     const allData = {
@@ -989,8 +1283,11 @@ window.exportAllData = function() {
         cptp: dataCPTP,
         nilai: dataNilai,
         holidays: customHolidays,
+        mapel: dataMapel,
+        activeMapel: activeMapelId,
         profil: JSON.parse(localStorage.getItem('sim_prof')) || {},
-        exportDate: new Date().toISOString()
+        exportDate: new Date().toISOString(),
+        version: '2.0'
     };
     
     const blob = new Blob([JSON.stringify(allData, null, 2)], { type: 'application/json' });
@@ -1013,37 +1310,24 @@ window.importAllData = function(event) {
         try {
             const data = JSON.parse(e.target.result);
             
-            if (data.siswa) {
-                dataSiswa = data.siswa;
-                localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa));
-            }
-            if (data.jadwal) {
-                dataJadwal = data.jadwal;
-                localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal));
-            }
-            if (data.cptp) {
-                dataCPTP = data.cptp;
-                localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP));
-            }
-            if (data.nilai) {
-                dataNilai = data.nilai;
-                localStorage.setItem('sim_nilai', JSON.stringify(dataNilai));
-            }
-            if (data.holidays) {
-                customHolidays = data.holidays;
-                localStorage.setItem('sim_holidays', JSON.stringify(customHolidays));
-            }
-            if (data.profil) {
-                localStorage.setItem('sim_prof', JSON.stringify(data.profil));
-            }
+            if (data.siswa) { dataSiswa = data.siswa; localStorage.setItem('sim_siswa', JSON.stringify(dataSiswa)); }
+            if (data.jadwal) { dataJadwal = data.jadwal; localStorage.setItem('sim_jadwal', JSON.stringify(dataJadwal)); }
+            if (data.cptp) { dataCPTP = data.cptp; localStorage.setItem('sim_cptp', JSON.stringify(dataCPTP)); }
+            if (data.nilai) { dataNilai = data.nilai; localStorage.setItem('sim_nilai', JSON.stringify(dataNilai)); }
+            if (data.holidays) { customHolidays = data.holidays; localStorage.setItem('sim_holidays', JSON.stringify(customHolidays)); }
+            if (data.mapel) { dataMapel = data.mapel; localStorage.setItem('sim_mapel', JSON.stringify(dataMapel)); }
+            if (data.activeMapel) { activeMapelId = data.activeMapel; localStorage.setItem('sim_active_mapel', activeMapelId); }
+            if (data.profil) { localStorage.setItem('sim_prof', JSON.stringify(data.profil)); }
             
-            // Refresh UI
+            // Refresh
             loadProfil();
             renderTabelSiswa();
             renderJadwal();
             renderCPTP();
             renderCalendar();
+            renderMapelList();
             updateStats();
+            updateActiveMapelIndicator();
             
             showToast('Data berhasil diimpor!', 'success');
         } catch (err) {
@@ -1054,16 +1338,13 @@ window.importAllData = function(event) {
 };
 
 // ==========================================
-// KEYBOARD SHORTCUTS
+// KEYBOARD & WINDOW EVENTS
 // ==========================================
 document.addEventListener('keydown', function(e) {
-    // Ctrl + S to save (prevent default and show toast)
     if (e.ctrlKey && e.key === 's') {
         e.preventDefault();
-        showToast('Data otomatis tersimpan di browser!', 'info');
+        showToast('Data tersimpan otomatis di browser!', 'info');
     }
-    
-    // Escape to close modals
     if (e.key === 'Escape') {
         document.querySelectorAll('.modal.show').forEach(modal => {
             bootstrap.Modal.getInstance(modal)?.hide();
@@ -1071,15 +1352,17 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ==========================================
-// SERVICE WORKER REGISTRATION (PWA Ready)
-// ==========================================
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', function() {
-        // Service worker can be added later for offline support
-        console.log('SIM Kurikulum Merdeka Pro - Ready');
-    });
-}
+// Close sidebar when clicking outside on mobile
+window.addEventListener('resize', function() {
+    if (window.innerWidth >= 992) {
+        document.getElementById('sidebarMenu').classList.remove('show');
+        document.getElementById('sidebarOverlay').classList.remove('show');
+    }
+});
 
-console.log('🎓 SIM Kurikulum Merdeka Pro v2.0 Loaded');
+// ==========================================
+// INIT LOG
+// ==========================================
+console.log('🎓 SIM Kurikulum Merdeka Pro v2.0');
 console.log('📱 Device ID:', deviceId);
+console.log('✅ Support: SD, SMP, SMA, SMK, PAUD');                                                                                                                                            
