@@ -80,6 +80,19 @@
         .cell-jp { font-size: 10pt; font-weight: bold; color: #0f172a; }
 
         .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; }
+        
+        /* CSS Khusus untuk teks event (Libur/Sumatif) di Promes */
+        .vertical-event { 
+            writing-mode: vertical-rl; 
+            transform: rotate(180deg); 
+            text-align: center; 
+            vertical-align: middle; 
+            margin: auto; 
+            font-size: 8.5pt; 
+            letter-spacing: 1.5px; 
+            color: #334155; 
+            white-space: nowrap;
+        }
 
         /* KHUSUS KKTP */
         .kktp-val { background-color: #fdfde8; font-weight: bold; color: var(--primary);}
@@ -128,23 +141,15 @@
                 <li>Siapkan file <code>cp-pai-sd.csv</code> yang berisi Tujuan Pembelajaran (TP).</li>
                 <li>Klik tombol <strong>"Upload File CSV"</strong> (warna oranye) di menu sebelah kiri.</li>
                 <li>Pilih <strong>Kelas</strong> dan <strong>Semester</strong>. Data Bab/Elemen akan otomatis muncul.</li>
-                <li>Pilih <strong>Bab</strong> untuk digenerate menjadi Modul Ajar dan LKPD.</li>
-                <li>Lengkapi data sekolah, guru, dan rombel. Sistem akan menyusun Prota, Promes, Modul Ajar, KKTP, dan LKPD secara otomatis.</li>
-                <li>Klik angka pada tabel <strong>KKTP</strong> untuk mengedit. Nilai rata-rata KKTP akan <strong>berubah otomatis</strong>!</li>
+                <li>Lengkapi data sekolah, guru, dan rombel. Sistem akan menyusun seluruh dokumen otomatis.</li>
+                <li>Kegiatan Sumatif, Remedial, dan Rapor sudah otomatis menjadi <strong>Teks Vertikal</strong> di Promes.</li>
                 <li>Klik tombol <strong>Cetak / Simpan PDF</strong>.</li>
             </ol>
             <p><strong>Aturan / Format Membuat File CSV:</strong></p>
             <ul style="margin-left:20px; margin-bottom:15px; line-height:1.6;">
-                <li>Gunakan <strong>Microsoft Excel</strong>.</li>
-                <li>Buat 5 kolom dengan urutan persis seperti ini:<br>
-                    <strong>Kolom A:</strong> Fase (contoh: Fase A)<br>
-                    <strong>Kolom B:</strong> Kelas (contoh: 1)<br>
-                    <strong>Kolom C:</strong> Semester (contoh: Ganjil)<br>
-                    <strong>Kolom D:</strong> Elemen/Bab (contoh: Al-Qur'an Hadis)<br>
-                    <strong>Kolom E:</strong> Tujuan Pembelajaran (contoh: Peserta didik mampu melafalkan...)
-                </li>
-                <li><strong>JANGAN gunakan koma (,) di dalam isi teks jika Anda menyimpannya dengan format standar.</strong></li>
-                <li>Saat di-Save, pilih format <strong>CSV (Comma delimited) (*.csv)</strong> atau <strong>CSV (MS-DOS)</strong>. Pemisah (delimiter) yang dibaca sistem ini adalah <strong>titik koma (;)</strong>.</li>
+                <li>Buat 5 kolom di Excel: Fase, Kelas, Semester, Elemen/Bab, Tujuan Pembelajaran.</li>
+                <li><strong>JANGAN gunakan koma (,) di dalam isi teks TP.</strong></li>
+                <li>Save As menggunakan format <strong>CSV (Comma delimited)</strong>.</li>
             </ul>
         </div>
     </div>
@@ -238,7 +243,7 @@
         </div>
         <div class="form-group">
             <label>Nama Guru PAI</label>
-            <input type="text" id="inputGuru" value="Apipudin, S.Pd.I" oninput="generateSemua()">
+            <input type="text" id="inputGuru" value="APIPUDI, S.Pd.I" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>NIP Guru PAI</label>
@@ -246,8 +251,8 @@
         </div>
 
         <div class="form-group">
-            <label style="color:#38bdf8;">Libur Khusus (Opsional)</label>
-            <textarea id="inputLibur" rows="2" placeholder="Contoh: 2024-03-12, 2024-04-10" onchange="generateSemua()"></textarea>
+            <label style="color:#38bdf8;">Tgl Libur Khusus (Awal Puasa, dll)</label>
+            <textarea id="inputLibur" rows="2" placeholder="Format: 2024-03-12, 2024-04-10" onchange="generateSemua()"></textarea>
         </div>
 
         <button class="btn-action" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
@@ -295,13 +300,9 @@
                 <table class="data-table" style="font-size: 8.5pt;">
                     <thead id="headPromes"></thead>
                     <tbody id="bodyPromes">
-                        <tr><td colspan="35">Menunggu file CSV...</td></tr>
+                        <tr><td colspan="33">Menunggu file CSV...</td></tr>
                     </tbody>
                 </table>
-                
-                <div style="font-size: 9pt; font-style: italic; color: #475569;" contenteditable="true">
-                    *Keterangan: Silakan klik kotak kosong di baris Kegiatan/Libur untuk mengetikkan tanda ceklis (v) atau keterangan lainnya.
-                </div>
 
                 <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
@@ -460,7 +461,6 @@
                 let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
                 let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
                 let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
-                
                 let avg = Math.round((v1 + v2 + v3) / 3);
                 hasilTd.innerText = avg;
             }
@@ -544,7 +544,7 @@
             let faseHuruf = kls <= 2 ? "A" : (kls <= 4 ? "B" : "C");
             let thnAjarText = `${tahunAwal} / ${tahunAwal + 1}`;
 
-            // Teks Statis
+            // 1. Teks Statis
             document.querySelectorAll('.valSekolah').forEach(e => e.innerText = document.getElementById('inputSekolah').value);
             document.querySelectorAll('.valTempatTgl').forEach(e => e.innerText = document.getElementById('inputTempatTgl').value);
             document.querySelectorAll('.valGuru').forEach(e => e.innerText = document.getElementById('inputGuru').value);
@@ -559,35 +559,77 @@
             document.querySelectorAll('.valFaseHuruf').forEach(e => e.innerText = faseHuruf);
             document.querySelectorAll('.valElemen').forEach(e => e.innerText = elemen || "...");
 
-            // Kumpulkan Data 1 Semester Penuh
+            // 2. Data Promes & TP
             let allBabInSmt = [];
+            let totalBarisTP = 0;
             if(kurikulumData[kls] && kurikulumData[kls][smt]) {
                 for (let babName in kurikulumData[kls][smt]) {
-                    allBabInSmt.push({
-                        bab: babName,
-                        tps: kurikulumData[kls][smt][babName]
-                    });
+                    allBabInSmt.push({ bab: babName, tps: kurikulumData[kls][smt][babName] });
+                    totalBarisTP += kurikulumData[kls][smt][babName].length;
                 }
             }
 
-            // Data Elemen Spesifik
             let spesifikTP = [];
             if(elemen && kurikulumData[kls] && kurikulumData[kls][smt] && kurikulumData[kls][smt][elemen]) {
                 spesifikTP = kurikulumData[kls][smt][elemen];
             }
             document.querySelectorAll('.valJpBab').forEach(e => e.innerText = spesifikTP.length * jpPerTp);
 
-            // LOGIKA HARI EFEKTIF
+            // ==========================================
+            // LOGIKA KEGIATAN LAINNYA & TEKS VERTIKAL
+            // ==========================================
+            let colEvents = new Array(30).fill(null);
+            
+            // Event Baku Sesuai Semester
+            if (smt === "Ganjil") {
+                colEvents[0] = "MPLS / Libur";           // Jul M1
+                colEvents[1] = "MPLS / Libur";           // Jul M2
+                colEvents[13] = "SUMATIF TENGAH SMT";    // Sep M4
+                colEvents[25] = "SUMATIF AKHIR SMT";     // Des M1
+                colEvents[26] = "PENGAYAAN / CLASSMEET"; // Des M2
+                colEvents[27] = "PEMBAGIAN RAPOR";       // Des M3
+                colEvents[28] = "LIBUR SMT GANJIL";      // Des M4
+                colEvents[29] = "LIBUR SMT GANJIL";      // Des M5
+            } else {
+                colEvents[0] = "LIBUR SMT GANJIL";       // Jan M1
+                colEvents[11] = "SUMATIF TENGAH SMT";    // Mar M2
+                colEvents[25] = "SUMATIF AKHIR SMT / PAT";// Jun M1
+                colEvents[26] = "PENGAYAAN / CLASSMEET"; // Jun M2
+                colEvents[27] = "PEMBAGIAN RAPOR";       // Jun M3
+                colEvents[28] = "LIBUR SMT GENAP";       // Jun M4
+                colEvents[29] = "LIBUR SMT GENAP";       // Jun M5
+            }
+
+            // Gabung Libur Nasional + Libur Custom
+            let blnAwal = (smt === "Ganjil") ? 6 : 0; 
             let rawLibur = document.getElementById("inputLibur").value.split(/[\n,]+/);
             let daftarLibur = getLiburBaku(tahunAwal);
-            rawLibur.forEach(d => {
-                let trimD = d.trim();
-                if(trimD) daftarLibur.push(trimD);
+            rawLibur.forEach(d => { let trimD = d.trim(); if(trimD) daftarLibur.push(trimD); });
+
+            daftarLibur.forEach(dateStr => {
+                let p = dateStr.split('-');
+                if(p.length === 3) {
+                    let y = parseInt(p[0]); let m = parseInt(p[1]) - 1; let d = parseInt(p[2]);
+                    let tglLibur = new Date(y, m, d);
+                    
+                    if (tglLibur.getDay() === hariTarget) {
+                        let mIdx = m - blnAwal;
+                        if(smt === "Ganjil" && mIdx < 0) mIdx += 12; // Handle overlap tahun di ganjil
+
+                        if(mIdx >= 0 && mIdx <= 5) {
+                            let wIdx = Math.ceil(d / 7);
+                            if(wIdx > 5) wIdx = 5;
+                            let c = (mIdx * 5) + (wIdx - 1);
+                            if(c >= 0 && c < 30 && colEvents[c] === null) {
+                                colEvents[c] = "LIBUR NASIONAL / KHUSUS";
+                            }
+                        }
+                    }
+                }
             });
 
+            // Hitung Tanggal KBM Murni (Lewati kolom event)
             let thnOperasional = (smt === "Ganjil") ? tahunAwal : tahunAwal + 1;
-            let blnAwal = (smt === "Ganjil") ? 6 : 0; 
-            
             let semuaTanggalMengajar = [];
             for (let i = 0; i < 6; i++) {
                 let blnSekarang = blnAwal + i;
@@ -598,12 +640,11 @@
                 for (let tgl = 1; tgl <= jmlHari; tgl++) {
                     let tglObyek = new Date(curYear, blnSekarang, tgl);
                     if (tglObyek.getDay() === hariTarget) {
-                        let y = tglObyek.getFullYear();
-                        let m = String(tglObyek.getMonth() + 1).padStart(2, '0');
-                        let d = String(tglObyek.getDate()).padStart(2, '0');
-                        let dateStr = `${y}-${m}-${d}`;
+                        let wIdx = Math.ceil(tgl / 7);
+                        if(wIdx > 5) wIdx = 5;
+                        let c = (i * 5) + (wIdx - 1);
 
-                        if(!daftarLibur.includes(dateStr)) {
+                        if(colEvents[c] === null) {
                             semuaTanggalMengajar.push(tglObyek);
                         }
                     }
@@ -615,7 +656,7 @@
             // ==========================================
             let protaHTML = "";
             let promesRows = [];
-            let idxTanggal = (smt === "Ganjil") ? 2 : 1; 
+            let idxTanggal = 0; 
 
             if(allBabInSmt.length > 0) {
                 allBabInSmt.forEach((babObj, iBab) => {
@@ -654,10 +695,10 @@
             document.getElementById('bodyProta').innerHTML = protaHTML;
 
             // ==========================================
-            // GENERATE PROMES GRID
+            // GENERATE PROMES GRID (DENGAN TEKS VERTIKAL)
             // ==========================================
             let namaBulan = (smt === "Ganjil") ? namaBulanGanjil : namaBulanGenap;
-            let headPromes = `<tr><th rowspan="2" width="5%">Bab / Elemen</th><th rowspan="2" width="25%">Capaian Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
+            let headPromes = `<tr><th rowspan="2" width="5%">Bab / Elemen</th><th rowspan="2" width="22%">Capaian Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
             namaBulan.forEach(b => headPromes += `<th colspan="5">${b}</th>`);
             headPromes += `</tr><tr>`;
             for(let i=0; i<6; i++) { headPromes += `<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; }
@@ -665,24 +706,37 @@
             document.getElementById("headPromes").innerHTML = headPromes;
 
             let bodyPromes = "";
+            let tRows = promesRows.length || 1;
+
             if(promesRows.length > 0) {
-                promesRows.forEach(row => {
+                promesRows.forEach((row, r) => {
                     bodyPromes += `<tr>`;
                     if(row.rowspan > 0) {
                         bodyPromes += `<td rowspan="${row.rowspan}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold; font-size:9pt;">${row.namaBab}</div></td>`;
                     }
                     bodyPromes += `<td class="text-left" contenteditable="true">${row.namaTp}</td><td>${row.totalJp}</td>`;
 
-                    for (let b = 0; b < 6; b++) {
-                        for (let w = 1; w <= 5; w++) {
-                            let bulanTarget = blnAwal + b;
+                    // Loop Kolom 30 Minggu
+                    for (let c = 0; c < 30; c++) {
+                        if (colEvents[c] !== null) {
+                            // JIKA ADA EVENT LIBUR/SUMATIF
+                            if (r === 0) {
+                                bodyPromes += `<td rowspan="${tRows}" style="background-color: #f1f5f9; cursor:text; padding:5px;" contenteditable="true">
+                                    <div class="vertical-event">${colEvents[c]}</div>
+                                </td>`;
+                            }
+                        } else {
+                            // JIKA KBM NORMAL
+                            let mIdx = Math.floor(c / 5);
+                            let wIdx = (c % 5) + 1;
+                            let bulanTarget = blnAwal + mIdx;
                             if(bulanTarget > 11) bulanTarget -= 12;
                             
                             let alokasiSelIni = row.alokasi.filter(a => {
                                 let aMonth = a.date.getMonth();
                                 let aWeek = Math.ceil(a.date.getDate() / 7);
                                 if(aWeek > 5) aWeek = 5;
-                                return (aMonth === bulanTarget) && (aWeek === w);
+                                return (aMonth === bulanTarget) && (aWeek === wIdx);
                             });
 
                             if(alokasiSelIni.length > 0) {
@@ -699,28 +753,6 @@
             } else {
                 bodyPromes = `<tr><td colspan="33">Data Kosong</td></tr>`;
             }
-
-            // ADD EXTRA ROWS FOR KEGIATAN LAINNYA & LIBUR
-            let kegiatanLain = [
-                "Sumatif / Penilaian Harian",
-                "Sumatif Tengah Semester (STS)",
-                "Sumatif Akhir Semester (SAS)",
-                "Remedial / Pengayaan / Cadangan",
-                "Pembagian Rapor",
-                "Libur Nasional / Libur Khusus",
-                "Libur Akhir Semester"
-            ];
-
-            kegiatanLain.forEach(kegiatan => {
-                bodyPromes += `<tr>`;
-                bodyPromes += `<td colspan="2" class="text-left" style="font-weight:bold; background-color:#f1f5f9; font-size:9.5pt;" contenteditable="true">${kegiatan}</td>`;
-                bodyPromes += `<td contenteditable="true" style="background-color:#f1f5f9; font-weight:bold;">-</td>`;
-                for (let i = 0; i < 30; i++) {
-                    bodyPromes += `<td contenteditable="true" style="background-color:#f8fafc; cursor:text;" title="Ketik ceklis (v) atau keterangan"></td>`;
-                }
-                bodyPromes += `</tr>`;
-            });
-
             document.getElementById("bodyPromes").innerHTML = bodyPromes;
 
             // ==========================================
