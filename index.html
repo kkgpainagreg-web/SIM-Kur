@@ -43,27 +43,28 @@
         .btn-action:hover { background-color: #059669; }
         .btn-upload { background-color: #f59e0b; color: #000; font-weight: bold; }
         .btn-upload:hover { background-color: #d97706; color: white; }
+        .btn-help { background-color: #3b82f6; color: white; font-size: 0.9rem; padding: 8px; margin-top: -5px; }
+        .btn-help:hover { background-color: #2563eb; }
 
         .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px;}
         .divider { height: 1px; background-color: #334155; margin: 5px 0; }
 
+        /* --- MODAL PANDUAN --- */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
+        .modal-content { background: white; color: #1e293b; width: 600px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-header { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; color: var(--primary); }
+        .modal-close { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; float: right; font-weight: bold; }
+
         /* --- MAIN CONTENT (Kanan) --- */
-        .main-content {
-            flex: 1; overflow-y: auto; padding: 20px; background-color: #e2e8f0; scroll-behavior: smooth;
-        }
-        
+        .main-content { flex: 1; overflow-y: auto; padding: 20px; background-color: #e2e8f0; scroll-behavior: smooth; }
         .document-container { max-width: 297mm; margin: 0 auto; display: flex; flex-direction: column; gap: 30px; }
         
-        .page { 
-            background-color: var(--card-bg); padding: 15mm; 
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow-x: auto;
-            position: relative;
-        }
+        .page { background-color: var(--card-bg); padding: 15mm; box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1); border-radius: 8px; overflow-x: auto; position: relative; }
         .page.landscape { max-width: 297mm; min-height: 210mm; }
         .page.portrait { max-width: 210mm; min-height: 297mm; margin: 0 auto; }
         
         .editable { cursor: text; transition: all 0.2s; border-radius: 4px; padding: 2px;}
-        .editable:hover { background-color: #fef08a; outline: 1px dashed #eab308; color: #000;}
+        .editable:hover, [contenteditable="true"]:hover { background-color: #fef08a; outline: 1px dashed #eab308; color: #000;}
 
         /* --- TYPOGRAPHY & TABLES --- */
         .header-title { text-align: center; font-weight: bold; font-size: 13pt; margin-bottom: 15px; text-transform: uppercase; }
@@ -78,17 +79,10 @@
         .cell-date { font-size: 7.5pt; color: #c0392b; display: block; margin-top: 2px; }
         .cell-jp { font-size: 10pt; font-weight: bold; color: #0f172a; }
 
-        .vertical-text {
-            writing-mode: vertical-rl;
-            transform: rotate(180deg);
-            text-align: center;
-            vertical-align: middle;
-            margin: auto;
-        }
+        .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; }
 
         /* KHUSUS KKTP */
-        .kktp-val { background-color: #fdfde8; cursor: text; transition: 0.2s; }
-        .kktp-val:hover { background-color: #fef08a; }
+        .kktp-val { background-color: #fdfde8; font-weight: bold; color: var(--primary);}
         .kktp-hasil { background-color: #e0f2fe; color: var(--secondary); font-size: 11pt;}
 
         .signature-area { width: 100%; margin-top: 30px; display: table; page-break-inside: avoid; }
@@ -110,14 +104,14 @@
         /* --- PRINT STYLES --- */
         @media print {
             body { display: block; height: auto; overflow: visible; background-color: white; }
-            .sidebar { display: none !important; }
+            .sidebar, .modal-overlay { display: none !important; }
             .main-content { padding: 0; background-color: white; }
             .document-container { gap: 0; }
             .page { margin: 0; box-shadow: none; border-radius: 0; padding: 15mm; page-break-after: always; max-width: 100%; }
             .page:last-child { page-break-after: auto; }
-            .editable:hover, .kktp-val:hover { background-color: transparent; outline: none; }
+            .editable:hover, [contenteditable="true"]:hover { background-color: transparent; outline: none; }
             table.data-table th { background-color: #e2e8f0 !important; -webkit-print-color-adjust: exact; }
-            .kktp-val { background-color: transparent !important; }
+            .kktp-val { background-color: transparent !important; color: black; }
             .kktp-hasil { background-color: #e0f2fe !important; -webkit-print-color-adjust: exact; }
             @page { size: A4 portrait; }
         }
@@ -125,13 +119,43 @@
 </head>
 <body>
 
+    <div class="modal-overlay" id="modalPanduan">
+        <div class="modal-content">
+            <button class="modal-close" onclick="closeModal()">Tutup ✖</button>
+            <div class="modal-header">📖 Panduan Penggunaan & Format CSV</div>
+            <p><strong>Cara Menggunakan Aplikasi:</strong></p>
+            <ol style="margin-left:20px; margin-bottom:15px; line-height:1.6;">
+                <li>Siapkan file <code>cp-pai-sd.csv</code> yang berisi Tujuan Pembelajaran (TP).</li>
+                <li>Klik tombol <strong>"Upload File CSV"</strong> (warna oranye) di menu sebelah kiri.</li>
+                <li>Pilih <strong>Kelas</strong> dan <strong>Semester</strong>. Data Bab/Elemen akan otomatis muncul.</li>
+                <li>Pilih <strong>Bab</strong> untuk digenerate menjadi Modul Ajar dan LKPD.</li>
+                <li>Lengkapi data sekolah, guru, dan rombel. Sistem akan menyusun Prota, Promes, Modul Ajar, KKTP, dan LKPD secara otomatis.</li>
+                <li>Klik angka pada tabel <strong>KKTP</strong> untuk mengedit. Nilai rata-rata KKTP akan <strong>berubah otomatis</strong>!</li>
+                <li>Klik tombol <strong>Cetak / Simpan PDF</strong>.</li>
+            </ol>
+            <p><strong>Aturan / Format Membuat File CSV:</strong></p>
+            <ul style="margin-left:20px; margin-bottom:15px; line-height:1.6;">
+                <li>Gunakan <strong>Microsoft Excel</strong>.</li>
+                <li>Buat 5 kolom dengan urutan persis seperti ini:<br>
+                    <strong>Kolom A:</strong> Fase (contoh: Fase A)<br>
+                    <strong>Kolom B:</strong> Kelas (contoh: 1)<br>
+                    <strong>Kolom C:</strong> Semester (contoh: Ganjil)<br>
+                    <strong>Kolom D:</strong> Elemen/Bab (contoh: Al-Qur'an Hadis)<br>
+                    <strong>Kolom E:</strong> Tujuan Pembelajaran (contoh: Peserta didik mampu melafalkan...)
+                </li>
+                <li><strong>JANGAN gunakan koma (,) di dalam isi teks jika Anda menyimpannya dengan format standar.</strong></li>
+                <li>Saat di-Save, pilih format <strong>CSV (Comma delimited) (*.csv)</strong> atau <strong>CSV (MS-DOS)</strong>. Pemisah (delimiter) yang dibaca sistem ini adalah <strong>titik koma (;)</strong>.</li>
+            </ul>
+        </div>
+    </div>
+
     <div class="sidebar no-print">
         <div class="header-app">
             <h2>⚙️ Generator PAI SD</h2>
-            <p>Upload CSV -> Setting -> Cetak</p>
+            <button class="btn-action btn-help" onclick="openModal()">📖 Baca Panduan & Format CSV</button>
         </div>
 
-        <div class="form-group">
+        <div class="form-group" style="margin-top:10px;">
             <label style="color:#f59e0b;">1. Upload File cp-pai-sd.csv</label>
             <input type="file" id="fileCsv" accept=".csv" class="btn-upload">
             <div id="csvStatus" class="csv-info"></div>
@@ -198,11 +222,11 @@
 
         <div class="form-group">
             <label>Nama Sekolah</label>
-            <input type="text" id="inputSekolah" value="SDN NAGREG 05" oninput="generateSemua()">
+            <input type="text" id="inputSekolah" value="SD Negeri Cerdas Bangsa" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>Tempat, Tanggal Penetapan</label>
-            <input type="text" id="inputTempatTgl" value="Nagreg, ........................ 2024" oninput="generateSemua()">
+            <input type="text" id="inputTempatTgl" value="Kudus, ........................ 2024" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>Nama Kepala Sekolah</label>
@@ -214,7 +238,7 @@
         </div>
         <div class="form-group">
             <label>Nama Guru PAI</label>
-            <input type="text" id="inputGuru" value="APIPUDIN, S.Pd.I" oninput="generateSemua()">
+            <input type="text" id="inputGuru" value="INDAH QORI'ATI, S.Pd.I" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>NIP Guru PAI</label>
@@ -233,8 +257,8 @@
         <div class="document-container">
             
             <div class="page portrait" id="pageProta">
-                <div class="header-title editable" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br>PENDIDIKAN AGAMA ISLAM DAN BUDI PEKERTI</div>
-                <table class="identity-table editable" contenteditable="true">
+                <div class="header-title" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br>PENDIDIKAN AGAMA ISLAM DAN BUDI PEKERTI</div>
+                <table class="identity-table" contenteditable="true">
                     <tr><td width="180">Satuan Pendidikan</td><td width="10">:</td><td><span class="valSekolah"></span></td></tr>
                     <tr><td>Fase / Kelas / Rombel</td><td>:</td><td><span class="valFase"></span> / <span class="valKelasNum"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Tahun Pelajaran</td><td>:</td><td><span class="valTahun"></span></td></tr>
@@ -249,20 +273,20 @@
                             <th width="10%">JP</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyProta" class="editable" contenteditable="true">
+                    <tbody id="bodyProta">
                         <tr><td colspan="4">Menunggu file CSV...</td></tr>
                     </tbody>
                 </table>
                 
-                <div class="signature-area editable" contenteditable="true">
+                <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
                     <div class="signature-box right"><span class="valTempatTgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name valGuru"></div>NIP. <span class="valNipGuru"></span></div>
                 </div>
             </div>
 
             <div class="page landscape" id="pagePromes" style="max-width: 100%;">
-                <div class="header-title editable" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="valSemester"></span></div>
-                <table class="identity-table editable" contenteditable="true" style="width: 50%;">
+                <div class="header-title" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="valSemester"></span></div>
+                <table class="identity-table" contenteditable="true" style="width: 50%;">
                     <tr><td width="180">Satuan Pendidikan</td><td width="10">:</td><td><span class="valSekolah"></span></td></tr>
                     <tr><td>Fase / Kelas / Rombel</td><td>:</td><td><span class="valFase"></span> / <span class="valKelasNum"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Tahun Pelajaran</td><td>:</td><td><span class="valTahun"></span></td></tr>
@@ -270,22 +294,22 @@
 
                 <table class="data-table" style="font-size: 8.5pt;">
                     <thead id="headPromes"></thead>
-                    <tbody id="bodyPromes" class="editable" contenteditable="true">
+                    <tbody id="bodyPromes">
                         <tr><td colspan="35">Menunggu file CSV...</td></tr>
                     </tbody>
                 </table>
 
-                <div class="signature-area editable" contenteditable="true">
+                <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
                     <div class="signature-box right"><span class="valTempatTgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name valGuru"></div>NIP. <span class="valNipGuru"></span></div>
                 </div>
             </div>
 
             <div class="page portrait" id="pageModul">
-                <div class="header-title editable" contenteditable="true">MODUL AJAR PENDIDIKAN AGAMA ISLAM<br><span style="font-size:11pt; font-weight:normal;">Pendekatan Mindful, Meaningful, & Joyful Learning</span></div>
+                <div class="header-title" contenteditable="true">MODUL AJAR PENDIDIKAN AGAMA ISLAM<br><span style="font-size:11pt; font-weight:normal;">Pendekatan Mindful, Meaningful, & Joyful Learning</span></div>
                 
                 <div class="section-title">A. IDENTITAS MODUL</div>
-                <table class="identity-table editable" contenteditable="true">
+                <table class="identity-table" contenteditable="true">
                     <tr><td width="180">Nama Penyusun</td><td width="10">:</td><td><span class="valGuru"></span> (<span class="valSekolah"></span>)</td></tr>
                     <tr><td>Kelas / Fase / Smt / Rombel</td><td>:</td><td><span class="valKelasNum"></span> / <span class="valFase"></span> / <span class="valSemester"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Topik / Bab Materi</td><td>:</td><td style="color:var(--primary);"><span class="valElemen"></span></td></tr>
@@ -293,7 +317,7 @@
                 </table>
 
                 <div class="section-title">B. IDENTIFIKASI KESIAPAN PESERTA DIDIK</div>
-                <div class="content-body editable" contenteditable="true">
+                <div class="content-body" contenteditable="true">
                     <ul>
                         <li><strong>Pengetahuan Awal:</strong> Peserta didik telah mendengar atau memiliki pengalaman dasar terkait materi <em><span class="valElemen"></span></em> dalam kehidupan sehari-hari.</li>
                         <li><strong>Kebutuhan Belajar:</strong> Membutuhkan visualisasi gambar/cerita yang relevan, diskusi kelompok, dan simulasi (bermain peran) untuk memperkuat pemahaman.</li>
@@ -301,13 +325,13 @@
                 </div>
 
                 <div class="section-title">C. TUJUAN PEMBELAJARAN</div>
-                <div class="content-body editable" contenteditable="true" id="modulTP"></div>
+                <div class="content-body" contenteditable="true" id="modulTP"></div>
 
                 <div class="section-title">D. LANGKAH-LANGKAH PEMBELAJARAN</div>
-                <div class="content-body editable" contenteditable="true" id="modulLangkah"></div>
+                <div class="content-body" contenteditable="true" id="modulLangkah"></div>
 
                 <div class="section-title">E. ASESMEN PEMBELAJARAN</div>
-                <div class="content-body editable" contenteditable="true">
+                <div class="content-body" contenteditable="true">
                     <ul>
                         <li><strong>Diagnostik:</strong> Tanya jawab ringan tentang pengalaman peserta didik terkait materi di awal pertemuan.</li>
                         <li><strong>Formatif:</strong> Observasi keaktifan diskusi kelompok dan pengerjaan Lembar Kerja Peserta Didik (LKPD).</li>
@@ -315,16 +339,16 @@
                     </ul>
                 </div>
                 
-                <div class="signature-area editable" contenteditable="true">
+                <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
                     <div class="signature-box right"><span class="valTempatTgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name valGuru"></div>NIP. <span class="valNipGuru"></span></div>
                 </div>
             </div>
 
             <div class="page portrait" id="pageKktp">
-                <div class="header-title editable" contenteditable="true" style="margin-bottom:20px;">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN</div>
+                <div class="header-title" contenteditable="true" style="margin-bottom:20px;">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN</div>
                 
-                <table class="identity-table editable" contenteditable="true" style="width: 70%; margin-bottom:20px;">
+                <table class="identity-table" contenteditable="true" style="width: 70%; margin-bottom:20px;">
                     <tr><td width="180">PENYUSUN</td><td width="10">:</td><td><span class="valGuru"></span></td></tr>
                     <tr><td>SATUAN PENDIDIKAN</td><td>:</td><td><span class="valSekolah"></span></td></tr>
                     <tr><td>TAHUN PELAJARAN</td><td>:</td><td><span class="valTahun"></span></td></tr>
@@ -348,12 +372,12 @@
                             <th width="8%" style="font-size:8pt;">Intaks Siswa</th>
                         </tr>
                     </thead>
-                    <tbody id="bodyKktp" class="editable" contenteditable="true">
+                    <tbody id="bodyKktp">
                         <tr><td colspan="8">Menunggu data CSV...</td></tr>
                     </tbody>
                 </table>
                 
-                <div class="signature-area editable" contenteditable="true">
+                <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
                     <div class="signature-box right"><span class="valTempatTgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name valGuru"></div>NIP. <span class="valNipGuru"></span></div>
                 </div>
@@ -361,15 +385,15 @@
 
             <div class="page portrait" id="pageLkpd">
                 <div class="lkpd-box">
-                    <div class="lkpd-header editable" contenteditable="true">✨ LEMBAR KERJA PESERTA DIDIK (LKPD) ✨</div>
+                    <div class="lkpd-header" contenteditable="true">✨ LEMBAR KERJA PESERTA DIDIK (LKPD) ✨</div>
                     
-                    <div class="lkpd-identity editable" contenteditable="true">
+                    <div class="lkpd-identity" contenteditable="true">
                         <div>Nama Jagoan / Kelompok : </div>
                         <div>Kelas / Rombel : <span class="valKelasNum"></span> / <span class="valRombel"></span></div>
                         <div>Nilai : </div>
                     </div>
 
-                    <div class="content-body editable" contenteditable="true">
+                    <div class="content-body" contenteditable="true">
                         <p style="font-weight:bold; color:var(--primary); font-size:12pt;">A. Apa yang akan kita pelajari hari ini?</p>
                         <ul id="lkpdTP" style="margin-bottom:15px; background:#fff; padding:10px 10px 10px 30px; border-radius:6px; border:1px solid #cbd5e1;"></ul>
                         
@@ -408,6 +432,10 @@
         const namaBulanGanjil = ["Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const namaBulanGenap = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
 
+        // Modal Functions
+        function openModal() { document.getElementById('modalPanduan').style.display = 'flex'; }
+        function closeModal() { document.getElementById('modalPanduan').style.display = 'none'; }
+
         // Libur Baku
         function getLiburBaku(tahunAwal) {
             let t1 = tahunAwal;
@@ -418,16 +446,17 @@
             ];
         }
 
-        // Kalkulasi Rata-Rata KKTP otomatis
+        // Kalkulasi Rata-Rata KKTP otomatis yang diperbaiki
         function kalkulasiKKTP(element) {
             let row = element.closest('tr');
             let vals = row.querySelectorAll('.kktp-val');
             let hasilTd = row.querySelector('.kktp-hasil');
             
             if(vals.length === 3 && hasilTd) {
-                let v1 = parseInt(vals[0].innerText) || 0;
-                let v2 = parseInt(vals[1].innerText) || 0;
-                let v3 = parseInt(vals[2].innerText) || 0;
+                // Menghapus karakter selain angka untuk menghindari error contenteditable
+                let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
+                let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
+                let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
                 
                 let avg = Math.round((v1 + v2 + v3) / 3);
                 hasilTd.innerText = avg;
@@ -593,9 +622,9 @@
                         protaHTML += `<tr>`;
                         if(iTp === 0) {
                             protaHTML += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
-                            protaHTML += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;"><div class="vertical-text" style="font-weight:bold;">${babObj.bab}</div></td>`;
+                            protaHTML += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold;">${babObj.bab}</div></td>`;
                         }
-                        protaHTML += `<td class="text-left">${tp}</td>`;
+                        protaHTML += `<td class="text-left" contenteditable="true">${tp}</td>`;
                         if(iTp === 0) {
                             protaHTML += `<td rowspan="${babObj.tps.length}"><b>${totalJpBab} JP</b></td>`;
                         }
@@ -637,9 +666,9 @@
                 promesRows.forEach(row => {
                     bodyPromes += `<tr>`;
                     if(row.rowspan > 0) {
-                        bodyPromes += `<td rowspan="${row.rowspan}" style="background:#f8fafc; padding:10px;"><div class="vertical-text" style="font-weight:bold; font-size:9pt;">${row.namaBab}</div></td>`;
+                        bodyPromes += `<td rowspan="${row.rowspan}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold; font-size:9pt;">${row.namaBab}</div></td>`;
                     }
-                    bodyPromes += `<td class="text-left">${row.namaTp}</td><td>${row.totalJp}</td>`;
+                    bodyPromes += `<td class="text-left" contenteditable="true">${row.namaTp}</td><td>${row.totalJp}</td>`;
 
                     for (let b = 0; b < 6; b++) {
                         for (let w = 1; w <= 5; w++) {
@@ -656,9 +685,9 @@
                             if(alokasiSelIni.length > 0) {
                                 let totalJpSel = alokasiSelIni.reduce((sum, a) => sum + a.jp, 0);
                                 let labelTgl = alokasiSelIni.map(a => a.date.getDate()).join(',');
-                                bodyPromes += `<td style="background-color:#dbeafe;"><span class="cell-jp">${totalJpSel}</span><span class="cell-date">${labelTgl}</span></td>`;
+                                bodyPromes += `<td style="background-color:#dbeafe;" contenteditable="true"><span class="cell-jp">${totalJpSel}</span><span class="cell-date">${labelTgl}</span></td>`;
                             } else {
-                                bodyPromes += `<td></td>`;
+                                bodyPromes += `<td contenteditable="true"></td>`;
                             }
                         }
                     }
@@ -682,10 +711,10 @@
                             kktpHTML += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
                             kktpHTML += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;"><div class="vertical-text" style="font-weight:bold; font-size:9.5pt;">${babObj.bab}</div></td>`;
                         }
-                        kktpHTML += `<td class="text-left">${tp}</td>`;
-                        kktpHTML += `<td class="kktp-val" oninput="kalkulasiKKTP(this)">75</td>`;
-                        kktpHTML += `<td class="kktp-val" oninput="kalkulasiKKTP(this)">75</td>`;
-                        kktpHTML += `<td class="kktp-val" oninput="kalkulasiKKTP(this)">75</td>`;
+                        kktpHTML += `<td class="text-left" contenteditable="true">${tp}</td>`;
+                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
+                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
+                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
                         kktpHTML += `<td class="kktp-hasil" style="font-weight:bold;">75</td>`;
                         kktpHTML += `</tr>`;
                     });
