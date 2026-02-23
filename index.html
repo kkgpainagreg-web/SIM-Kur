@@ -238,7 +238,7 @@
         </div>
         <div class="form-group">
             <label>Nama Guru PAI</label>
-            <input type="text" id="inputGuru" value="APIPUDIN, S.Pd.I" oninput="generateSemua()">
+            <input type="text" id="inputGuru" value="Apipudin, S.Pd.I" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>NIP Guru PAI</label>
@@ -298,6 +298,10 @@
                         <tr><td colspan="35">Menunggu file CSV...</td></tr>
                     </tbody>
                 </table>
+                
+                <div style="font-size: 9pt; font-style: italic; color: #475569;" contenteditable="true">
+                    *Keterangan: Silakan klik kotak kosong di baris Kegiatan/Libur untuk mengetikkan tanda ceklis (v) atau keterangan lainnya.
+                </div>
 
                 <div class="signature-area" contenteditable="true">
                     <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
@@ -446,14 +450,13 @@
             ];
         }
 
-        // Kalkulasi Rata-Rata KKTP otomatis yang diperbaiki
+        // Kalkulasi Rata-Rata KKTP
         function kalkulasiKKTP(element) {
             let row = element.closest('tr');
             let vals = row.querySelectorAll('.kktp-val');
             let hasilTd = row.querySelector('.kktp-hasil');
             
             if(vals.length === 3 && hasilTd) {
-                // Menghapus karakter selain angka untuk menghindari error contenteditable
                 let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
                 let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
                 let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
@@ -696,10 +699,32 @@
             } else {
                 bodyPromes = `<tr><td colspan="33">Data Kosong</td></tr>`;
             }
+
+            // ADD EXTRA ROWS FOR KEGIATAN LAINNYA & LIBUR
+            let kegiatanLain = [
+                "Sumatif / Penilaian Harian",
+                "Sumatif Tengah Semester (STS)",
+                "Sumatif Akhir Semester (SAS)",
+                "Remedial / Pengayaan / Cadangan",
+                "Pembagian Rapor",
+                "Libur Nasional / Libur Khusus",
+                "Libur Akhir Semester"
+            ];
+
+            kegiatanLain.forEach(kegiatan => {
+                bodyPromes += `<tr>`;
+                bodyPromes += `<td colspan="2" class="text-left" style="font-weight:bold; background-color:#f1f5f9; font-size:9.5pt;" contenteditable="true">${kegiatan}</td>`;
+                bodyPromes += `<td contenteditable="true" style="background-color:#f1f5f9; font-weight:bold;">-</td>`;
+                for (let i = 0; i < 30; i++) {
+                    bodyPromes += `<td contenteditable="true" style="background-color:#f8fafc; cursor:text;" title="Ketik ceklis (v) atau keterangan"></td>`;
+                }
+                bodyPromes += `</tr>`;
+            });
+
             document.getElementById("bodyPromes").innerHTML = bodyPromes;
 
             // ==========================================
-            // GENERATE KKTP DENGAN KALKULASI OTOMATIS
+            // GENERATE KKTP
             // ==========================================
             let kktpHTML = "";
             if(allBabInSmt.length > 0) {
@@ -763,4 +788,3 @@
     </script>
 </body>
 </html>
-
