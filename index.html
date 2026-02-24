@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Generator Perangkat PAI SD (Prota, Promes, Modul, KKTP, LKPD)</title>
+    <title>Generator Perangkat Pembelajaran Universal (Cloud Mode)</title>
     <style>
         :root {
             --primary: #2563eb;
@@ -19,10 +19,13 @@
 
         /* --- SIDEBAR (Kiri) --- */
         .sidebar {
-            width: 330px; min-width: 330px; background-color: var(--sidebar-bg); color: white;
+            width: 340px; min-width: 340px; background-color: var(--sidebar-bg); color: white;
             padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;
             box-shadow: 2px 0 10px rgba(0,0,0,0.1); z-index: 100;
         }
+        .sidebar::-webkit-scrollbar { width: 6px; }
+        .sidebar::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
         .header-app { border-bottom: 1px solid #334155; padding-bottom: 10px; margin-bottom: 5px; }
         .header-app h2 { font-size: 1.3rem; color: #fbbf24; margin-bottom: 5px; line-height: 1.3; }
         .header-app p { font-size: 0.8rem; color: #94a3b8; }
@@ -36,22 +39,32 @@
         .form-group input:focus, .form-group select:focus, .form-group textarea:focus { outline: none; border-color: #fbbf24; }
         
         .btn-action {
-            padding: 12px; background-color: #10b981; color: white; border: none; border-radius: 6px; 
-            cursor: pointer; font-weight: bold; font-size: 1rem; transition: 0.3s; text-align: center;
-            position: sticky; bottom: 0; margin-top: 10px; box-shadow: 0 -4px 10px rgba(15, 23, 42, 0.8);
+            padding: 10px; background-color: #10b981; color: white; border: none; border-radius: 6px; 
+            cursor: pointer; font-weight: bold; font-size: 0.9rem; transition: 0.3s; text-align: center;
         }
         .btn-action:hover { background-color: #059669; }
-        .btn-upload { background-color: #f59e0b; color: #000; font-weight: bold; }
-        .btn-upload:hover { background-color: #d97706; color: white; }
-        .btn-help { background-color: #3b82f6; color: white; font-size: 0.9rem; padding: 8px; margin-top: -5px; }
+        
+        .btn-print {
+            padding: 12px; font-size: 1rem; position: sticky; bottom: 0; margin-top: 10px; 
+            box-shadow: 0 -4px 10px rgba(15, 23, 42, 0.8); background-color: #3b82f6;
+        }
+        .btn-print:hover { background-color: #2563eb; }
+        
+        .btn-danger { background-color: #ef4444; color: white; padding: 6px; font-size: 0.8rem; margin-top: 5px;}
+        .btn-danger:hover { background-color: #dc2626; }
+        
+        .btn-help { background-color: #3b82f6; color: white; font-size: 0.8rem; padding: 6px; margin-top: -5px; margin-bottom: 10px;}
         .btn-help:hover { background-color: #2563eb; }
 
-        .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px;}
+        .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px; line-height: 1.4;}
+        .csv-info.error { background-color: #991b1b; }
         .divider { height: 1px; background-color: #334155; margin: 5px 0; }
+
+        .cloud-box { border: 1px dashed #fbbf24; padding: 12px; border-radius: 8px; background-color: rgba(251, 191, 36, 0.05); }
 
         /* --- MODAL PANDUAN --- */
         .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
-        .modal-content { background: white; color: #1e293b; width: 600px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
+        .modal-content { background: white; color: #1e293b; width: 700px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
         .modal-header { font-size: 1.3rem; font-weight: bold; margin-bottom: 15px; border-bottom: 2px solid #e2e8f0; padding-bottom: 10px; color: var(--primary); }
         .modal-close { background: #ef4444; color: white; border: none; padding: 8px 15px; border-radius: 6px; cursor: pointer; float: right; font-weight: bold; }
 
@@ -80,21 +93,8 @@
         .cell-jp { font-size: 10pt; font-weight: bold; color: #0f172a; }
 
         .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; }
-        
-        /* CSS Khusus untuk teks event (Libur/Sumatif) di Promes */
-        .vertical-event { 
-            writing-mode: vertical-rl; 
-            transform: rotate(180deg); 
-            text-align: center; 
-            vertical-align: middle; 
-            margin: auto; 
-            font-size: 8.5pt; 
-            letter-spacing: 1.5px; 
-            color: #334155; 
-            white-space: nowrap;
-        }
+        .vertical-event { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; font-size: 8.5pt; letter-spacing: 1.5px; color: #334155; white-space: nowrap; }
 
-        /* KHUSUS KKTP */
         .kktp-val { background-color: #fdfde8; font-weight: bold; color: var(--primary);}
         .kktp-hasil { background-color: #e0f2fe; color: var(--secondary); font-size: 11pt;}
 
@@ -114,7 +114,6 @@
         .lkpd-identity { display: flex; gap: 20px; margin-bottom: 20px; font-weight: bold; }
         .lkpd-identity div { flex: 1; border-bottom: 1px solid #000; padding-bottom: 5px; }
 
-        /* --- PRINT STYLES --- */
         @media print {
             body { display: block; height: auto; overflow: visible; background-color: white; }
             .sidebar, .modal-overlay { display: none !important; }
@@ -135,38 +134,50 @@
     <div class="modal-overlay" id="modalPanduan">
         <div class="modal-content">
             <button class="modal-close" onclick="closeModal()">Tutup ✖</button>
-            <div class="modal-header">📖 Panduan Penggunaan & Format CSV</div>
-            <p><strong>Cara Menggunakan Aplikasi:</strong></p>
+            <div class="modal-header">☁️ Panduan Link CSV Online (Google Sheets)</div>
+            <p>Anda kini dapat memuat data langsung dari Google Sheets tanpa perlu download file!</p>
             <ol style="margin-left:20px; margin-bottom:15px; line-height:1.6;">
-                <li>Siapkan file <code>cp-pai-sd.csv</code> yang berisi Tujuan Pembelajaran (TP).</li>
-                <li>Klik tombol <strong>"Upload File CSV"</strong> (warna oranye) di menu sebelah kiri.</li>
-                <li>Pilih <strong>Kelas</strong> dan <strong>Semester</strong>. Data Bab/Elemen akan otomatis muncul.</li>
-                <li>Lengkapi data sekolah, guru, dan rombel. Sistem akan menyusun seluruh dokumen otomatis.</li>
-                <li>Kegiatan Sumatif, Remedial, dan Rapor sudah otomatis menjadi <strong>Teks Vertikal</strong> di Promes.</li>
-                <li>Klik tombol <strong>Cetak / Simpan PDF</strong>.</li>
+                <li>Buka file Google Sheets Anda yang berisi data ATP/CP (Pastikan format 7 kolom).</li>
+                <li>Pilih menu <strong>File > Bagikan (Share) > Publikasikan ke web (Publish to web)</strong>.</li>
+                <li>Pada kotak dialog, pilih <strong>Dokumen Seluruhnya</strong> atau <strong>Sheet Tertentu (misal: cp-pai-sd)</strong>.</li>
+                <li>Pada dropdown format, ubah "Halaman Web" menjadi <strong>Nilai yang dipisahkan koma (.csv)</strong>.</li>
+                <li>Klik <strong>Publikasikan</strong> dan salin Link yang muncul.</li>
+                <li>Paste link tersebut ke dalam kotak <strong>"Link CSV Google Sheets"</strong> di aplikasi ini, lalu klik Muat.</li>
             </ol>
-            <p><strong>Aturan / Format Membuat File CSV:</strong></p>
-            <ul style="margin-left:20px; margin-bottom:15px; line-height:1.6;">
-                <li>Buat 5 kolom di Excel: Fase, Kelas, Semester, Elemen/Bab, Tujuan Pembelajaran.</li>
-                <li><strong>JANGAN gunakan koma (,) di dalam isi teks TP.</strong></li>
-                <li>Save As menggunakan format <strong>CSV (Comma delimited)</strong>.</li>
-            </ul>
+            <p style="color:#ef4444; font-size:0.9rem;"><strong>Catatan:</strong> Jika Anda memiliki banyak sheet (misal Sheet SD, SMP, SMA), Anda harus mempublikasikan dan menyalin link untuk <strong>masing-masing sheet</strong> tersebut secara terpisah, karena 1 link CSV hanya bisa memuat 1 sheet data.</p>
         </div>
     </div>
 
     <div class="sidebar no-print">
         <div class="header-app">
-            <h2>⚙️ Generator PAI SD</h2>
-            <button class="btn-action btn-help" onclick="openModal()">📖 Baca Panduan & Format CSV</button>
+            <h2>☁️ Cloud Gen-Perangkat</h2>
+            <button class="btn-action btn-help" onclick="openModal()">📖 Cara Dapat Link CSV Google Sheets</button>
         </div>
 
-        <div class="form-group" style="margin-top:10px;">
-            <label style="color:#f59e0b;">1. Upload File cp-pai-sd.csv</label>
-            <input type="file" id="fileCsv" accept=".csv" class="btn-upload">
+        <div class="cloud-box">
+            <div class="form-group">
+                <label style="color:#fbbf24;">🌐 Link CSV Google Sheets (Permanen)</label>
+                <textarea id="inputUrlCsv" rows="3" placeholder="Paste link Google Sheets (Publikasikan ke Web sbg CSV) di sini..."></textarea>
+            </div>
+            <button class="btn-action" style="width:100%; margin-top:10px;" onclick="fetchAndSaveCSV()">☁️ Simpan & Muat Data</button>
+            <button class="btn-action btn-danger" style="width:100%;" onclick="hapusUrlCSV()">🗑️ Hapus Link</button>
+            
             <div id="csvStatus" class="csv-info"></div>
         </div>
 
         <div class="divider"></div>
+        <div style="text-align: center; color: #94a3b8; font-size: 0.8rem;">--- ATAU UPLOAD MANUAL ---</div>
+
+        <div class="form-group">
+            <input type="file" id="fileCsv" accept=".csv" style="background:#475569;">
+        </div>
+
+        <div class="divider"></div>
+
+        <div class="form-group">
+            <label>Mata Pelajaran</label>
+            <input type="text" id="inputMapel" value="Pendidikan Agama Islam dan Budi Pekerti" oninput="generateSemua()" style="font-weight: bold; color: #fbbf24;">
+        </div>
 
         <div style="display: flex; gap: 8px;">
             <div class="form-group" style="flex: 1.2;">
@@ -174,10 +185,16 @@
                 <select id="inputKelas" onchange="updateMateriList(); generateSemua();">
                     <option value="1">1 (Fase A)</option>
                     <option value="2">2 (Fase A)</option>
-                    <option value="3" selected>3 (Fase B)</option>
+                    <option value="3">3 (Fase B)</option>
                     <option value="4">4 (Fase B)</option>
                     <option value="5">5 (Fase C)</option>
-                    <option value="6">6 (Fase C)</option>
+                    <option value="6" selected>6 (Fase C)</option>
+                    <option value="7">7 (Fase D)</option>
+                    <option value="8">8 (Fase D)</option>
+                    <option value="9">9 (Fase D)</option>
+                    <option value="10">10 (Fase E)</option>
+                    <option value="11">11 (Fase F)</option>
+                    <option value="12">12 (Fase F)</option>
                 </select>
             </div>
             <div class="form-group" style="flex: 0.8;">
@@ -196,7 +213,7 @@
         <div class="form-group">
             <label>Pilih Bab (Untuk Modul & LKPD)</label>
             <select id="inputElemen" onchange="generateSemua();">
-                <option value="">- Upload CSV Dulu -</option>
+                <option value="">- Memuat Data... -</option>
             </select>
         </div>
 
@@ -212,7 +229,7 @@
         </div>
 
         <div class="form-group">
-            <label>Hari Mengajar PAI</label>
+            <label>Hari Mengajar</label>
             <select id="inputHari" onchange="generateSemua()">
                 <option value="1" selected>Senin</option>
                 <option value="2">Selasa</option>
@@ -231,7 +248,7 @@
         </div>
         <div class="form-group">
             <label>Tempat, Tanggal Penetapan</label>
-            <input type="text" id="inputTempatTgl" value="Nagreg, ........................ 2024" oninput="generateSemua()">
+            <input type="text" id="inputTempatTgl" value="Jakarta, ........................ 2024" oninput="generateSemua()">
         </div>
         <div class="form-group">
             <label>Nama Kepala Sekolah</label>
@@ -242,29 +259,72 @@
             <input type="text" id="inputNipKepsek" value="19800101 200501 1 001" oninput="generateSemua()">
         </div>
         <div class="form-group">
-            <label>Nama Guru PAI</label>
-            <input type="text" id="inputGuru" value="APIPUDI, S.Pd.I" oninput="generateSemua()">
+            <label>Nama Guru</label>
+            <input type="text" id="inputGuru" value="Nama Guru, S.Pd." oninput="generateSemua()">
         </div>
         <div class="form-group">
-            <label>NIP Guru PAI</label>
+            <label>NIP Guru</label>
             <input type="text" id="inputNipGuru" value="19900202 201502 2 002" oninput="generateSemua()">
         </div>
 
         <div class="form-group">
-            <label style="color:#38bdf8;">Tgl Libur Khusus (Awal Puasa, dll)</label>
-            <textarea id="inputLibur" rows="2" placeholder="Format: 2024-03-12, 2024-04-10" onchange="generateSemua()"></textarea>
+            <label style="color:#38bdf8;">Tgl Libur Khusus (YYYY-MM-DD)</label>
+            <textarea id="inputLibur" rows="2" placeholder="Pisahkan dgn koma" onchange="generateSemua()"></textarea>
         </div>
 
-        <button class="btn-action" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
+        <button class="btn-action btn-print" onclick="window.print()">🖨️ Cetak / Simpan PDF</button>
     </div>
 
     <div class="main-content">
         <div class="document-container">
             
+            <div class="page landscape" id="pageAtp" style="max-width: 100%;">
+                <div class="header-title" contenteditable="true" style="margin-bottom: 20px;">
+                    ALUR BAHAN AJAR CP, TP DAN ATP<br>TAHUN PELAJARAN <span class="valTahun"></span>
+                </div>
+                
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 11pt;" contenteditable="true">
+                    <table style="text-align: left; line-height: 1.5;">
+                        <tr><td width="160">NAMA SEKOLAH</td><td>: <span class="valSekolah"></span></td></tr>
+                        <tr><td>MATA PELAJARAN</td><td>: <span class="valMapel"></span></td></tr>
+                        <tr><td>FASE</td><td>: <span class="valFaseHuruf"></span></td></tr>
+                    </table>
+                    <table style="text-align: left; line-height: 1.5;">
+                        <tr><td width="100">KELAS</td><td>: <span class="valKelasNum"></span></td></tr>
+                        <tr><td>SEMESTER</td><td>: <span class="valSemester"></span></td></tr>
+                    </table>
+                </div>
+
+                <table class="data-table" style="font-size: 8.5pt;">
+                    <thead>
+                        <tr>
+                            <th width="3%">NO</th>
+                            <th width="17%">ELEMEN DAN CAPAIAN PEMBELAJARAN</th>
+                            <th width="12%">TUJUAN PEMBELAJARAN</th>
+                            <th width="20%">ALUR TUJUAN PEMBELAJARAN FASE <span class="valFaseHuruf"></span> KELAS <span class="valKelasNum"></span> SMT <span class="valSemester"></span></th>
+                            <th width="14%">DIMENSI PROFIL LULUSAN</th>
+                            <th width="10%">KOMPETENSI</th>
+                            <th width="10%">LINGKUP MATERI</th>
+                            <th width="8%">WAKTU</th>
+                            <th width="6%">KET.</th>
+                        </tr>
+                    </thead>
+                    <tbody id="bodyAtp">
+                        <tr><td colspan="9">Mempersiapkan data...</td></tr>
+                    </tbody>
+                </table>
+
+                <div class="signature-area" contenteditable="true">
+                    <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name valKepsek"></div>NIP. <span class="valNipKepsek"></span></div>
+                    <div class="signature-box right"><span class="valTempatTgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name valGuru"></div>NIP. <span class="valNipGuru"></span></div>
+                </div>
+            </div>
+
             <div class="page portrait" id="pageProta">
-                <div class="header-title" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br>PENDIDIKAN AGAMA ISLAM DAN BUDI PEKERTI</div>
+                <div class="header-title" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br><span class="valMapel" style="text-transform: uppercase;"></span></div>
                 <table class="identity-table" contenteditable="true">
                     <tr><td width="180">Satuan Pendidikan</td><td width="10">:</td><td><span class="valSekolah"></span></td></tr>
+                    <tr><td>Mata Pelajaran</td><td>:</td><td><span class="valMapel"></span></td></tr>
                     <tr><td>Fase / Kelas / Rombel</td><td>:</td><td><span class="valFase"></span> / <span class="valKelasNum"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Tahun Pelajaran</td><td>:</td><td><span class="valTahun"></span></td></tr>
                 </table>
@@ -279,7 +339,7 @@
                         </tr>
                     </thead>
                     <tbody id="bodyProta">
-                        <tr><td colspan="4">Menunggu file CSV...</td></tr>
+                        <tr><td colspan="4">Mempersiapkan data...</td></tr>
                     </tbody>
                 </table>
                 
@@ -293,6 +353,7 @@
                 <div class="header-title" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="valSemester"></span></div>
                 <table class="identity-table" contenteditable="true" style="width: 50%;">
                     <tr><td width="180">Satuan Pendidikan</td><td width="10">:</td><td><span class="valSekolah"></span></td></tr>
+                    <tr><td>Mata Pelajaran</td><td>:</td><td><span class="valMapel"></span></td></tr>
                     <tr><td>Fase / Kelas / Rombel</td><td>:</td><td><span class="valFase"></span> / <span class="valKelasNum"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Tahun Pelajaran</td><td>:</td><td><span class="valTahun"></span></td></tr>
                 </table>
@@ -300,7 +361,7 @@
                 <table class="data-table" style="font-size: 8.5pt;">
                     <thead id="headPromes"></thead>
                     <tbody id="bodyPromes">
-                        <tr><td colspan="33">Menunggu file CSV...</td></tr>
+                        <tr><td colspan="33">Mempersiapkan data...</td></tr>
                     </tbody>
                 </table>
 
@@ -311,36 +372,40 @@
             </div>
 
             <div class="page portrait" id="pageModul">
-                <div class="header-title" contenteditable="true">MODUL AJAR PENDIDIKAN AGAMA ISLAM<br><span style="font-size:11pt; font-weight:normal;">Pendekatan Mindful, Meaningful, & Joyful Learning</span></div>
+                <div class="header-title" contenteditable="true">MODUL AJAR KURIKULUM MERDEKA<br><span style="font-size:11pt; font-weight:normal;">Pendekatan Mindful, Meaningful, & Joyful Learning</span></div>
                 
                 <div class="section-title">A. IDENTITAS MODUL</div>
                 <table class="identity-table" contenteditable="true">
                     <tr><td width="180">Nama Penyusun</td><td width="10">:</td><td><span class="valGuru"></span> (<span class="valSekolah"></span>)</td></tr>
+                    <tr><td>Mata Pelajaran</td><td>:</td><td><span class="valMapel"></span></td></tr>
                     <tr><td>Kelas / Fase / Smt / Rombel</td><td>:</td><td><span class="valKelasNum"></span> / <span class="valFase"></span> / <span class="valSemester"></span> / <span class="valRombel"></span></td></tr>
                     <tr><td>Topik / Bab Materi</td><td>:</td><td style="color:var(--primary);"><span class="valElemen"></span></td></tr>
                     <tr><td>Alokasi Waktu</td><td>:</td><td><span class="valJpBab"></span> JP</td></tr>
                 </table>
 
-                <div class="section-title">B. IDENTIFIKASI KESIAPAN PESERTA DIDIK</div>
+                <div class="section-title">B. DIMENSI PROFIL LULUSAN</div>
+                <div class="content-body" contenteditable="true" id="modulP3"></div>
+
+                <div class="section-title">C. IDENTIFIKASI KESIAPAN PESERTA DIDIK</div>
                 <div class="content-body" contenteditable="true">
                     <ul>
-                        <li><strong>Pengetahuan Awal:</strong> Peserta didik telah mendengar atau memiliki pengalaman dasar terkait materi <em><span class="valElemen"></span></em> dalam kehidupan sehari-hari.</li>
-                        <li><strong>Kebutuhan Belajar:</strong> Membutuhkan visualisasi gambar/cerita yang relevan, diskusi kelompok, dan simulasi (bermain peran) untuk memperkuat pemahaman.</li>
+                        <li><strong>Pengetahuan Awal:</strong> Peserta didik telah memiliki pengetahuan dasar atau pengalaman terkait materi <em><span class="valElemen"></span></em> dalam kehidupan sehari-hari.</li>
+                        <li><strong>Kebutuhan Belajar:</strong> Membutuhkan visualisasi gambar/video yang relevan, instruksi yang jelas, kegiatan diskusi kelompok, dan simulasi untuk memperkuat pemahaman konteks.</li>
                     </ul>
                 </div>
 
-                <div class="section-title">C. TUJUAN PEMBELAJARAN</div>
+                <div class="section-title">D. TUJUAN PEMBELAJARAN</div>
                 <div class="content-body" contenteditable="true" id="modulTP"></div>
 
-                <div class="section-title">D. LANGKAH-LANGKAH PEMBELAJARAN</div>
+                <div class="section-title">E. LANGKAH-LANGKAH PEMBELAJARAN</div>
                 <div class="content-body" contenteditable="true" id="modulLangkah"></div>
 
-                <div class="section-title">E. ASESMEN PEMBELAJARAN</div>
+                <div class="section-title">F. ASESMEN PEMBELAJARAN</div>
                 <div class="content-body" contenteditable="true">
                     <ul>
-                        <li><strong>Diagnostik:</strong> Tanya jawab ringan tentang pengalaman peserta didik terkait materi di awal pertemuan.</li>
-                        <li><strong>Formatif:</strong> Observasi keaktifan diskusi kelompok dan pengerjaan Lembar Kerja Peserta Didik (LKPD).</li>
-                        <li><strong>Sumatif:</strong> Tes tertulis/lisan di akhir bab dan penilaian produk/proyek.</li>
+                        <li><strong>Diagnostik:</strong> Melakukan tanya jawab pemantik terkait pemahaman dan pengalaman peserta didik terhadap materi di awal pertemuan.</li>
+                        <li><strong>Formatif:</strong> Observasi keterlibatan, kerjasama kelompok, dan pengerjaan Lembar Kerja Peserta Didik (LKPD) selama proses KBM berlangsung.</li>
+                        <li><strong>Sumatif:</strong> Penugasan produk/proyek (unjuk kerja) dan tes tertulis di akhir bab untuk mengukur capaian kognitif.</li>
                     </ul>
                 </div>
                 
@@ -353,11 +418,11 @@
             <div class="page portrait" id="pageKktp">
                 <div class="header-title" contenteditable="true" style="margin-bottom:20px;">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN</div>
                 
-                <table class="identity-table" contenteditable="true" style="width: 70%; margin-bottom:20px;">
+                <table class="identity-table" contenteditable="true" style="width: 80%; margin-bottom:20px;">
                     <tr><td width="180">PENYUSUN</td><td width="10">:</td><td><span class="valGuru"></span></td></tr>
                     <tr><td>SATUAN PENDIDIKAN</td><td>:</td><td><span class="valSekolah"></span></td></tr>
                     <tr><td>TAHUN PELAJARAN</td><td>:</td><td><span class="valTahun"></span></td></tr>
-                    <tr><td>MATA PELAJARAN</td><td>:</td><td>PAI & BP</td></tr>
+                    <tr><td>MATA PELAJARAN</td><td>:</td><td><span class="valMapel"></span></td></tr>
                     <tr><td>FASE / KELAS / ROMBEL</td><td>:</td><td><span class="valFaseHuruf"></span> / <span class="valKelasNum"></span> / <span class="valRombel"></span></td></tr>
                 </table>
                 
@@ -378,7 +443,7 @@
                         </tr>
                     </thead>
                     <tbody id="bodyKktp">
-                        <tr><td colspan="8">Menunggu data CSV...</td></tr>
+                        <tr><td colspan="8">Mempersiapkan data...</td></tr>
                     </tbody>
                 </table>
                 
@@ -390,10 +455,10 @@
 
             <div class="page portrait" id="pageLkpd">
                 <div class="lkpd-box">
-                    <div class="lkpd-header" contenteditable="true">✨ LEMBAR KERJA PESERTA DIDIK (LKPD) ✨</div>
+                    <div class="lkpd-header" contenteditable="true">✨ LEMBAR KERJA PESERTA DIDIK (LKPD) ✨<br><span style="font-size:12pt; color:#475569;" class="valMapel"></span></div>
                     
                     <div class="lkpd-identity" contenteditable="true">
-                        <div>Nama Jagoan / Kelompok : </div>
+                        <div>Nama / Kelompok : </div>
                         <div>Kelas / Rombel : <span class="valKelasNum"></span> / <span class="valRombel"></span></div>
                         <div>Nilai : </div>
                     </div>
@@ -402,28 +467,28 @@
                         <p style="font-weight:bold; color:var(--primary); font-size:12pt;">A. Apa yang akan kita pelajari hari ini?</p>
                         <ul id="lkpdTP" style="margin-bottom:15px; background:#fff; padding:10px 10px 10px 30px; border-radius:6px; border:1px solid #cbd5e1;"></ul>
                         
-                        <p style="font-weight:bold; color:var(--primary); font-size:12pt;">B. Petunjuk Misi:</p>
+                        <p style="font-weight:bold; color:var(--primary); font-size:12pt;">B. Petunjuk Kegiatan:</p>
                         <ol style="margin-bottom:15px;">
-                            <li>Awali dengan membaca <strong>Bismillah</strong>.</li>
-                            <li>Baca pertanyaan dengan teliti dan diskusikan bersama teman kelompokmu.</li>
-                            <li>Tulis jawabanmu dengan rapi. Jangan ragu bertanya pada Pak/Bu Guru jika bingung!</li>
+                            <li>Berdoa sebelum memulai kegiatan pembelajaran.</li>
+                            <li>Baca setiap instruksi/pertanyaan dengan teliti dan diskusikan bersama teman kelompokmu.</li>
+                            <li>Tulis jawabanmu dengan rapi. Bertanyalah kepada guru jika ada hal yang kurang jelas!</li>
                         </ol>
 
-                        <p style="font-weight:bold; color:var(--primary); font-size:12pt;">C. Ayo Selesaikan Misi Ini!</p>
-                        <p>Setelah belajar tentang <strong><span class="valElemen"></span></strong>, yuk jawab tantangan di bawah ini dengan bahasamu sendiri!</p>
+                        <p style="font-weight:bold; color:var(--primary); font-size:12pt;">C. Ayo Selesaikan Tantangan Ini!</p>
+                        <p>Berdasarkan pemahamanmu tentang materi <strong><span class="valElemen"></span></strong>, kerjakan tugas di bawah ini!</p>
                         
                         <div style="margin-top:15px; border:2px solid #94a3b8; padding:20px; min-height: 280px; background-color:white; border-radius:10px;">
-                            <p style="font-weight:bold;">1. Tuliskan 2 hal baru yang paling menarik dari pelajaran kita hari ini!</p>
+                            <p style="font-weight:bold;">1. Jelaskan pemahaman utamamu mengenai materi ini menggunakan bahasamu sendiri!</p>
                             <br><br><br><hr style="border-top:2px dashed #e2e8f0;"><br>
                             
-                            <p style="font-weight:bold;">2. Coba berikan 1 contoh perbuatan nyata yang bisa kamu praktikkan di rumah atau sekolah sesuai materi ini!</p>
+                            <p style="font-weight:bold;">2. Berikan contoh penerapan nyata materi ini di sekolah atau lingkungan sekitarmu!</p>
                             <br><br><br><hr style="border-top:2px dashed #e2e8f0;"><br>
                             
-                            <p style="font-weight:bold;">3. Pesan/Hikmah apa yang bisa kita ambil supaya kita disayang Allah Swt?</p>
+                            <p style="font-weight:bold;">3. Apa kesimpulan atau nilai positif yang bisa kita ambil dari pembelajaran hari ini?</p>
                         </div>
 
                         <div style="text-align:right; margin-top:30px; font-weight:bold; color:#059669; font-size:14pt;">
-                            "Alhamdulillah, Aku Anak Saleh yang Pintar!" 🌟
+                            "Semangat Belajar, Sukses Menanti!" 🌟
                         </div>
                     </div>
                 </div>
@@ -436,49 +501,84 @@
         let kurikulumData = {}; 
         const namaBulanGanjil = ["Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const namaBulanGenap = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
+        
+        // Default URL dari user
+        const defaultGoogleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?output=csv";
 
-        // Modal Functions
         function openModal() { document.getElementById('modalPanduan').style.display = 'flex'; }
         function closeModal() { document.getElementById('modalPanduan').style.display = 'none'; }
 
-        // Libur Baku
-        function getLiburBaku(tahunAwal) {
-            let t1 = tahunAwal;
-            let t2 = tahunAwal + 1;
-            return [
-                `${t1}-08-17`, `${t1}-12-25`, `${t1}-12-26`, 
-                `${t2}-01-01`, `${t2}-05-01`, `${t2}-06-01`
-            ];
+        // ==========================================
+        // FITUR CLOUD & LOCAL STORAGE
+        // ==========================================
+        window.addEventListener('DOMContentLoaded', (event) => {
+            let savedUrl = localStorage.getItem('csvCloudUrl');
+            if (savedUrl) {
+                document.getElementById('inputUrlCsv').value = savedUrl;
+                fetchCSVFromUrl(savedUrl);
+            } else {
+                // Gunakan default link jika belum ada yang tersimpan
+                document.getElementById('inputUrlCsv').value = defaultGoogleSheetUrl;
+                fetchCSVFromUrl(defaultGoogleSheetUrl);
+            }
+        });
+
+        function fetchAndSaveCSV() {
+            let url = document.getElementById('inputUrlCsv').value.trim();
+            if (!url) {
+                tampilkanStatus("⚠️ Link URL kosong!", true);
+                return;
+            }
+            localStorage.setItem('csvCloudUrl', url);
+            fetchCSVFromUrl(url);
         }
 
-        // Kalkulasi Rata-Rata KKTP
-        function kalkulasiKKTP(element) {
-            let row = element.closest('tr');
-            let vals = row.querySelectorAll('.kktp-val');
-            let hasilTd = row.querySelector('.kktp-hasil');
-            
-            if(vals.length === 3 && hasilTd) {
-                let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
-                let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
-                let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
-                let avg = Math.round((v1 + v2 + v3) / 3);
-                hasilTd.innerText = avg;
+        function hapusUrlCSV() {
+            localStorage.removeItem('csvCloudUrl');
+            document.getElementById('inputUrlCsv').value = "";
+            tampilkanStatus("🗑️ Link berhasil dihapus dari sistem.", false);
+            kurikulumData = {}; // Clear data
+            updateMateriList();
+            generateSemua();
+        }
+
+        async function fetchCSVFromUrl(url) {
+            tampilkanStatus("⏳ Mengunduh data dari Google Sheets...", false);
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error("Gagal mengambil data. Pastikan link adalah Publikasi CSV yang valid.");
+                const csvText = await response.text();
+                prosesDataCSV(csvText);
+            } catch (error) {
+                tampilkanStatus("❌ Error: " + error.message, true);
             }
         }
 
-        // Parse CSV
+        function tampilkanStatus(pesan, isError) {
+            let statusEl = document.getElementById('csvStatus');
+            statusEl.style.display = 'block';
+            statusEl.className = isError ? 'csv-info error' : 'csv-info';
+            statusEl.innerHTML = pesan;
+        }
+
+        // ==========================================
+        // PARSING FILE MANUAL (JIKA USER TETAP MAU UPLOAD)
+        // ==========================================
         document.getElementById('fileCsv').addEventListener('change', function(e) {
             const file = e.target.files[0];
             if (!file) return;
-
             const reader = new FileReader();
-            reader.onload = function(e) {
-                const text = e.target.result;
-                prosesDataCSV(text);
+            reader.onload = function(e) { 
+                tampilkanStatus("📄 Memproses file lokal...", false);
+                prosesDataCSV(e.target.result); 
             };
             reader.readAsText(file);
         });
 
+
+        // ==========================================
+        // PROSES DATA CSV (INTI APLIKASI)
+        // ==========================================
         function prosesDataCSV(csvText) {
             const baris = csvText.split('\n');
             kurikulumData = {}; 
@@ -488,43 +588,81 @@
                 let row = baris[i].trim();
                 if(!row) continue;
                 
-                let kolom = row.split(';'); 
+                // Mendukung separator koma (,) standar CSV online atau titik koma (;) dari Excel lokal
+                let separator = row.includes(';') ? ';' : ',';
+                // Regex untuk memecah CSV yang menangani tanda kutip ganda " "
+                let kolom = [];
+                let match;
+                const regex = new RegExp(`(\"([^\"]*)\"|[^\"${separator}]+)(?=${separator}|$)`, 'g');
+                
+                while (match = regex.exec(row)) {
+                    kolom.push(match[2] ? match[2] : match[1]); // Jika ada kutip, ambil isinya
+                }
+
                 if(kolom.length < 5) continue; 
 
-                let kls = kolom[1].trim();
-                let smt = kolom[2].trim();
-                let elemen = kolom[3].trim();
-                let tp = kolom[4].trim();
+                let kls = kolom[1] ? kolom[1].trim() : "";
+                let smt = kolom[2] ? kolom[2].trim() : "";
+                let elemen = kolom[3] ? kolom[3].trim() : "";
+                
+                let cpText, tpText, p3Text;
+                if(kolom.length >= 7) {
+                    cpText = kolom[4] ? kolom[4].trim() : "";
+                    tpText = kolom[5] ? kolom[5].trim() : "";
+                    p3Text = kolom[6] ? kolom[6].trim() : "";
+                } else {
+                    cpText = "<span style='color:red;'>[Update format ke 7 kolom]</span>";
+                    tpText = kolom[4] ? kolom[4].trim() : "";
+                    p3Text = "Beriman Bertakwa, Mandiri";
+                }
 
                 if(!kurikulumData[kls]) kurikulumData[kls] = {};
                 if(!kurikulumData[kls][smt]) kurikulumData[kls][smt] = {};
-                if(!kurikulumData[kls][smt][elemen]) kurikulumData[kls][smt][elemen] = [];
+                if(!kurikulumData[kls][smt][elemen]) {
+                    kurikulumData[kls][smt][elemen] = { cp: cpText, tps: [] };
+                }
                 
-                kurikulumData[kls][smt][elemen].push(tp);
+                kurikulumData[kls][smt][elemen].tps.push({ tp: tpText, p3: p3Text });
                 countTp++;
             }
 
-            let statusEl = document.getElementById('csvStatus');
-            statusEl.style.display = 'block';
-            statusEl.innerHTML = `✅ Berhasil sinkronisasi <b>${countTp}</b> TP.`;
+            tampilkanStatus(`✅ Sukses! Berhasil memuat <b>${countTp}</b> data Tujuan Pembelajaran.`, false);
             
             updateMateriList();
             generateSemua();
+        }
+
+        // ==========================================
+        // UI & LOGIC GENERATOR
+        // ==========================================
+        function getLiburBaku(tahunAwal) {
+            let t1 = tahunAwal; let t2 = tahunAwal + 1;
+            return [`${t1}-08-17`, `${t1}-12-25`, `${t1}-12-26`, `${t2}-01-01`, `${t2}-05-01`, `${t2}-06-01`];
+        }
+
+        function kalkulasiKKTP(element) {
+            let row = element.closest('tr');
+            let vals = row.querySelectorAll('.kktp-val');
+            let hasilTd = row.querySelector('.kktp-hasil');
+            if(vals.length === 3 && hasilTd) {
+                let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
+                let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
+                let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
+                hasilTd.innerText = Math.round((v1 + v2 + v3) / 3);
+            }
         }
 
         function updateMateriList() {
             let kls = document.getElementById('inputKelas').value;
             let smt = document.getElementById('inputSemester').value;
             let elemenSelect = document.getElementById('inputElemen');
-            
             elemenSelect.innerHTML = "";
 
             if(kurikulumData[kls] && kurikulumData[kls][smt]) {
                 let elemenList = Object.keys(kurikulumData[kls][smt]);
                 elemenList.forEach(el => {
                     let opt = document.createElement('option');
-                    opt.value = el;
-                    opt.text = el;
+                    opt.value = el; opt.text = el;
                     elemenSelect.appendChild(opt);
                 });
             } else {
@@ -533,6 +671,7 @@
         }
 
         function generateSemua() {
+            let mapel = document.getElementById('inputMapel').value || "Mata Pelajaran";
             let kls = document.getElementById('inputKelas').value;
             let smt = document.getElementById('inputSemester').value;
             let rombel = document.getElementById('inputRombel').value || "-";
@@ -541,10 +680,16 @@
             let jpPerTp = parseInt(document.getElementById('inputJpPertemuan').value) || 4;
             let hariTarget = parseInt(document.getElementById('inputHari').value);
             
-            let faseHuruf = kls <= 2 ? "A" : (kls <= 4 ? "B" : "C");
+            // Hitung Fase
+            let klsInt = parseInt(kls);
+            let faseHuruf = "A";
+            if(klsInt <= 2) faseHuruf = "A"; else if(klsInt <= 4) faseHuruf = "B"; else if(klsInt <= 6) faseHuruf = "C";
+            else if(klsInt <= 9) faseHuruf = "D"; else if(klsInt == 10) faseHuruf = "E"; else if(klsInt <= 12) faseHuruf = "F";
+
             let thnAjarText = `${tahunAwal} / ${tahunAwal + 1}`;
 
-            // 1. Teks Statis
+            // Sync Teks Dinamis
+            document.querySelectorAll('.valMapel').forEach(e => e.innerText = mapel);
             document.querySelectorAll('.valSekolah').forEach(e => e.innerText = document.getElementById('inputSekolah').value);
             document.querySelectorAll('.valTempatTgl').forEach(e => e.innerText = document.getElementById('inputTempatTgl').value);
             document.querySelectorAll('.valGuru').forEach(e => e.innerText = document.getElementById('inputGuru').value);
@@ -559,48 +704,30 @@
             document.querySelectorAll('.valFaseHuruf').forEach(e => e.innerText = faseHuruf);
             document.querySelectorAll('.valElemen').forEach(e => e.innerText = elemen || "...");
 
-            // 2. Data Promes & TP
             let allBabInSmt = [];
-            let totalBarisTP = 0;
             if(kurikulumData[kls] && kurikulumData[kls][smt]) {
                 for (let babName in kurikulumData[kls][smt]) {
-                    allBabInSmt.push({ bab: babName, tps: kurikulumData[kls][smt][babName] });
-                    totalBarisTP += kurikulumData[kls][smt][babName].length;
+                    allBabInSmt.push({ bab: babName, cp: kurikulumData[kls][smt][babName].cp, tps: kurikulumData[kls][smt][babName].tps });
                 }
             }
 
-            let spesifikTP = [];
-            if(elemen && kurikulumData[kls] && kurikulumData[kls][smt] && kurikulumData[kls][smt][elemen]) {
-                spesifikTP = kurikulumData[kls][smt][elemen];
-            }
+            let spesifikData = kurikulumData[kls]?.[smt]?.[elemen];
+            let spesifikTP = spesifikData ? spesifikData.tps : [];
             document.querySelectorAll('.valJpBab').forEach(e => e.innerText = spesifikTP.length * jpPerTp);
 
-            // ==========================================
-            // LOGIKA KEGIATAN LAINNYA & TEKS VERTIKAL
-            // ==========================================
+            // LOGIKA HARI EFEKTIF
             let colEvents = new Array(30).fill(null);
-            
-            // Event Baku Sesuai Semester
             if (smt === "Ganjil") {
-                colEvents[0] = "MPLS / Libur";           // Jul M1
-                colEvents[1] = "MPLS / Libur";           // Jul M2
-                colEvents[13] = "SUMATIF TENGAH SMT";    // Sep M4
-                colEvents[25] = "SUMATIF AKHIR SMT";     // Des M1
-                colEvents[26] = "PENGAYAAN / CLASSMEET"; // Des M2
-                colEvents[27] = "PEMBAGIAN RAPOR";       // Des M3
-                colEvents[28] = "LIBUR SMT GANJIL";      // Des M4
-                colEvents[29] = "LIBUR SMT GANJIL";      // Des M5
+                colEvents[0] = "MPLS / Libur"; colEvents[1] = "MPLS / Libur";           
+                colEvents[13] = "SUMATIF TENGAH SMT"; colEvents[25] = "SUMATIF AKHIR SMT";     
+                colEvents[26] = "PENGAYAAN / CLASSMEET"; colEvents[27] = "PEMBAGIAN RAPOR";       
+                colEvents[28] = "LIBUR SMT GANJIL"; colEvents[29] = "LIBUR SMT GANJIL";      
             } else {
-                colEvents[0] = "LIBUR SMT GANJIL";       // Jan M1
-                colEvents[11] = "SUMATIF TENGAH SMT";    // Mar M2
-                colEvents[25] = "SUMATIF AKHIR SMT / PAT";// Jun M1
-                colEvents[26] = "PENGAYAAN / CLASSMEET"; // Jun M2
-                colEvents[27] = "PEMBAGIAN RAPOR";       // Jun M3
-                colEvents[28] = "LIBUR SMT GENAP";       // Jun M4
-                colEvents[29] = "LIBUR SMT GENAP";       // Jun M5
+                colEvents[0] = "LIBUR SMT GANJIL"; colEvents[11] = "SUMATIF TENGAH SMT";    
+                colEvents[25] = "SUMATIF AKHIR SMT / PAT"; colEvents[26] = "PENGAYAAN / CLASSMEET"; 
+                colEvents[27] = "PEMBAGIAN RAPOR"; colEvents[28] = "LIBUR SMT GENAP"; colEvents[29] = "LIBUR SMT GENAP";       
             }
 
-            // Gabung Libur Nasional + Libur Custom
             let blnAwal = (smt === "Ganjil") ? 6 : 0; 
             let rawLibur = document.getElementById("inputLibur").value.split(/[\n,]+/);
             let daftarLibur = getLiburBaku(tahunAwal);
@@ -611,31 +738,25 @@
                 if(p.length === 3) {
                     let y = parseInt(p[0]); let m = parseInt(p[1]) - 1; let d = parseInt(p[2]);
                     let tglLibur = new Date(y, m, d);
-                    
                     if (tglLibur.getDay() === hariTarget) {
                         let mIdx = m - blnAwal;
-                        if(smt === "Ganjil" && mIdx < 0) mIdx += 12; // Handle overlap tahun di ganjil
-
+                        if(smt === "Ganjil" && mIdx < 0) mIdx += 12;
                         if(mIdx >= 0 && mIdx <= 5) {
                             let wIdx = Math.ceil(d / 7);
                             if(wIdx > 5) wIdx = 5;
                             let c = (mIdx * 5) + (wIdx - 1);
-                            if(c >= 0 && c < 30 && colEvents[c] === null) {
-                                colEvents[c] = "LIBUR NASIONAL / KHUSUS";
-                            }
+                            if(c >= 0 && c < 30 && colEvents[c] === null) colEvents[c] = "LIBUR NASIONAL / KHUSUS";
                         }
                     }
                 }
             });
 
-            // Hitung Tanggal KBM Murni (Lewati kolom event)
             let thnOperasional = (smt === "Ganjil") ? tahunAwal : tahunAwal + 1;
             let semuaTanggalMengajar = [];
             for (let i = 0; i < 6; i++) {
                 let blnSekarang = blnAwal + i;
                 let curYear = thnOperasional;
                 if(smt === "Ganjil" && blnSekarang > 11) { curYear++; blnSekarang -= 12; }
-                
                 let jmlHari = new Date(curYear, blnSekarang + 1, 0).getDate();
                 for (let tgl = 1; tgl <= jmlHari; tgl++) {
                     let tglObyek = new Date(curYear, blnSekarang, tgl);
@@ -643,180 +764,166 @@
                         let wIdx = Math.ceil(tgl / 7);
                         if(wIdx > 5) wIdx = 5;
                         let c = (i * 5) + (wIdx - 1);
-
-                        if(colEvents[c] === null) {
-                            semuaTanggalMengajar.push(tglObyek);
-                        }
+                        if(colEvents[c] === null) semuaTanggalMengajar.push(tglObyek);
                     }
                 }
             }
 
             // ==========================================
-            // GENERATE PROTA 
+            // RENDER DOKUMEN 
             // ==========================================
-            let protaHTML = "";
-            let promesRows = [];
-            let idxTanggal = 0; 
+            renderATP(allBabInSmt, jpPerTp);
+            let promesRows = renderProta(allBabInSmt, jpPerTp, smt, semuaTanggalMengajar);
+            renderPromes(promesRows, colEvents, smt, blnAwal);
+            renderKktp(allBabInSmt, smt);
+            renderModulLkpd(spesifikTP, jpPerTp);
+        }
 
+        // --- Fungsi Bantuan Render Dokumen ---
+        function renderATP(allBabInSmt, jpPerTp) {
+            let html = "";
             if(allBabInSmt.length > 0) {
                 allBabInSmt.forEach((babObj, iBab) => {
                     let totalJpBab = babObj.tps.length * jpPerTp;
-                    
-                    babObj.tps.forEach((tp, iTp) => {
-                        protaHTML += `<tr>`;
+                    let mgg = Math.ceil(totalJpBab / jpPerTp);
+                    babObj.tps.forEach((tpObj, iTp) => {
+                        let match = tpObj.tp.match(/mampu\s+([a-zA-Z\-]+)/i);
+                        let kompetensi = match ? (match[1].charAt(0).toUpperCase() + match[1].slice(1)) : "Memahami";
+                        html += `<tr>`;
                         if(iTp === 0) {
-                            protaHTML += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
-                            protaHTML += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold;">${babObj.bab}</div></td>`;
+                            html += `<td rowspan="${babObj.tps.length}">${iBab + 1}</td>`;
+                            html += `<td rowspan="${babObj.tps.length}" class="text-left" contenteditable="true"><b>${babObj.bab}</b><br><br><span style="color:#0f172a;">${babObj.cp}</span></td>`;
+                            html += `<td rowspan="${babObj.tps.length}" class="text-left" contenteditable="true">Peserta didik memahami materi terkait ${babObj.bab} dengan baik.</td>`;
                         }
-                        protaHTML += `<td class="text-left" contenteditable="true">${tp}</td>`;
+                        html += `<td class="text-left" contenteditable="true"><b>${iBab+1}.${iTp+1}</b> ${tpObj.tp}</td>`;
+                        html += `<td contenteditable="true" style="font-size:9pt; color:#1e40af; font-weight:bold;">${tpObj.p3}</td>`;
+                        html += `<td contenteditable="true" style="color:#eab308; font-weight:bold;">${kompetensi}</td>`;
                         if(iTp === 0) {
-                            protaHTML += `<td rowspan="${babObj.tps.length}"><b>${totalJpBab} JP</b></td>`;
+                            html += `<td rowspan="${babObj.tps.length}" contenteditable="true">${babObj.bab}</td>`;
+                            html += `<td rowspan="${babObj.tps.length}" contenteditable="true"><b>${mgg} Minggu<br>${totalJpBab} JP</b></td>`;
+                            html += `<td rowspan="${babObj.tps.length}" contenteditable="true"></td>`;
                         }
-                        protaHTML += `</tr>`;
+                        html += `</tr>`;
+                    });
+                });
+            } else { html = `<tr><td colspan="9">Data belum dimuat/Kosong</td></tr>`; }
+            document.getElementById('bodyAtp').innerHTML = html;
+        }
 
+        function renderProta(allBabInSmt, jpPerTp, smt, semuaTanggalMengajar) {
+            let html = ""; let promesRows = []; let idxTanggal = 0; 
+            if(allBabInSmt.length > 0) {
+                allBabInSmt.forEach((babObj, iBab) => {
+                    let totalJpBab = babObj.tps.length * jpPerTp;
+                    babObj.tps.forEach((tpObj, iTp) => {
+                        html += `<tr>`;
+                        if(iTp === 0) {
+                            html += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
+                            html += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold;">${babObj.bab}</div></td>`;
+                        }
+                        html += `<td class="text-left" contenteditable="true">${tpObj.tp}</td>`;
+                        if(iTp === 0) { html += `<td rowspan="${babObj.tps.length}"><b>${totalJpBab} JP</b></td>`; }
+                        html += `</tr>`;
                         let alokasiPromes = [];
                         if (idxTanggal < semuaTanggalMengajar.length) {
                             alokasiPromes.push({ date: semuaTanggalMengajar[idxTanggal], jp: jpPerTp });
                             idxTanggal++;
                         }
-
-                        promesRows.push({
-                            namaBab: iTp === 0 ? babObj.bab : "",
-                            namaTp: tp,
-                            totalJp: jpPerTp,
-                            alokasi: alokasiPromes,
-                            rowspan: iTp === 0 ? babObj.tps.length : 0
-                        });
+                        promesRows.push({ namaBab: iTp===0 ? babObj.bab : "", namaTp: tpObj.tp, totalJp: jpPerTp, alokasi: alokasiPromes, rowspan: iTp===0 ? babObj.tps.length : 0 });
                     });
                 });
-            } else {
-                protaHTML = `<tr><td colspan="4">Menunggu data CSV...</td></tr>`;
-            }
-            document.getElementById('bodyProta').innerHTML = protaHTML;
+            } else { html = `<tr><td colspan="4">Data belum dimuat/Kosong</td></tr>`; }
+            document.getElementById('bodyProta').innerHTML = html;
+            return promesRows;
+        }
 
-            // ==========================================
-            // GENERATE PROMES GRID (DENGAN TEKS VERTIKAL)
-            // ==========================================
+        function renderPromes(promesRows, colEvents, smt, blnAwal) {
             let namaBulan = (smt === "Ganjil") ? namaBulanGanjil : namaBulanGenap;
-            let headPromes = `<tr><th rowspan="2" width="5%">Bab / Elemen</th><th rowspan="2" width="22%">Capaian Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
-            namaBulan.forEach(b => headPromes += `<th colspan="5">${b}</th>`);
-            headPromes += `</tr><tr>`;
-            for(let i=0; i<6; i++) { headPromes += `<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; }
-            headPromes += `</tr>`;
-            document.getElementById("headPromes").innerHTML = headPromes;
+            let headHtml = `<tr><th rowspan="2" width="5%">Bab / Elemen</th><th rowspan="2" width="22%">Capaian Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
+            namaBulan.forEach(b => headHtml += `<th colspan="5">${b}</th>`);
+            headHtml += `</tr><tr>`; for(let i=0; i<6; i++) { headHtml += `<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; } headHtml += `</tr>`;
+            document.getElementById("headPromes").innerHTML = headHtml;
 
-            let bodyPromes = "";
-            let tRows = promesRows.length || 1;
-
+            let bodyHtml = ""; let tRows = promesRows.length || 1;
             if(promesRows.length > 0) {
                 promesRows.forEach((row, r) => {
-                    bodyPromes += `<tr>`;
-                    if(row.rowspan > 0) {
-                        bodyPromes += `<td rowspan="${row.rowspan}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold; font-size:9pt;">${row.namaBab}</div></td>`;
-                    }
-                    bodyPromes += `<td class="text-left" contenteditable="true">${row.namaTp}</td><td>${row.totalJp}</td>`;
-
-                    // Loop Kolom 30 Minggu
+                    bodyHtml += `<tr>`;
+                    if(row.rowspan > 0) { bodyHtml += `<td rowspan="${row.rowspan}" style="background:#f8fafc; padding:10px;" contenteditable="true"><div class="vertical-text" style="font-weight:bold; font-size:9pt;">${row.namaBab}</div></td>`; }
+                    bodyHtml += `<td class="text-left" contenteditable="true">${row.namaTp}</td><td>${row.totalJp}</td>`;
                     for (let c = 0; c < 30; c++) {
                         if (colEvents[c] !== null) {
-                            // JIKA ADA EVENT LIBUR/SUMATIF
-                            if (r === 0) {
-                                bodyPromes += `<td rowspan="${tRows}" style="background-color: #f1f5f9; cursor:text; padding:5px;" contenteditable="true">
-                                    <div class="vertical-event">${colEvents[c]}</div>
-                                </td>`;
-                            }
+                            if (r === 0) { bodyHtml += `<td rowspan="${tRows}" style="background-color: #f1f5f9; padding:5px;" contenteditable="true"><div class="vertical-event">${colEvents[c]}</div></td>`; }
                         } else {
-                            // JIKA KBM NORMAL
-                            let mIdx = Math.floor(c / 5);
-                            let wIdx = (c % 5) + 1;
-                            let bulanTarget = blnAwal + mIdx;
-                            if(bulanTarget > 11) bulanTarget -= 12;
-                            
+                            let mIdx = Math.floor(c / 5); let wIdx = (c % 5) + 1;
+                            let bulanTarget = blnAwal + mIdx; if(bulanTarget > 11) bulanTarget -= 12;
                             let alokasiSelIni = row.alokasi.filter(a => {
-                                let aMonth = a.date.getMonth();
-                                let aWeek = Math.ceil(a.date.getDate() / 7);
-                                if(aWeek > 5) aWeek = 5;
-                                return (aMonth === bulanTarget) && (aWeek === wIdx);
+                                let aMonth = a.date.getMonth(); let aWeek = Math.ceil(a.date.getDate() / 7);
+                                if(aWeek > 5) aWeek = 5; return (aMonth === bulanTarget) && (aWeek === wIdx);
                             });
-
                             if(alokasiSelIni.length > 0) {
                                 let totalJpSel = alokasiSelIni.reduce((sum, a) => sum + a.jp, 0);
                                 let labelTgl = alokasiSelIni.map(a => a.date.getDate()).join(',');
-                                bodyPromes += `<td style="background-color:#dbeafe;" contenteditable="true"><span class="cell-jp">${totalJpSel}</span><span class="cell-date">${labelTgl}</span></td>`;
-                            } else {
-                                bodyPromes += `<td contenteditable="true"></td>`;
-                            }
+                                bodyHtml += `<td style="background-color:#dbeafe;" contenteditable="true"><span class="cell-jp">${totalJpSel}</span><span class="cell-date">${labelTgl}</span></td>`;
+                            } else { bodyHtml += `<td contenteditable="true"></td>`; }
                         }
                     }
-                    bodyPromes += `</tr>`;
+                    bodyHtml += `</tr>`;
                 });
-            } else {
-                bodyPromes = `<tr><td colspan="33">Data Kosong</td></tr>`;
-            }
-            document.getElementById("bodyPromes").innerHTML = bodyPromes;
+            } else { bodyHtml = `<tr><td colspan="33">Data Kosong</td></tr>`; }
+            document.getElementById("bodyPromes").innerHTML = bodyHtml;
+        }
 
-            // ==========================================
-            // GENERATE KKTP
-            // ==========================================
-            let kktpHTML = "";
+        function renderKktp(allBabInSmt, smt) {
+            let html = "";
             if(allBabInSmt.length > 0) {
                 allBabInSmt.forEach((babObj, iBab) => {
-                    babObj.tps.forEach((tp, iTp) => {
-                        kktpHTML += `<tr>`;
+                    babObj.tps.forEach((tpObj, iTp) => {
+                        html += `<tr>`;
                         if(iTp === 0) {
-                            kktpHTML += `<td rowspan="${babObj.tps.length}">${iBab + 1}</td>`;
-                            kktpHTML += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
-                            kktpHTML += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;"><div class="vertical-text" style="font-weight:bold; font-size:9.5pt;">${babObj.bab}</div></td>`;
+                            html += `<td rowspan="${babObj.tps.length}">${iBab + 1}</td>`;
+                            html += `<td rowspan="${babObj.tps.length}">${smt}</td>`;
+                            html += `<td rowspan="${babObj.tps.length}" style="background:#f8fafc; padding:10px;"><div class="vertical-text" style="font-weight:bold; font-size:9.5pt;">${babObj.bab}</div></td>`;
                         }
-                        kktpHTML += `<td class="text-left" contenteditable="true">${tp}</td>`;
-                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
-                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
-                        kktpHTML += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
-                        kktpHTML += `<td class="kktp-hasil" style="font-weight:bold;">75</td>`;
-                        kktpHTML += `</tr>`;
+                        html += `<td class="text-left" contenteditable="true">${tpObj.tp}</td>`;
+                        html += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
+                        html += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
+                        html += `<td class="kktp-val" contenteditable="true" oninput="kalkulasiKKTP(this)">75</td>`;
+                        html += `<td class="kktp-hasil" style="font-weight:bold;">75</td>`;
+                        html += `</tr>`;
                     });
                 });
-            } else {
-                kktpHTML = `<tr><td colspan="8">Menunggu data CSV...</td></tr>`;
-            }
-            document.getElementById('bodyKktp').innerHTML = kktpHTML;
+            } else { html = `<tr><td colspan="8">Data Kosong</td></tr>`; }
+            document.getElementById('bodyKktp').innerHTML = html;
+        }
 
-            // ==========================================
-            // GENERATE MODUL AJAR & LKPD
-            // ==========================================
-            let tpModul = "<ul>";
-            let langkahModul = "";
-            let tpLkpd = "";
+        function renderModulLkpd(spesifikTP, jpPerTp) {
+            let p3HTML = "<ul>"; let p3Array = [];
+            spesifikTP.forEach(item => {
+                let parts = item.p3.split(',');
+                parts.forEach(p => { let cln = p.trim(); if(cln && !p3Array.includes(cln)) p3Array.push(cln); });
+            });
+            p3Array.forEach(p => { p3HTML += `<li><strong>${p}</strong></li>`; });
+            document.getElementById('modulP3').innerHTML = p3Array.length ? p3HTML + "</ul>" : "<p>Dimensi Profil Lulusan tidak ditemukan.</p>";
 
-            spesifikTP.forEach((tp, i) => {
+            let tpModul = "<ul>"; let langkahModul = ""; let tpLkpd = "";
+            spesifikTP.forEach((tpObj, i) => {
                 let pert = i + 1;
-                tpModul += `<li><span style="font-weight:bold;">Pertemuan ${pert}:</span> ${tp}</li>`;
-                tpLkpd += `<li>${tp}</li>`;
-
+                tpModul += `<li><span style="font-weight:bold;">Pertemuan ${pert}:</span> ${tpObj.tp}</li>`;
+                tpLkpd += `<li>${tpObj.tp}</li>`;
                 langkahModul += `
                 <div style="margin-bottom: 15px;">
                     <div style="background-color: #f1f5f9; padding: 6px; font-weight: bold; border-left: 3px solid var(--secondary);">Pertemuan ${pert} (${jpPerTp} JP)</div>
                     <ul style="margin-top: 5px;">
-                        <li><strong>Pendahuluan (Mindful):</strong> Guru membimbing siswa berdoa, memfokuskan pikiran, lalu memancing rasa ingin tahu melalui cerita pendek terkait materi ini.</li>
-                        <li><strong>Kegiatan Inti (Meaningful & Joyful):</strong>
-                            <ul>
-                                <li>Eksplorasi: Siswa mencari informasi atau mengamati contoh nyata di sekitar mereka.</li>
-                                <li>Kolaborasi: Siswa membentuk kelompok kecil untuk memecahkan pertanyaan di LKPD bersama-sama.</li>
-                                <li>Komunikasi: Siswa menampilkan hasil karyanya dengan metode yang menyenangkan (bermain peran/presentasi ceria).</li>
-                            </ul>
-                        </li>
-                        <li><strong>Penutup:</strong> Guru memberikan penguatan, siswa melakukan refleksi, diakhiri dengan doa.</li>
+                        <li><strong>Pendahuluan (Mindful):</strong> Guru membuka dengan doa, menanyakan kabar, lalu memancing rasa ingin tahu melalui pertanyaan pemantik.</li>
+                        <li><strong>Kegiatan Inti (Meaningful & Joyful):</strong> Siswa berdiskusi, mengerjakan LKPD secara kelompok, dan mempresentasikan karyanya secara interaktif.</li>
+                        <li><strong>Penutup:</strong> Guru memberikan penguatan materi, refleksi, diakhiri doa bersama.</li>
                     </ul>
                 </div>`;
             });
-            tpModul += "</ul>";
-            
-            document.getElementById('modulTP').innerHTML = spesifikTP.length ? tpModul : "<p>Data TP belum tersedia.</p>";
+            document.getElementById('modulTP').innerHTML = spesifikTP.length ? tpModul + "</ul>" : "<p>Data TP belum tersedia.</p>";
             document.getElementById('modulLangkah').innerHTML = spesifikTP.length ? langkahModul : "<p>Langkah pembelajaran kosong.</p>";
             document.getElementById('lkpdTP').innerHTML = spesifikTP.length ? tpLkpd : "<li>Tujuan Pembelajaran</li>";
         }
-
-        window.onload = function() { generateSemua(); }
     </script>
 </body>
 </html>
