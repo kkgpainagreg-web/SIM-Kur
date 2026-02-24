@@ -259,7 +259,7 @@
             <input type="text" id="inputNipKepsek" value="19800101 200501 1 001" oninput="generateSemua()">
         </div>
         <div class="form-group">
-            <label>Nama Guru</label>
+            <label>Nama Guru Mata Pelajaran</label>
             <input type="text" id="inputGuru" value="Nama Guru, S.Pd." oninput="generateSemua()">
         </div>
         <div class="form-group">
@@ -502,8 +502,8 @@
         const namaBulanGanjil = ["Juli", "Agustus", "September", "Oktober", "November", "Desember"];
         const namaBulanGenap = ["Januari", "Februari", "Maret", "April", "Mei", "Juni"];
         
-        // Default URL dari user
-        const defaultGoogleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?output=csv";
+        // Default URL dari user (Dengan Publikasi CSV yang divalidasi)
+        const defaultGoogleSheetUrl = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?gid=1925091593&single=true&output=csv";
 
         function openModal() { document.getElementById('modalPanduan').style.display = 'flex'; }
         function closeModal() { document.getElementById('modalPanduan').style.display = 'none'; }
@@ -517,7 +517,7 @@
                 document.getElementById('inputUrlCsv').value = savedUrl;
                 fetchCSVFromUrl(savedUrl);
             } else {
-                // Gunakan default link jika belum ada yang tersimpan
+                // Gunakan default link
                 document.getElementById('inputUrlCsv').value = defaultGoogleSheetUrl;
                 fetchCSVFromUrl(defaultGoogleSheetUrl);
             }
@@ -542,15 +542,19 @@
             generateSemua();
         }
 
-        async function fetchCSVFromUrl(url) {
+        async function fetchCSVFromUrl(originalUrl) {
             tampilkanStatus("⏳ Mengunduh data dari Google Sheets...", false);
             try {
-                const response = await fetch(url);
-                if (!response.ok) throw new Error("Gagal mengambil data. Pastikan link adalah Publikasi CSV yang valid.");
+                // Menggunakan CORS Proxy gratis (allorigins.win) untuk bypass blokir origin 'null'
+                const proxyUrl = "https://api.allorigins.win/raw?url=" + encodeURIComponent(originalUrl);
+                const response = await fetch(proxyUrl);
+                
+                if (!response.ok) throw new Error("Gagal mengambil data dari server.");
+                
                 const csvText = await response.text();
                 prosesDataCSV(csvText);
             } catch (error) {
-                tampilkanStatus("❌ Error: " + error.message, true);
+                tampilkanStatus("❌ Error: " + error.message + " Pastikan link valid dan di-publish ke web.", true);
             }
         }
 
@@ -574,7 +578,6 @@
             };
             reader.readAsText(file);
         });
-
 
         // ==========================================
         // PROSES DATA CSV (INTI APLIKASI)
