@@ -9,53 +9,69 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow: hidden; }
         
-        .paper-preview { background: white; margin: 20px auto; padding: 15mm; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative; }
-        .portrait { width: 210mm; min-height: 297mm; max-width: 100%; }
-        .landscape { width: 297mm; min-height: 210mm; max-width: 100%; }
+        .paper-preview { background: white; margin: 20px auto; padding: 15mm; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 297mm; min-height: 210mm; position: relative; }
+        .paper-preview.portrait { max-width: 210mm; min-height: 297mm; }
         
         .doc-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 20px; }
         .doc-table th, .doc-table td { border: 1px solid #1f2937; padding: 6px; text-align: left; vertical-align: top; }
         .doc-table th { background-color: #f1f5f9; font-weight: 600; text-align: center; }
         
+        /* Utility Classes Custom */
         .text-center { text-align: center !important; }
         .align-middle { vertical-align: middle !important; }
         
-        /* Vertical Text CSS */
-        .vertical-event { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; font-size: 8.5pt; font-weight: bold; letter-spacing: 2px; color: #1e293b; white-space: nowrap; }
+        /* Perbaikan Cetak Teks Vertikal Promes */
+        .event-cell {
+            vertical-align: middle !important;
+            text-align: center !important;
+            height: 140px; /* Kunci tinggi sel agar tidak menyusut saat diprint */
+            padding: 0 !important;
+            background-color: #e2e8f0 !important;
+        }
+        .vertical-event { 
+            writing-mode: vertical-rl; 
+            transform: scale(-1); /* Cara paling stabil memutar teks untuk Print Chrome */
+            margin: auto; 
+            font-size: 8.5pt; 
+            font-weight: bold; 
+            letter-spacing: 2px; 
+            color: #0f172a; 
+            white-space: nowrap; 
+            display: inline-block;
+        }
         
         [contenteditable="true"]:hover { background-color: #fef08a; outline: 1px dashed #eab308; cursor: text; transition: 0.2s; }
         
         .kktp-val { background-color: #fdfde8; font-weight: bold; color: #2563eb; cursor: text; text-align: center;}
         .kktp-hasil { background-color: #e0f2fe; color: #1e40af; font-size: 11pt; text-align: center; font-weight: bold;}
 
-        /* Signature Layout */
-        .signature-area { display: flex; justify-content: space-between; margin-top: 40px; page-break-inside: avoid; padding: 0 5%; }
+        /* Signature Layout Terkalibrasi */
+        .signature-area { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; padding: 0 5%; }
         .signature-box { text-align: center; font-size: 11pt; min-width: 250px; }
         .signature-name { text-decoration: underline; font-weight: bold; margin-top: 80px; }
 
+        /* Scrollbar Sidebar */
         .sidebar-scroll::-webkit-scrollbar { width: 5px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
+
         .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px; line-height: 1.4; color: white;}
         .csv-info.error { background-color: #991b1b; }
+
+        /* Modal Custom */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 700px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
-        /* Print Settings untuk memastikan presisi Landscape dan Portrait */
         @media print {
             body { background: white; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #sidebar, #topbar, .no-print, #login-screen { display: none !important; }
             #main-content { margin: 0; padding: 0; width: 100%; overflow: visible; }
-            .paper-preview { margin: 0; padding: 10mm; box-shadow: none; page-break-after: always; }
+            .paper-preview { margin: 0; padding: 15mm; box-shadow: none; max-width: 100%; page-break-after: always; }
             .paper-preview:last-child { page-break-after: auto; }
             [contenteditable="true"]:hover { background-color: transparent; outline: none; }
             .kktp-val { background-color: transparent !important; color: black; }
             .kktp-hasil { background-color: #e0f2fe !important; }
-            
-            @page { size: A4 portrait; margin: 10mm; }
-            @page landscape_page { size: A4 landscape; margin: 10mm; }
-            
-            .portrait { width: 100% !important; max-width: 210mm; }
-            .landscape { page: landscape_page; width: 100% !important; max-width: 297mm; }
+            @page { size: A4 portrait; }
+            .landscape { @page { size: A4 landscape; } }
         }
     </style>
 </head>
@@ -84,18 +100,26 @@
     <aside id="sidebar" class="w-[340px] min-w-[340px] bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-700 hidden no-print">
         <div class="p-5 border-b border-slate-700">
             <h2 class="text-xl font-bold text-white">Super App</h2>
+            <div class="flex items-center justify-between mt-2">
+                <div>
+                    <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400">PRO</span>
+                    <span class="text-xs truncate ml-1">guru@sekolah.id</span>
+                </div>
+            </div>
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 space-y-5 sidebar-scroll text-sm">
+            
             <button onclick="document.getElementById('modal-siswa').style.display='flex'" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg shadow transition flex items-center justify-center gap-2">
-                Input Data Siswa (Absen/Nilai)
+                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
+                Input Data Siswa
             </button>
 
             <div>
                 <label class="text-[10px] text-amber-500 uppercase font-bold">Tipe Guru</label>
-                <select id="in-tipe-guru" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-amber-500 outline-none text-white font-bold cursor-pointer">
+                <select id="in-tipe-guru" onchange="Engine.syncAll()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-amber-500 outline-none text-white font-bold cursor-pointer">
                     <option value="kelas">Guru Kelas</option>
-                    <option value="mapel">Guru Mata Pelajaran</option>
+                    <option value="mapel" selected>Guru Mata Pelajaran</option>
                 </select>
             </div>
 
@@ -107,10 +131,10 @@
                     <option value="SMA">SMA / SMK / MA</option>
                 </select>
                 <div class="flex flex-col gap-2">
-                    <button onclick="Engine.fetchGlobalCSV()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">A. Sinkronisasi Cloud</button>
+                    <button onclick="Engine.fetchGlobalCSV()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">A. Load dari Cloud</button>
                     <div class="relative w-full">
                         <input type="file" accept=".csv" onchange="Engine.uploadCSV(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">B. Upload File CSV Manual</button>
+                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">B. Upload CSV Manual</button>
                     </div>
                 </div>
                 <div id="csvStatus" class="csv-info"></div>
@@ -119,19 +143,31 @@
             <div>
                 <h3 class="text-xs font-bold text-slate-400 mb-2">2. PILIH MAPEL & KELAS</h3>
                 <div class="space-y-2">
-                    <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer"><option value="">-- Load Kurikulum --</option></select>
-                    <div class="grid grid-cols-2 gap-2">
-                        <select id="in-kelas" onchange="Engine.updateSemesterList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
-                        <select id="in-semester" onchange="Engine.updateBabList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-bold">Mata Pelajaran</label>
+                        <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer"><option value="">-- Load Kurikulum --</option></select>
                     </div>
-                    <select id="in-elemen" onchange="Engine.syncAll()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold">Kelas</label>
+                            <select id="in-kelas" onchange="Engine.updateSemesterList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                        </div>
+                        <div>
+                            <label class="text-[10px] text-slate-500 uppercase font-bold">Semester</label>
+                            <select id="in-semester" onchange="Engine.updateBabList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] text-slate-500 uppercase font-bold">Bab / Elemen (U/ Modul)</label>
+                        <select id="in-elemen" onchange="Engine.syncAll()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                    </div>
                 </div>
             </div>
 
             <div>
                 <h3 class="text-xs font-bold text-slate-400 mb-2">3. IDENTITAS SEKOLAH</h3>
                 <div class="space-y-2">
-                    <input type="text" id="in-sekolah" placeholder="Nama Sekolah" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="SDN Nagreg 05">
+                    <input type="text" id="in-sekolah" placeholder="Nama Sekolah" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="SDN Cerdas Bangsa">
                     <input type="text" id="in-kepsek" placeholder="Nama Kepala Sekolah" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Budi, S.Pd., M.Pd.">
                     <input type="text" id="in-nip-kepsek" placeholder="NIP Kepala Sekolah" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="19800101 200501 1 001">
                     <input type="text" id="in-guru" placeholder="Nama Guru" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Siti Aminah, S.Pd.">
@@ -140,12 +176,12 @@
                         <input type="text" id="in-rombel" placeholder="Rombel" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="A">
                         <input type="number" id="in-tahun" placeholder="Tahun Awal" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="2025">
                     </div>
-                    <input type="text" id="in-tempat-tgl" placeholder="Tempat Tanda Tangan" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Nagreg">
+                    <input type="text" id="in-tempat-tgl" placeholder="Tempat Tanda Tangan" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Jakarta">
                 </div>
             </div>
 
             <div>
-                <h3 class="text-xs font-bold text-slate-400 mb-2">4. JADWAL & LIBUR</h3>
+                <h3 class="text-xs font-bold text-slate-400 mb-2">4. KALENDER PENDIDIKAN</h3>
                 <div class="space-y-2">
                     <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -161,15 +197,20 @@
                         </div>
                     </div>
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase">Libur (YYYY-MM-DD)</label>
-                        <textarea id="in-libur" rows="2" placeholder="2025-03-01, 2025-04-10" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none"></textarea>
+                        <label class="text-[10px] text-amber-500 uppercase font-bold">Agenda & Libur (YYYY-MM-DD = Kegiatan)</label>
+                        <textarea id="in-libur" rows="4" class="w-full bg-slate-800 border border-slate-600 rounded p-2 text-xs focus:border-blue-500 outline-none text-slate-200">2025-07-15 = MPLS / Libur Awal
+2025-09-23 = Sumatif Tengah Smt (STS)
+2025-12-09 = Sumatif Akhir Smt (SAS)
+2025-12-23 = Libur Semester</textarea>
                     </div>
                 </div>
             </div>
         </div>
         
         <div class="p-4 border-t border-slate-700">
-            <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition">🚀 RENDER DOKUMEN</button>
+            <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform active:scale-95">
+                🚀 GENERATE DOKUMEN
+            </button>
         </div>
     </aside>
 
@@ -187,6 +228,7 @@
         </header>
 
         <div id="main-content" class="flex-1 overflow-y-auto p-8">
+            
             <div id="view-atp" class="view-section block">
                 <div class="no-print mb-4 flex justify-end gap-2">
                     <select id="in-atp-mode" onchange="Engine.syncAll()" class="p-2 border border-slate-300 rounded text-sm outline-none bg-white font-bold text-blue-700 shadow-sm cursor-pointer">
@@ -194,8 +236,9 @@
                         <option value="tahun">Cetak 1 Tahun Penuh (Ganjil & Genap)</option>
                     </select>
                 </div>
+                
                 <div class="paper-preview landscape">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">ALUR TUJUAN PEMBELAJARAN (ATP)<br>TAHUN PELAJARAN <span class="v-thn"></span></h1>
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">ALUR TUJUAN PEMBELAJARAN (ATP)<br>TAHUN PELAJARAN <span class="v-thn"></span></h1>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 11pt;" contenteditable="true">
                         <table style="text-align: left; line-height: 1.5;">
                             <tr><td width="160">NAMA SEKOLAH</td><td>: <span class="v-sekolah"></span></td></tr>
@@ -208,7 +251,7 @@
                         </table>
                     </div>
                     <table class="doc-table">
-                        <thead><tr><th width="3%">NO</th><th width="18%">ELEMEN / CP</th><th width="20%">TUJUAN PEMBELAJARAN (TP)</th><th width="15%">PROFIL PANCASILA</th><th width="10%">KOMPETENSI</th><th width="8%">WAKTU</th></tr></thead>
+                        <thead><tr><th width="3%">NO</th><th width="18%">ELEMEN / CP</th><th width="20%">TUJUAN PEMBELAJARAN (TP)</th><th width="15%">PROFIL LULUSAN</th><th width="10%">KOMPETENSI</th><th width="8%">WAKTU</th></tr></thead>
                         <tbody id="out-atp"></tbody>
                     </table>
                     <div class="signature-area" contenteditable="true">
@@ -218,8 +261,8 @@
                 </div>
 
                 <div class="paper-preview portrait mt-10">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br><span class="v-mapel uppercase"></span></h1>
-                    <table class="identity-table" contenteditable="true">
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br><span class="v-mapel uppercase"></span></h1>
+                    <table class="identity-table mb-4" contenteditable="true" style="font-weight: bold; font-size: 11pt; width: 100%;">
                         <tr><td width="150">Satuan Pendidikan</td><td>: <span class="v-sekolah"></span></td></tr>
                         <tr><td>Fase / Kelas</td><td>: <span class="v-fase"></span> / <span class="v-kls"></span></td></tr>
                         <tr><td>Tahun Pelajaran</td><td>: <span class="v-thn"></span></td></tr>
@@ -237,8 +280,8 @@
 
             <div id="view-promes" class="view-section hidden">
                 <div class="paper-preview landscape">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="v-smt uppercase"></span></h1>
-                    <table class="identity-table w-1/2" contenteditable="true">
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="v-smt uppercase"></span></h1>
+                    <table class="identity-table w-1/2 mb-4" contenteditable="true" style="font-weight: bold; font-size: 11pt;">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel text-blue-700"></span></td></tr>
                         <tr><td>Kelas/Rombel</td><td>: <span class="v-kls"></span> / <span class="v-rombel"></span></td></tr>
                     </table>
@@ -254,10 +297,15 @@
             </div>
 
             <div id="view-modul" class="view-section hidden relative">
+                <div class="no-print mb-4 bg-white p-3 rounded shadow flex items-center gap-4 border border-slate-200">
+                    <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer text-blue-600">
+                        <input type="checkbox" checked onchange="document.getElementById('wrapper-lkpd').classList.toggle('hidden')"> Tampilkan Form LKPD
+                    </label>
+                </div>
                 <div class="paper-preview portrait">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">MODUL AJAR KURIKULUM MERDEKA</h1>
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">MODUL AJAR KURIKULUM MERDEKA</h1>
                     <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">A. IDENTITAS UMUM</div>
-                    <table class="identity-table" contenteditable="true">
+                    <table class="identity-table" contenteditable="true" style="font-weight: bold; font-size: 11pt; width: 100%;">
                         <tr><td width="150">Nama Penyusun</td><td>: <span class="v-guru"></span> (<span class="v-sekolah"></span>)</td></tr>
                         <tr><td>Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas / Smt / Rombel</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span> / <span class="v-rombel"></span></td></tr>
@@ -267,27 +315,66 @@
                     <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">B. CAPAIAN & TUJUAN</div>
                     <div class="pl-4 mb-3" contenteditable="true">
                         <p id="out-modul-cp" class="mb-3 bg-blue-50 p-2 rounded border border-blue-100 text-sm text-justify"></p>
-                        <div id="out-modul-tp" class="text-sm"></div>
+                        <div id="out-modul-tp" class="text-sm font-semibold"></div>
                     </div>
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">C. LANGKAH-LANGKAH OPERASIONAL</div>
+                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">C. LANGKAH-LANGKAH OPERASIONAL (KBM)</div>
                     <div class="pl-4 mb-3 text-sm" contenteditable="true" id="out-modul-langkah"></div>
                     <div class="signature-area mt-8" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
                         <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
+
+                <div id="wrapper-lkpd" class="paper-preview portrait mt-10">
+                    <div class="border-2 border-dashed border-blue-600 p-6 rounded-xl bg-slate-50 h-full">
+                        <h1 class="header-title text-center text-[16pt] font-bold text-blue-800 mb-4 uppercase" contenteditable="true">LEMBAR KERJA PESERTA DIDIK (LKPD)</h1>
+                        <div class="flex justify-between border-b border-black pb-2 mb-4 font-bold" contenteditable="true">
+                            <span>Nama Kelompok : .......................</span>
+                            <span>Kelas: <span class="v-kls"></span>/<span class="v-rombel"></span></span>
+                            <span>Nilai : .....</span>
+                        </div>
+                        <p class="font-bold text-blue-700">Mata Pelajaran: <span class="v-mapel"></span></p>
+                        <p class="font-bold text-blue-700 mb-4">Materi Topik: <span class="v-bab-aktif"></span></p>
+                        
+                        <div class="content-body" contenteditable="true">
+                            <p style="font-weight:bold; color:#1e40af; font-size:11pt;">A. Tujuan Kegiatan Hari Ini:</p>
+                            <ul id="out-lkpd-tp" class="mb-4 bg-white p-2 border border-slate-200 rounded list-disc pl-5 text-sm font-semibold"></ul>
+                            
+                            <p style="font-weight:bold; color:#1e40af; font-size:11pt;">B. Petunjuk Pengerjaan:</p>
+                            <ol class="list-decimal pl-5 mb-6 text-sm">
+                                <li>Berdoalah terlebih dahulu sebelum memulai aktivitas.</li>
+                                <li>Diskusikan instruksi di bawah ini secara seksama bersama kelompokmu.</li>
+                                <li>Tuliskan hasil diskusi pada kolom dengan rapi dan jelas.</li>
+                            </ol>
+
+                            <p style="font-weight:bold; color:#1e40af; font-size:11pt; border-bottom:2px solid #ccc; padding-bottom:5px;">C. Kolom Pengerjaan / Tantangan:</p>
+                            <div class="space-y-6 mt-4">
+                                <div>
+                                    <p class="font-bold text-sm mb-1">1. Tuliskan pemahaman utamamu mengenai materi ini secara detail!</p>
+                                    <div class="border border-slate-400 bg-white p-4 rounded-lg min-h-[120px]"></div>
+                                </div>
+                                <div>
+                                    <p class="font-bold text-sm mb-1">2. Berikan contoh nyata penerapan materi ini di lingkungan sekitarmu!</p>
+                                    <div class="border border-slate-400 bg-white p-4 rounded-lg min-h-[120px]"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
             </div>
 
             <div id="view-jurnal" class="view-section hidden relative">
-                <div id="jurnal-container"></div> </div>
+                <div id="jurnal-container"></div>
+            </div>
 
             <div id="view-absensi" class="view-section hidden relative">
-                <div id="absensi-container"></div> </div>
+                <div id="absensi-container"></div>
+            </div>
 
             <div id="view-kktp" class="view-section hidden relative">
                 <div class="paper-preview portrait">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN (KKTP)</h1>
-                    <table class="identity-table mb-4" contenteditable="true">
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN (KKTP)</h1>
+                    <table class="identity-table mb-4" contenteditable="true" style="font-weight: bold; font-size: 11pt; width: 100%;">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
                     </table>
@@ -308,8 +395,8 @@
                 </div>
                 
                 <div class="paper-preview landscape mt-10">
-                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">DAFTAR NILAI SUMATIF & FORMATIF</h1>
-                    <table class="identity-table w-1/3 mb-4" contenteditable="true">
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">DAFTAR NILAI SUMATIF & FORMATIF</h1>
+                    <table class="identity-table w-1/3 mb-4" contenteditable="true" style="font-weight: bold; font-size: 11pt;">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
                     </table>
@@ -367,6 +454,7 @@
 
         window.Engine = {
             data: {}, students: [],
+
             saveStudents: function() {
                 let list = document.getElementById('in-data-siswa').value.split('\n').map(s => s.replace(/^[0-9]+[\.\)\-]\s*/, '').split(/[\t;]/)[0].trim()).filter(s => s.length > 0);
                 if(list.length > 0) {
@@ -389,6 +477,7 @@
                 let file = inputElement.files[0]; if (!file) return;
                 let r = new FileReader(); r.onload = e => { window.Engine.parseCSV(e.target.result); inputElement.value=''; }; r.readAsText(file);
             },
+            
             fetchGlobalCSV: async function() {
                 let jenjang = document.getElementById('in-jenjang')?.value || "SD";
                 let url = CP_LINKS[jenjang]; localStorage.setItem('sa_jenjang', jenjang);
@@ -397,9 +486,10 @@
                     this.parseCSV(await res.text());
                 } catch(e) {
                     try { let r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url)); let d = await r.json(); this.parseCSV(d.contents); } 
-                    catch(err) { alert("Gagal unduh database. Upload manual."); }
+                    catch(err) { alert("Server Sibuk. Silakan gunakan fitur Upload CSV Manual."); }
                 }
             },
+            
             parseCSV: function(csvText) {
                 const lines = csvText.split('\n'); this.data = {};
                 for(let i=1; i<lines.length; i++) { 
@@ -414,6 +504,7 @@
                 }
                 this.initDropdowns();
             },
+            
             initDropdowns: function() {
                 let mSel = document.getElementById('in-mapel'); mSel.innerHTML = "";
                 Object.keys(this.data).forEach(m => mSel.appendChild(new Option(m, m)));
@@ -436,6 +527,7 @@
                 if(m && k && s && this.data[m][k][s]) Object.keys(this.data[m][k][s]).forEach(b => eSel.appendChild(new Option(b, b)));
                 this.syncAll();
             },
+            
             calcKktp: function(el) {
                 let r = el.closest('tr'); let v = r.querySelectorAll('.kktp-val'); let res = r.querySelector('.kktp-hasil');
                 if(v.length === 3 && res) res.innerText = Math.round(((parseFloat(v[0].innerText)||0) + (parseFloat(v[1].innerText)||0) + (parseFloat(v[2].innerText)||0)) / 3);
@@ -470,33 +562,64 @@
                 document.querySelectorAll('.v-nip-guru').forEach(e=>e.innerText=document.getElementById('in-nip-guru')?.value||"");
                 document.querySelectorAll('.v-rombel').forEach(e=>e.innerText=document.getElementById('in-rombel')?.value||"");
                 
-                // Set default tanda tangan (untuk ATP/Promes)
                 let tmpt = document.getElementById('in-tempat-tgl')?.value||"";
                 document.querySelectorAll('.v-tempat-tgl').forEach(e=>e.innerText=tmpt + ", ......................");
 
                 let spData = this.data[m]?.[k]?.[s]?.[bAktif];
                 document.querySelectorAll('.v-jp-bab').forEach(e=>e.innerText = spData ? spData.tps.length * jp : 0);
 
-                let colEv = new Array(30).fill(null);
-                if (s === "Ganjil") { colEv[0]="MPLS"; colEv[13]="STS"; colEv[25]="SAS"; colEv[27]="RAPOR"; colEv[28]="LIBUR"; colEv[29]="LIBUR"; } 
-                else { colEv[0]="LIBUR"; colEv[11]="STS"; colEv[25]="SAS"; colEv[27]="RAPOR"; colEv[28]="LIBUR"; colEv[29]="LIBUR"; }
-
+                // --- LOGIKA KALENDER PENDIDIKAN (AGENDA & LIBUR) ---
                 let bAwal = s === "Ganjil" ? 6 : 0; 
-                let rLibur = (document.getElementById("in-libur")?.value || "").split(/[\n,]+/);
-                let dLibur = [`${tAwal}-08-17`,`${tAwal}-12-25`,`${tAwal+1}-01-01`,`${tAwal+1}-05-01`];
-                rLibur.forEach(d => { if(d.trim()) dLibur.push(d.trim()); });
+                let rawLibur = (document.getElementById("in-libur")?.value || "").split('\n');
+                let calEvents = {}; let dLibur = [];
+                
+                rawLibur.forEach(line => {
+                    let parts = line.split('=');
+                    if(parts.length >= 2) {
+                        calEvents[parts[0].trim()] = parts[1].trim();
+                        dLibur.push(parts[0].trim()); // Anggap acara khusus adalah non-efektif (Kecuali jika ingin spesifik, tapi secara umum dicetak di kalender promes)
+                    } else if(parts[0].trim()) {
+                        calEvents[parts[0].trim()] = "LIBUR"; 
+                        dLibur.push(parts[0].trim());
+                    }
+                });
+
+                let colEv = new Array(30).fill(null);
+                
+                // Petakan event ke minggu di Promes
+                Object.keys(calEvents).forEach(dStr => {
+                    let p = dStr.split('-');
+                    if(p.length === 3) {
+                        let y = parseInt(p[0]); let mo = parseInt(p[1]) - 1; let d = parseInt(p[2]);
+                        let mIdx = mo - bAwal;
+                        if (s === "Ganjil" && mIdx < 0) mIdx += 12;
+                        if (s === "Genap" && mIdx < 0) mIdx += 12;
+                        
+                        if (mIdx >= 0 && mIdx < 6) {
+                            let wIdx = Math.min(Math.ceil(d / 7) - 1, 4);
+                            let cIdx = mIdx * 5 + wIdx;
+                            colEv[cIdx] = calEvents[dStr];
+                        }
+                    }
+                });
 
                 let activeDates = [];
                 for (let i = 0; i < 6; i++) {
                     let curBln = bAwal + i; let cYr = tAwal;
                     if(s === "Ganjil" && curBln > 11) { cYr++; curBln -= 12; }
+                    if(s === "Genap" && curBln > 11) { cYr++; curBln -= 12; } // Just safe checking
+                    
                     let jHari = new Date(cYr, curBln + 1, 0).getDate();
                     for (let tgl = 1; tgl <= jHari; tgl++) {
                         let dt = new Date(cYr, curBln, tgl);
-                        let isLibur = dLibur.includes(`${cYr}-${String(curBln+1).padStart(2,'0')}-${String(tgl).padStart(2,'0')}`);
-                        if (dt.getDay() === hTarget && !isLibur) {
-                            let wI = Math.min(Math.ceil(tgl / 7) - 1, 4);
-                            if(!colEv[(i * 5) + wI]) activeDates.push(dt);
+                        if (dt.getDay() === hTarget) {
+                            let wIdx = Math.min(Math.ceil(tgl / 7) - 1, 4);
+                            let cIdx = i * 5 + wIdx;
+                            
+                            // Jika minggu tersebut tidak ada event libur/ujian, maka dihitung hari aktif KBM
+                            if (colEv[cIdx] === null) {
+                                activeDates.push(dt);
+                            }
                         }
                     }
                 }
@@ -523,7 +646,7 @@
                     it.d.tps.forEach((tpO, tI) => {
                         aHtml += `<tr>`;
                         if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${i+1}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle"><b>${it.b}</b></td>`;
-                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
+                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs text-blue-700">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
                         if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${tJp} JP</td>`;
                         aHtml += `</tr>`;
 
@@ -551,13 +674,14 @@
                 let tb = ""; let r = window.promesRows || [];
                 r.forEach((ro, idx) => {
                     tb+=`<tr>`;
-                    if(ro.rs>0) tb+=`<td rowspan="${ro.rs}" class="bg-slate-50 font-bold text-center align-middle">${ro.bab}</td>`;
+                    if(ro.rs>0) tb+=`<td rowspan="${ro.rs}" class="bg-slate-50 font-bold text-center align-middle" contenteditable="true">${ro.bab}</td>`;
                     tb+=`<td contenteditable="true">${ro.tp}</td><td class="text-center font-bold align-middle">${ro.jp}</td>`;
                     for(let c=0; c<30; c++) {
-                        if(colEv[c] && idx===0) tb+=`<td rowspan="${r.length}" class="bg-slate-200 border border-slate-400 p-1 align-middle"><div class="vertical-event">${colEv[c]}</div></td>`;
+                        // RENDER TEKS VERTIKAL DENGAN TINGGI TETAP AGAR PRESISI SAAT DIPRINT
+                        if(colEv[c] && idx===0) tb+=`<td rowspan="${r.length}" class="event-cell border border-slate-400"><div class="vertical-event">${colEv[c].toUpperCase()}</div></td>`;
                         else if(!colEv[c]) {
                             let mI=Math.floor(c/5); let wI=(c%5)+1; let tBln = bAwal+mI; if(tBln>11) tBln-=12;
-                            if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle">✔️</td>`;
+                            if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle text-lg">${ro.dt.getDate()}</td>`;
                             else tb+=`<td></td>`;
                         }
                     }
@@ -572,7 +696,6 @@
                 let cVal = tGuru === 'mapel' ? k + "/" + (document.getElementById('in-rombel')?.value||"A") : m;
                 let tmpt = document.getElementById('in-tempat-tgl')?.value||"";
                 
-                let bAwal = s === "Ganjil" ? 6 : 0;
                 let dataJurnalPerBulan = {}; 
                 
                 (window.promesRows || []).forEach(r => {
@@ -592,14 +715,14 @@
 
                     // BUILD JURNAL PAGE
                     jHtml += `<div class="paper-preview landscape mt-5">
-                        <h1 class="text-center text-[13pt] font-bold mb-4 uppercase">JURNAL PELAKSANAAN PEMBELAJARAN<br>BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
+                        <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase">JURNAL PELAKSANAAN PEMBELAJARAN<br>BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
                         <table class="doc-table text-sm">
                             <thead><tr><th width="10%">Tgl</th><th width="12%">${cHead}</th><th width="15%">Bab/Materi</th><th width="35%">Tujuan Pembelajaran</th><th width="10%">Hadir</th><th width="18%">Ket</th></tr></thead>
                             <tbody>`;
                     items.forEach(it => {
                         if(it.bab) currentBab = it.bab;
                         let dStr = `${String(it.dt.getDate()).padStart(2,'0')}/${String(mo+1).padStart(2,'0')}/${yr}`;
-                        jHtml += `<tr><td class="text-center font-bold">${dStr}</td><td contenteditable="true" class="text-center">${cVal}</td><td contenteditable="true">${currentBab}</td><td contenteditable="true">${it.tp}</td><td contenteditable="true" class="text-center">....... Siswa</td><td contenteditable="true">Tuntas</td></tr>`;
+                        jHtml += `<tr><td class="text-center font-bold">${dStr}</td><td contenteditable="true" class="text-center">${cVal}</td><td contenteditable="true">${currentBab}</td><td contenteditable="true">${it.tp}</td><td contenteditable="true" class="text-center font-bold text-blue-700">Hadir Semua</td><td contenteditable="true">Kegiatan Berjalan Lancar</td></tr>`;
                     });
                     jHtml += `</tbody></table>
                         <div class="signature-area" contenteditable="true">
@@ -612,7 +735,7 @@
                     items.forEach((it, i) => absTglHead += `<th>${it.dt.getDate()}</th>`);
                     
                     aHtml += `<div class="paper-preview portrait mt-5">
-                        <h1 class="text-center text-[13pt] font-bold mb-4 uppercase">PRESENSI SISWA - BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
+                        <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase">PRESENSI SISWA - BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
                         <table class="doc-table text-[9pt] text-center">
                             <thead><tr><th rowspan="2" width="5%">No</th><th rowspan="2" width="30%" class="text-left">Nama Siswa</th><th colspan="${absCols}">Tanggal Pertemuan</th></tr>
                             <tr>${absTglHead}</tr></thead><tbody>`;
@@ -631,14 +754,14 @@
                         </div></div>`;
                 });
 
-                document.getElementById('jurnal-container').innerHTML = jHtml || `<div class="paper-preview text-center">Data tidak ditemukan.</div>`;
-                document.getElementById('absensi-container').innerHTML = aHtml || `<div class="paper-preview text-center">Data tidak ditemukan.</div>`;
+                document.getElementById('jurnal-container').innerHTML = jHtml || `<div class="paper-preview text-center italic text-slate-400">Data jurnal tidak ditemukan. Pastikan setting kalender benar.</div>`;
+                document.getElementById('absensi-container').innerHTML = aHtml || `<div class="paper-preview text-center italic text-slate-400">Data absensi tidak ditemukan.</div>`;
             },
 
             renderDaftarNilai: function() {
                 let h=""; let sl = this.students && this.students.length > 0 ? this.students : ["Siswa 1"];
                 sl.forEach((n, i) => {
-                    h += `<tr><td>${i+1}</td><td class="text-left" contenteditable="true">${n}</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="bg-slate-50"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="font-bold bg-blue-50 text-blue-800"></td></tr>`;
+                    h += `<tr><td>${i+1}</td><td class="text-left" contenteditable="true">${n}</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="bg-slate-50 font-bold" contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="font-bold bg-blue-50 text-blue-800" contenteditable="true"></td></tr>`;
                 });
                 document.getElementById('out-nilai').innerHTML = h;
             },
@@ -649,11 +772,38 @@
                 let mt="", st="", kt="";
                 d.tps.forEach((t, i) => {
                     mt += `<li><strong>Pertemuan ${i+1}:</strong> ${t.tp}</li>`;
-                    st += `<div class="mb-4 bg-slate-50 p-3 rounded border"><strong>Pertemuan ${i+1} (${jp} JP)</strong><br><span class="text-slate-600">A. Pendahuluan (15m): Apersepsi materi <b>${bAktif}</b>.<br>B. Inti (60m): Diskusi kelompok dan presentasi.<br>C. Penutup (15m): Kesimpulan dan Refleksi.</span></div>`;
+                    st += `<div class="mb-4 bg-slate-50 p-4 rounded border border-slate-300">
+                        <div class="font-bold border-b-2 border-slate-300 pb-2 mb-3 text-blue-800 text-lg">Pertemuan ${i+1} (${jp} JP)</div>
+                        <div class="mb-3">
+                            <span class="font-bold text-slate-700 underline">A. Pendahuluan (15 Menit)</span>
+                            <ul class="list-decimal pl-6 mt-1 text-justify">
+                                <li>Guru mengucapkan salam, mengajak siswa berdoa, dan mengecek daftar hadir.</li>
+                                <li>Guru memberikan apersepsi yang mengaitkan pengalaman siswa dengan topik <b>${bAktif}</b>.</li>
+                                <li>Guru menyampaikan Tujuan Pembelajaran hari ini.</li>
+                            </ul>
+                        </div>
+                        <div class="mb-3">
+                            <span class="font-bold text-slate-700 underline">B. Kegiatan Inti (60 Menit)</span>
+                            <ul class="list-decimal pl-6 mt-1 text-justify">
+                                <li><b>Orientasi Masalah:</b> Peserta didik mengamati materi atau tayangan visual yang disajikan guru.</li>
+                                <li><b>Diskusi & Kolaborasi:</b> Peserta didik dibagi ke dalam kelompok untuk mengerjakan LKPD bersama-sama.</li>
+                                <li><b>Presentasi Hasil:</b> Perwakilan kelompok mempresentasikan hasil kerjanya secara bergantian di depan kelas.</li>
+                            </ul>
+                        </div>
+                        <div>
+                            <span class="font-bold text-slate-700 underline">C. Penutup (15 Menit)</span>
+                            <ul class="list-decimal pl-6 mt-1 text-justify">
+                                <li>Guru dan siswa membuat kesimpulan pembelajaran.</li>
+                                <li>Guru melakukan refleksi mengenai bagian yang menyenangkan atau sulit dipahami.</li>
+                                <li>Kegiatan ditutup dengan doa bersama.</li>
+                            </ul>
+                        </div>
+                    </div>`;
                     kt += `<tr>`; if(i===0) kt+=`<td rowspan="${d.tps.length}" class="text-center align-middle">${i+1}</td>`;
                     kt += `<td contenteditable="true">${t.tp}</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-hasil">75</td></tr>`;
                 });
                 document.getElementById('out-modul-tp').innerHTML = `<ul>${mt}</ul>`;
+                document.getElementById('out-lkpd-tp').innerHTML = `<ul>${mt}</ul>`;
                 document.getElementById('out-modul-langkah').innerHTML = st;
                 document.getElementById('out-kktp').innerHTML = kt;
             }
