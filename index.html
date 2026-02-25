@@ -24,7 +24,7 @@
         .event-cell {
             vertical-align: middle !important;
             text-align: center !important;
-            height: 110px; /* Kunci tinggi sel agar tidak menyusut saat diprint */
+            height: 140px; /* Kunci tinggi sel agar tidak menyusut saat diprint */
             padding: 0 !important;
             background-color: #e2e8f0 !important;
         }
@@ -209,7 +209,7 @@
         
         <div class="p-4 border-t border-slate-700">
             <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform active:scale-95">
-                🚀 GENERATE DOKUMEN
+                🚀 RENDER DOKUMEN
             </button>
         </div>
     </aside>
@@ -533,9 +533,8 @@
                 if(v.length === 3 && res) res.innerText = Math.round(((parseFloat(v[0].innerText)||0) + (parseFloat(v[1].innerText)||0) + (parseFloat(v[2].innerText)||0)) / 3);
             },
             
-            // FUNGSI CARI TANGGAL PENGESAHAN AKHIR BULAN
             getLastWorkingDay: function(year, month, liburList) {
-                let d = new Date(year, month + 1, 0); // hari terakhir bulan
+                let d = new Date(year, month + 1, 0); 
                 while (d.getDay() === 0 || liburList.includes(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`)) {
                     d.setDate(d.getDate() - 1);
                 }
@@ -568,7 +567,6 @@
                 let spData = this.data[m]?.[k]?.[s]?.[bAktif];
                 document.querySelectorAll('.v-jp-bab').forEach(e=>e.innerText = spData ? spData.tps.length * jp : 0);
 
-                // --- LOGIKA KALENDER PENDIDIKAN (AGENDA & LIBUR) ---
                 let bAwal = s === "Ganjil" ? 6 : 0; 
                 let rawLibur = (document.getElementById("in-libur")?.value || "").split('\n');
                 let calEvents = {}; let dLibur = [];
@@ -577,7 +575,7 @@
                     let parts = line.split('=');
                     if(parts.length >= 2) {
                         calEvents[parts[0].trim()] = parts[1].trim();
-                        dLibur.push(parts[0].trim()); // Anggap acara khusus adalah non-efektif (Kecuali jika ingin spesifik, tapi secara umum dicetak di kalender promes)
+                        dLibur.push(parts[0].trim()); 
                     } else if(parts[0].trim()) {
                         calEvents[parts[0].trim()] = "LIBUR"; 
                         dLibur.push(parts[0].trim());
@@ -586,7 +584,6 @@
 
                 let colEv = new Array(30).fill(null);
                 
-                // Petakan event ke minggu di Promes
                 Object.keys(calEvents).forEach(dStr => {
                     let p = dStr.split('-');
                     if(p.length === 3) {
@@ -607,7 +604,7 @@
                 for (let i = 0; i < 6; i++) {
                     let curBln = bAwal + i; let cYr = tAwal;
                     if(s === "Ganjil" && curBln > 11) { cYr++; curBln -= 12; }
-                    if(s === "Genap" && curBln > 11) { cYr++; curBln -= 12; } // Just safe checking
+                    if(s === "Genap" && curBln > 11) { cYr++; curBln -= 12; } 
                     
                     let jHari = new Date(cYr, curBln + 1, 0).getDate();
                     for (let tgl = 1; tgl <= jHari; tgl++) {
@@ -615,8 +612,6 @@
                         if (dt.getDay() === hTarget) {
                             let wIdx = Math.min(Math.ceil(tgl / 7) - 1, 4);
                             let cIdx = i * 5 + wIdx;
-                            
-                            // Jika minggu tersebut tidak ada event libur/ujian, maka dihitung hari aktif KBM
                             if (colEv[cIdx] === null) {
                                 activeDates.push(dt);
                             }
@@ -646,7 +641,7 @@
                     it.d.tps.forEach((tpO, tI) => {
                         aHtml += `<tr>`;
                         if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${i+1}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle"><b>${it.b}</b></td>`;
-                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs text-blue-700">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
+                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
                         if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${tJp} JP</td>`;
                         aHtml += `</tr>`;
 
@@ -669,25 +664,37 @@
                 let nb = s==="Ganjil" ? ["Jul","Ags","Sep","Okt","Nov","Des"] : ["Jan","Feb","Mar","Apr","Mei","Jun"];
                 let th = `<tr><th rowspan="2" width="10%">Bab / Elemen</th><th rowspan="2" width="22%">Tujuan Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
                 nb.forEach(b=> th+=`<th colspan="5">${b}</th>`); th+=`</tr><tr>`; for(let i=0;i<6;i++) th+=`<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; th+=`</tr>`;
-                document.getElementById('out-promes-head').innerHTML = th;
+                
+                let outPromesHead = document.getElementById('out-promes-head');
+                if(outPromesHead) outPromesHead.innerHTML = th;
 
                 let tb = ""; let r = window.promesRows || [];
-                r.forEach((ro, idx) => {
-                    tb+=`<tr>`;
-                    if(ro.rs>0) tb+=`<td rowspan="${ro.rs}" class="bg-slate-50 font-bold text-center align-middle" contenteditable="true">${ro.bab}</td>`;
-                    tb+=`<td contenteditable="true">${ro.tp}</td><td class="text-center font-bold align-middle">${ro.jp}</td>`;
-                    for(let c=0; c<30; c++) {
-                        // RENDER TEKS VERTIKAL DENGAN TINGGI TETAP AGAR PRESISI SAAT DIPRINT
-                        if(colEv[c] && idx===0) tb+=`<td rowspan="${r.length}" class="event-cell border border-slate-400"><div class="vertical-event">${colEv[c].toUpperCase()}</div></td>`;
-                        else if(!colEv[c]) {
-                            let mI=Math.floor(c/5); let wI=(c%5)+1; let tBln = bAwal+mI; if(tBln>11) tBln-=12;
-                            if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle text-lg">${ro.dt.getDate()}</td>`;
-                            else tb+=`<td></td>`;
+                if(r.length>0) {
+                    r.forEach((ro, idx) => {
+                        tb+=`<tr>`;
+                        if(ro.rs>0) tb+=`<td rowspan="${ro.rs}" class="bg-slate-50 font-bold text-center align-middle" contenteditable="true">${ro.bab}</td>`;
+                        tb+=`<td contenteditable="true">${ro.tp}</td><td class="text-center font-bold align-middle">${ro.jp}</td>`;
+                        
+                        for(let c=0; c<30; c++) {
+                            if(colEv[c]) {
+                                if(idx===0) tb+=`<td rowspan="${r.length}" class="event-cell border border-slate-400 align-middle"><div class="vertical-event">${colEv[c].toUpperCase()}</div></td>`;
+                            } else {
+                                let mI=Math.floor(c/5); let wI=(c%5)+1; let tBln = bAwal+mI; if(tBln>11) tBln-=12;
+                                
+                                // PERBAIKAN: Logika pencocokan tanggal dikembalikan agar tidak crash
+                                if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) {
+                                    tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle text-xs" contenteditable="true">${ro.dt.getDate()}</td>`;
+                                } else { 
+                                    tb+=`<td contenteditable="true"></td>`; 
+                                }
+                            }
                         }
-                    }
-                    tb+=`</tr>`;
-                });
-                document.getElementById('out-promes-body').innerHTML = tb;
+                        tb+=`</tr>`;
+                    });
+                } else tb = `<tr><td colspan="33" class="text-center">Kosong</td></tr>`;
+                
+                let outPromesBody = document.getElementById('out-promes-body');
+                if(outPromesBody) outPromesBody.innerHTML = tb;
             },
 
             renderJurnalAbsensiBulan: function(m, k, s, tAwal, liburList) {
@@ -713,7 +720,6 @@
                     let items = dataJurnalPerBulan[key];
                     let currentBab = "";
 
-                    // BUILD JURNAL PAGE
                     jHtml += `<div class="paper-preview landscape mt-5">
                         <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase">JURNAL PELAKSANAAN PEMBELAJARAN<br>BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
                         <table class="doc-table text-sm">
@@ -722,7 +728,7 @@
                     items.forEach(it => {
                         if(it.bab) currentBab = it.bab;
                         let dStr = `${String(it.dt.getDate()).padStart(2,'0')}/${String(mo+1).padStart(2,'0')}/${yr}`;
-                        jHtml += `<tr><td class="text-center font-bold">${dStr}</td><td contenteditable="true" class="text-center">${cVal}</td><td contenteditable="true">${currentBab}</td><td contenteditable="true">${it.tp}</td><td contenteditable="true" class="text-center font-bold text-blue-700">Hadir Semua</td><td contenteditable="true">Kegiatan Berjalan Lancar</td></tr>`;
+                        jHtml += `<tr><td class="text-center font-bold">${dStr}</td><td contenteditable="true" class="text-center">${cVal}</td><td contenteditable="true">${currentBab}</td><td contenteditable="true">${it.tp}</td><td contenteditable="true" class="text-center font-bold text-blue-700">Hadir Semua</td><td contenteditable="true">KBM Berjalan Lancar</td></tr>`;
                     });
                     jHtml += `</tbody></table>
                         <div class="signature-area" contenteditable="true">
@@ -730,7 +736,6 @@
                             <div class="signature-box">${tmpt}, ${tglTtd}<br>Guru Mata Pelajaran<br><div class="signature-name">${document.getElementById('in-guru')?.value||""}</div>NIP. ${document.getElementById('in-nip-guru')?.value||""}</div>
                         </div></div>`;
 
-                    // BUILD ABSENSI PAGE
                     let absTglHead = ""; let absCols = items.length;
                     items.forEach((it, i) => absTglHead += `<th>${it.dt.getDate()}</th>`);
                     
@@ -768,7 +773,8 @@
 
             renderModulDanLainnya: function(m, k, s, bAktif, jp) {
                 let d = this.data[m]?.[k]?.[s]?.[bAktif]; if(!d) return;
-                document.getElementById('out-modul-cp').innerText = d.cp;
+                let cpEl = document.getElementById('out-modul-cp'); if(cpEl) cpEl.innerText = d.cp;
+                
                 let mt="", st="", kt="";
                 d.tps.forEach((t, i) => {
                     mt += `<li><strong>Pertemuan ${i+1}:</strong> ${t.tp}</li>`;
@@ -802,10 +808,11 @@
                     kt += `<tr>`; if(i===0) kt+=`<td rowspan="${d.tps.length}" class="text-center align-middle">${i+1}</td>`;
                     kt += `<td contenteditable="true">${t.tp}</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-hasil">75</td></tr>`;
                 });
-                document.getElementById('out-modul-tp').innerHTML = `<ul>${mt}</ul>`;
-                document.getElementById('out-lkpd-tp').innerHTML = `<ul>${mt}</ul>`;
-                document.getElementById('out-modul-langkah').innerHTML = st;
-                document.getElementById('out-kktp').innerHTML = kt;
+                
+                let tpEl = document.getElementById('out-modul-tp'); if(tpEl) tpEl.innerHTML = `<ul>${mt}</ul>`;
+                let lkpdTpEl = document.getElementById('out-lkpd-tp'); if(lkpdTpEl) lkpdTpEl.innerHTML = `<ul>${mt}</ul>`;
+                let langkahEl = document.getElementById('out-modul-langkah'); if(langkahEl) langkahEl.innerHTML = st;
+                let kktpEl = document.getElementById('out-kktp'); if(kktpEl) kktpEl.innerHTML = kt;
             }
         };
     </script>
