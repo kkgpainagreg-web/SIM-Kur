@@ -9,31 +9,19 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Inter', sans-serif; background-color: #f3f4f6; overflow: hidden; }
         
-        .paper-preview { background: white; margin: 20px auto; padding: 15mm; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); max-width: 297mm; min-height: 210mm; position: relative; }
-        .paper-preview.portrait { max-width: 210mm; min-height: 297mm; }
+        .paper-preview { background: white; margin: 20px auto; padding: 15mm; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); position: relative; }
+        .portrait { width: 210mm; min-height: 297mm; max-width: 100%; }
+        .landscape { width: 297mm; min-height: 210mm; max-width: 100%; }
         
         .doc-table { width: 100%; border-collapse: collapse; font-size: 10pt; margin-bottom: 20px; }
         .doc-table th, .doc-table td { border: 1px solid #1f2937; padding: 6px; text-align: left; vertical-align: top; }
         .doc-table th { background-color: #f1f5f9; font-weight: 600; text-align: center; }
         
-        /* Utility Classes Custom */
         .text-center { text-align: center !important; }
         .align-middle { vertical-align: middle !important; }
         
         /* Vertical Text CSS */
-        .vertical-text { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; }
-        .vertical-event { 
-            writing-mode: vertical-rl; 
-            transform: rotate(180deg); 
-            text-align: center; 
-            vertical-align: middle; 
-            margin: auto; 
-            font-size: 8.5pt; 
-            font-weight: bold;
-            letter-spacing: 2px; 
-            color: #1e293b; 
-            white-space: nowrap; 
-        }
+        .vertical-event { writing-mode: vertical-rl; transform: rotate(180deg); text-align: center; vertical-align: middle; margin: auto; font-size: 8.5pt; font-weight: bold; letter-spacing: 2px; color: #1e293b; white-space: nowrap; }
         
         [contenteditable="true"]:hover { background-color: #fef08a; outline: 1px dashed #eab308; cursor: text; transition: 0.2s; }
         
@@ -45,28 +33,29 @@
         .signature-box { text-align: center; font-size: 11pt; min-width: 250px; }
         .signature-name { text-decoration: underline; font-weight: bold; margin-top: 80px; }
 
-        /* Scrollbar Sidebar */
         .sidebar-scroll::-webkit-scrollbar { width: 5px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
-
         .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px; line-height: 1.4; color: white;}
         .csv-info.error { background-color: #991b1b; }
-
-        /* Modal Custom */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 700px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
+        /* Print Settings untuk memastikan presisi Landscape dan Portrait */
         @media print {
             body { background: white; overflow: visible; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
             #sidebar, #topbar, .no-print, #login-screen { display: none !important; }
             #main-content { margin: 0; padding: 0; width: 100%; overflow: visible; }
-            .paper-preview { margin: 0; padding: 15mm; box-shadow: none; max-width: 100%; page-break-after: always; }
+            .paper-preview { margin: 0; padding: 10mm; box-shadow: none; page-break-after: always; }
             .paper-preview:last-child { page-break-after: auto; }
             [contenteditable="true"]:hover { background-color: transparent; outline: none; }
             .kktp-val { background-color: transparent !important; color: black; }
             .kktp-hasil { background-color: #e0f2fe !important; }
-            @page { size: A4 portrait; }
-            .landscape { @page { size: A4 landscape; } }
+            
+            @page { size: A4 portrait; margin: 10mm; }
+            @page landscape_page { size: A4 landscape; margin: 10mm; }
+            
+            .portrait { width: 100% !important; max-width: 210mm; }
+            .landscape { page: landscape_page; width: 100% !important; max-width: 297mm; }
         }
     </style>
 </head>
@@ -82,28 +71,12 @@
         </div>
     </div>
 
-    <div id="modal-panduan" class="modal-overlay">
-        <div class="modal-content relative">
-            <button onclick="document.getElementById('modal-panduan').style.display='none'" class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600">X Tutup</button>
-            <h2 class="text-xl font-bold text-blue-600 mb-4">📖 Panduan Penggunaan Rinci</h2>
-            
-            <h3 class="font-bold mt-4">1. Format CSV (8 Kolom)</h3>
-            <p class="text-sm text-slate-600 mb-2">Pastikan file Google Sheets/Excel Anda memuat 8 kolom berurutan: <b>Mapel, Fase, Kelas, Semester, Bab, CP, TP, Profil Lulusan</b>.</p>
-            
-            <h3 class="font-bold mt-4">2. Cara Menambah Banyak Mapel Sekaligus</h3>
-            <p class="text-sm text-slate-600 mb-2">Anda TIDAK PERLU membuat link CSV berbeda untuk tiap Mapel. Cukup gunakan 1 file Excel, tambahkan baris ke bawah, dan ketikkan nama Mapel yang berbeda di Kolom A (Mata Pelajaran). Aplikasi akan otomatis membaca dan membuat Dropdown Pilihan Mapel berdasarkan isi Kolom A tersebut.</p>
-
-            <h3 class="font-bold mt-4">3. Sistem Absensi Cerdas (H, S, I, A)</h3>
-            <p class="text-sm text-slate-600 mb-2">Pada tab "Absensi", jangan mengetik manual! Cukup <b>KLIK</b> pada sel/kotak kehadiran untuk mengubah status siswa secara otomatis dari Hadir (Biru) -> Sakit (Kuning) -> Izin (Ungu) -> Alpa (Merah).</p>
-        </div>
-    </div>
-
     <div id="modal-siswa" class="modal-overlay">
         <div class="modal-content relative">
             <button onclick="document.getElementById('modal-siswa').style.display='none'" class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600">X Tutup</button>
             <h2 class="text-xl font-bold text-emerald-600 mb-2">📋 Input Data Siswa Cepat</h2>
-            <p class="text-sm text-slate-600 mb-4">Paste (Tempel) daftar nama siswa Anda dari Microsoft Excel atau Notepad ke dalam kotak di bawah ini. Pastikan <b>1 baris = 1 nama siswa</b>.</p>
-            <textarea id="in-data-siswa" rows="10" class="w-full border border-slate-300 rounded p-3 text-sm focus:border-emerald-500 outline-none" placeholder="1. Ahmad Fulan&#10;2. Siti Fulanah&#10;3. Budi Santoso"></textarea>
+            <p class="text-sm text-slate-600 mb-4">Paste (Tempel) daftar nama siswa Anda dari Excel atau Notepad ke dalam kotak di bawah ini. <b>1 baris = 1 nama siswa</b>.</p>
+            <textarea id="in-data-siswa" rows="10" class="w-full border border-slate-300 rounded p-3 text-sm focus:border-emerald-500 outline-none" placeholder="1. Ahmad Fulan&#10;2. Siti Fulanah"></textarea>
             <button onclick="Engine.saveStudents()" class="w-full mt-4 bg-emerald-600 hover:bg-emerald-700 text-white font-bold py-3 rounded-lg shadow transition">Simpan Data Siswa</button>
         </div>
     </div>
@@ -111,39 +84,33 @@
     <aside id="sidebar" class="w-[340px] min-w-[340px] bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-700 hidden no-print">
         <div class="p-5 border-b border-slate-700">
             <h2 class="text-xl font-bold text-white">Super App</h2>
-            <div class="flex items-center justify-between mt-2">
-                <div>
-                    <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400">PRO</span>
-                    <span class="text-xs truncate ml-1">guru@sekolah.id</span>
-                </div>
-                <button onclick="document.getElementById('modal-panduan').style.display='flex'" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded transition">Panduan</button>
-            </div>
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 space-y-5 sidebar-scroll text-sm">
-            
             <button onclick="document.getElementById('modal-siswa').style.display='flex'" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg shadow transition flex items-center justify-center gap-2">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 Input Data Siswa (Absen/Nilai)
             </button>
 
+            <div>
+                <label class="text-[10px] text-amber-500 uppercase font-bold">Tipe Guru</label>
+                <select id="in-tipe-guru" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-amber-500 outline-none text-white font-bold cursor-pointer">
+                    <option value="kelas">Guru Kelas</option>
+                    <option value="mapel">Guru Mata Pelajaran</option>
+                </select>
+            </div>
+
             <div class="border border-dashed border-amber-500 p-3 rounded-lg bg-amber-500/5">
-                <h3 class="text-xs font-bold text-amber-500 mb-2">1. DATABASE KURIKULUM (CP/TP)</h3>
-                
+                <h3 class="text-xs font-bold text-amber-500 mb-2">1. DATABASE KURIKULUM</h3>
                 <select id="in-jenjang" onchange="Engine.fetchGlobalCSV()" class="w-full bg-slate-950 border border-slate-600 rounded p-2 text-sm focus:border-amber-500 outline-none text-white font-bold cursor-pointer mb-2">
                     <option value="SD">SD / MI</option>
                     <option value="SMP">SMP / MTs</option>
                     <option value="SMA">SMA / SMK / MA</option>
                 </select>
-
                 <div class="flex flex-col gap-2">
-                    <button onclick="Engine.fetchGlobalCSV()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">A. Sinkronisasi Cloud (Otomatis)</button>
-                    
+                    <button onclick="Engine.fetchGlobalCSV()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">A. Sinkronisasi Cloud</button>
                     <div class="relative w-full">
-                        <input type="file" id="file-csv" accept=".csv" onchange="Engine.uploadCSV(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">
-                            B. Upload File CSV Manual 📁
-                        </button>
+                        <input type="file" accept=".csv" onchange="Engine.uploadCSV(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
+                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">B. Upload File CSV Manual</button>
                     </div>
                 </div>
                 <div id="csvStatus" class="csv-info"></div>
@@ -152,34 +119,12 @@
             <div>
                 <h3 class="text-xs font-bold text-slate-400 mb-2">2. PILIH MAPEL & KELAS</h3>
                 <div class="space-y-2">
-                    <div>
-                        <label class="text-[10px] text-slate-500 uppercase font-bold">Mata Pelajaran</label>
-                        <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer">
-                            <option value="">-- Load Kurikulum Dulu --</option>
-                        </select>
-                    </div>
-                    
+                    <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer"><option value="">-- Load Kurikulum --</option></select>
                     <div class="grid grid-cols-2 gap-2">
-                        <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Kelas</label>
-                            <select id="in-kelas" onchange="Engine.updateSemesterList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer">
-                                <option value="">-</option>
-                            </select>
-                        </div>
-                        <div>
-                            <label class="text-[10px] text-slate-500 uppercase font-bold">Semester</label>
-                            <select id="in-semester" onchange="Engine.updateBabList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer">
-                                <option value="">-</option>
-                            </select>
-                        </div>
+                        <select id="in-kelas" onchange="Engine.updateSemesterList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
+                        <select id="in-semester" onchange="Engine.updateBabList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
                     </div>
-                    
-                    <div>
-                        <label class="text-[10px] text-slate-500 uppercase font-bold">Bab / Elemen (U/ Modul)</label>
-                        <select id="in-elemen" onchange="Engine.syncAll()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer">
-                            <option value="">-</option>
-                        </select>
-                    </div>
+                    <select id="in-elemen" onchange="Engine.syncAll()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none cursor-pointer"><option value="">-</option></select>
                 </div>
             </div>
 
@@ -192,10 +137,10 @@
                     <input type="text" id="in-guru" placeholder="Nama Guru" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Siti Aminah, S.Pd.">
                     <input type="text" id="in-nip-guru" placeholder="NIP Guru" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="19900202 201502 2 002">
                     <div class="grid grid-cols-2 gap-2">
-                        <input type="text" id="in-rombel" placeholder="Rombel (A)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="A">
-                        <input type="number" id="in-tahun" placeholder="Tahun Awal (2024)" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="2025">
+                        <input type="text" id="in-rombel" placeholder="Rombel" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="A">
+                        <input type="number" id="in-tahun" placeholder="Tahun Awal" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="2025">
                     </div>
-                    <input type="text" id="in-tempat-tgl" placeholder="Tgl Pengesahan" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Nagreg, 15 Juli 2025">
+                    <input type="text" id="in-tempat-tgl" placeholder="Tempat Tanda Tangan" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none" value="Nagreg">
                 </div>
             </div>
 
@@ -211,28 +156,24 @@
                             </select>
                         </div>
                         <div>
-                            <label class="text-[10px] text-slate-500 uppercase">JP per Pertemuan</label>
+                            <label class="text-[10px] text-slate-500 uppercase">JP / Pertemuan</label>
                             <input type="number" id="in-jp" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none text-center" value="4">
                         </div>
                     </div>
                     <div>
-                        <label class="text-[10px] text-slate-500 uppercase">Libur Khusus (YYYY-MM-DD)</label>
-                        <textarea id="in-libur" rows="2" placeholder="Cth: 2025-03-01, 2025-04-10" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none"></textarea>
+                        <label class="text-[10px] text-slate-500 uppercase">Libur (YYYY-MM-DD)</label>
+                        <textarea id="in-libur" rows="2" placeholder="2025-03-01, 2025-04-10" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none"></textarea>
                     </div>
                 </div>
             </div>
-
         </div>
         
         <div class="p-4 border-t border-slate-700">
-            <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform active:scale-95">
-                🚀 RENDER DOKUMEN
-            </button>
+            <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition">🚀 RENDER DOKUMEN</button>
         </div>
     </aside>
 
     <main class="flex-1 flex flex-col hidden" id="main-wrapper">
-        
         <header id="topbar" class="h-16 bg-white border-b border-slate-200 flex items-center justify-between px-6 no-print">
             <div class="flex space-x-1 overflow-x-auto">
                 <button onclick="UI.switchTab('atp')" class="nav-tab px-4 py-2 text-sm font-medium text-blue-600 border-b-2 border-blue-600">ATP & Prota</button>
@@ -242,13 +183,10 @@
                 <button onclick="UI.switchTab('absensi')" class="nav-tab px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700">Absensi</button>
                 <button onclick="UI.switchTab('kktp')" class="nav-tab px-4 py-2 text-sm font-medium text-slate-500 hover:text-slate-700">KKTP & Nilai</button>
             </div>
-            <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-slate-700 shadow flex items-center gap-2 transition">
-                🖨️ Cetak PDF
-            </button>
+            <button onclick="window.print()" class="bg-slate-800 text-white px-5 py-2 rounded-md text-sm font-semibold hover:bg-slate-700 shadow flex items-center gap-2 transition">🖨️ Cetak PDF</button>
         </header>
 
         <div id="main-content" class="flex-1 overflow-y-auto p-8">
-            
             <div id="view-atp" class="view-section block">
                 <div class="no-print mb-4 flex justify-end gap-2">
                     <select id="in-atp-mode" onchange="Engine.syncAll()" class="p-2 border border-slate-300 rounded text-sm outline-none bg-white font-bold text-blue-700 shadow-sm cursor-pointer">
@@ -256,9 +194,8 @@
                         <option value="tahun">Cetak 1 Tahun Penuh (Ganjil & Genap)</option>
                     </select>
                 </div>
-                
-                <div class="paper-preview landscape max-w-full">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">ALUR TUJUAN PEMBELAJARAN (ATP)<br>TAHUN PELAJARAN <span class="v-thn"></span></h1>
+                <div class="paper-preview landscape">
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">ALUR TUJUAN PEMBELAJARAN (ATP)<br>TAHUN PELAJARAN <span class="v-thn"></span></h1>
                     <div style="display: flex; justify-content: space-between; margin-bottom: 15px; font-weight: bold; font-size: 11pt;" contenteditable="true">
                         <table style="text-align: left; line-height: 1.5;">
                             <tr><td width="160">NAMA SEKOLAH</td><td>: <span class="v-sekolah"></span></td></tr>
@@ -271,48 +208,36 @@
                         </table>
                     </div>
                     <table class="doc-table">
-                        <thead>
-                            <tr>
-                                <th width="3%">NO</th>
-                                <th width="18%">ELEMEN DAN CAPAIAN PEMBELAJARAN (CP)</th>
-                                <th width="20%">TUJUAN PEMBELAJARAN (TP)</th>
-                                <th width="15%">DIMENSI PROFIL LULUSAN</th>
-                                <th width="10%">KOMPETENSI</th>
-                                <th width="8%">WAKTU</th>
-                            </tr>
-                        </thead>
-                        <tbody id="out-atp"><tr><td colspan="6" class="text-center italic text-slate-400">Silakan muat data dan klik tombol Generate...</td></tr></tbody>
+                        <thead><tr><th width="3%">NO</th><th width="18%">ELEMEN / CP</th><th width="20%">TUJUAN PEMBELAJARAN (TP)</th><th width="15%">PROFIL PANCASILA</th><th width="10%">KOMPETENSI</th><th width="8%">WAKTU</th></tr></thead>
+                        <tbody id="out-atp"></tbody>
                     </table>
-
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
 
                 <div class="paper-preview portrait mt-10">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br><span class="v-mapel uppercase"></span></h1>
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM TAHUNAN (PROTA)<br><span class="v-mapel uppercase"></span></h1>
                     <table class="identity-table" contenteditable="true">
                         <tr><td width="150">Satuan Pendidikan</td><td>: <span class="v-sekolah"></span></td></tr>
                         <tr><td>Fase / Kelas</td><td>: <span class="v-fase"></span> / <span class="v-kls"></span></td></tr>
                         <tr><td>Tahun Pelajaran</td><td>: <span class="v-thn"></span></td></tr>
                     </table>
                     <table class="doc-table">
-                        <thead>
-                            <tr><th width="10%">Smt</th><th width="25%">Elemen/Bab</th><th width="55%">Tujuan Pembelajaran</th><th width="10%">JP</th></tr>
-                        </thead>
+                        <thead><tr><th width="10%">Smt</th><th width="25%">Elemen/Bab</th><th width="55%">Tujuan Pembelajaran</th><th width="10%">JP</th></tr></thead>
                         <tbody id="out-prota"></tbody>
                     </table>
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-promes" class="view-section hidden">
-                <div class="paper-preview landscape max-w-full">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="v-smt uppercase"></span></h1>
+                <div class="paper-preview landscape">
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">PROGRAM SEMESTER (PROSEM)<br>SEMESTER <span class="v-smt uppercase"></span></h1>
                     <table class="identity-table w-1/2" contenteditable="true">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel text-blue-700"></span></td></tr>
                         <tr><td>Kelas/Rombel</td><td>: <span class="v-kls"></span> / <span class="v-rombel"></span></td></tr>
@@ -323,21 +248,14 @@
                     </table>
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-modul" class="view-section hidden relative">
-                <div class="no-print mb-4 bg-white p-3 rounded shadow flex items-center gap-4 border border-slate-200">
-                    <label class="flex items-center gap-2 text-sm font-semibold cursor-pointer text-blue-600">
-                        <input type="checkbox" checked onchange="document.getElementById('wrapper-lkpd').classList.toggle('hidden')"> Tampilkan Form LKPD
-                    </label>
-                </div>
-
                 <div class="paper-preview portrait">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">MODUL AJAR KURIKULUM MERDEKA</h1>
-                    
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">MODUL AJAR KURIKULUM MERDEKA</h1>
                     <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">A. IDENTITAS UMUM</div>
                     <table class="identity-table" contenteditable="true">
                         <tr><td width="150">Nama Penyusun</td><td>: <span class="v-guru"></span> (<span class="v-sekolah"></span>)</td></tr>
@@ -346,157 +264,29 @@
                         <tr><td>Topik Materi</td><td>: <span class="text-blue-600 font-bold v-bab-aktif"></span></td></tr>
                         <tr><td>Alokasi Waktu</td><td>: <span class="v-jp-bab"></span> JP</td></tr>
                     </table>
-                    
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">B. PROFIL LULUSAN & KESIAPAN</div>
+                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">B. CAPAIAN & TUJUAN</div>
                     <div class="pl-4 mb-3" contenteditable="true">
-                        <p class="font-semibold text-slate-700">1. Dimensi Profil Lulusan:</p>
-                        <div id="out-modul-p3" class="mb-2"></div>
-                        <p class="font-semibold text-slate-700 mt-2">2. Identifikasi Kesiapan Peserta Didik:</p>
-                        <ul class="list-disc pl-5">
-                            <li><strong>Pengetahuan Awal:</strong> Peserta didik telah memiliki pemahaman dasar atau pengalaman nyata terkait materi <em><span class="v-bab-aktif"></span></em>.</li>
-                            <li><strong>Kebutuhan Belajar:</strong> Membutuhkan pendekatan diferensiasi dan visualisasi materi untuk keragaman gaya belajar siswa.</li>
-                        </ul>
+                        <p id="out-modul-cp" class="mb-3 bg-blue-50 p-2 rounded border border-blue-100 text-sm text-justify"></p>
+                        <div id="out-modul-tp" class="text-sm"></div>
                     </div>
-
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">C. CAPAIAN & TUJUAN PEMBELAJARAN</div>
-                    <div class="pl-4 mb-3 text-justify" contenteditable="true">
-                        <p class="font-semibold italic text-slate-600 mb-2">Capaian Pembelajaran (CP):</p>
-                        <p id="out-modul-cp" class="mb-3 bg-blue-50 p-2 rounded border border-blue-100"></p>
-                        <p class="font-semibold italic text-slate-600">Tujuan Pembelajaran (TP):</p>
-                        <div id="out-modul-tp"></div>
-                    </div>
-
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">D. RINGKASAN MATERI</div>
-                    <div class="pl-4 mb-3 text-justify" contenteditable="true">
-                        <p class="italic text-slate-500 mb-2">[Hapus teks ini dan ketik/paste ringkasan materi untuk Bab ini.]</p>
-                        <p>Materi pokok pada bab ini mencakup pengertian, konsep dasar, dan implementasi dari <strong><span class="v-bab-aktif"></span></strong> dalam kehidupan sehari-hari maupun dalam lingkup akademis.</p>
-                    </div>
-
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">E. LANGKAH-LANGKAH OPERASIONAL (KBM)</div>
-                    <div class="pl-4 mb-3" contenteditable="true" id="out-modul-langkah"></div>
-
-                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">F. ASESMEN & PENILAIAN</div>
-                    <div class="pl-4 mb-3" contenteditable="true">
-                        <ul class="list-disc pl-5">
-                            <li><strong>Diagnostik:</strong> Tanya jawab pemantik di awal pertemuan.</li>
-                            <li><strong>Formatif:</strong> Observasi keterlibatan dan hasil pengerjaan LKPD.</li>
-                            <li><strong>Sumatif:</strong> Tes tertulis/lisan di akhir bab.</li>
-                        </ul>
-                    </div>
-                    
-                    <div class="signature-area" contenteditable="true">
+                    <div class="font-bold text-[11pt] bg-slate-100 p-1 border-l-4 border-blue-600 mt-4 mb-2">C. LANGKAH-LANGKAH OPERASIONAL</div>
+                    <div class="pl-4 mb-3 text-sm" contenteditable="true" id="out-modul-langkah"></div>
+                    <div class="signature-area mt-8" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
-                    </div>
-                </div>
-
-                <div id="wrapper-lkpd" class="paper-preview portrait mt-10">
-                    <div class="border-2 border-dashed border-blue-600 p-6 rounded-xl bg-slate-50 h-full">
-                        <h1 class="header-title text-center text-[16pt] font-bold text-blue-800 mb-4 uppercase" contenteditable="true">LEMBAR KERJA PESERTA DIDIK (LKPD)</h1>
-                        <div class="flex justify-between border-b border-black pb-2 mb-4 font-bold" contenteditable="true">
-                            <span>Nama Kelompok : .......................</span>
-                            <span>Kelas: <span class="v-kls"></span>/<span class="v-rombel"></span></span>
-                            <span>Nilai : .....</span>
-                        </div>
-                        <p class="font-bold text-blue-700">Mata Pelajaran: <span class="v-mapel"></span></p>
-                        <p class="font-bold text-blue-700 mb-4">Materi Topik: <span class="v-bab-aktif"></span></p>
-                        
-                        <div class="content-body" contenteditable="true">
-                            <p style="font-weight:bold; color:#1e40af; font-size:11pt;">A. Tujuan Kegiatan Hari Ini:</p>
-                            <ul id="out-lkpd-tp" class="mb-4 bg-white p-2 border border-slate-200 rounded list-disc pl-5"></ul>
-                            
-                            <p style="font-weight:bold; color:#1e40af; font-size:11pt;">B. Alat dan Bahan:</p>
-                            <ul class="list-disc pl-5 mb-4 text-sm">
-                                <li>Alat tulis (Buku, Pensil/Pulpen)</li>
-                                <li>Buku Paket Referensi Utama</li>
-                            </ul>
-
-                            <p style="font-weight:bold; color:#1e40af; font-size:11pt;">C. Petunjuk Pengerjaan:</p>
-                            <ol class="list-decimal pl-5 mb-6 text-sm">
-                                <li>Berdoalah terlebih dahulu sebelum memulai aktivitas.</li>
-                                <li>Diskusikan instruksi/pertanyaan di bawah ini secara seksama bersama teman sekelompokmu.</li>
-                                <li>Tuliskan hasil diskusi pada kolom yang telah disediakan dengan rapi dan jelas.</li>
-                                <li>Presentasikan hasil kerja kalian di depan kelas!</li>
-                            </ol>
-
-                            <p style="font-weight:bold; color:#1e40af; font-size:11pt; border-bottom:2px solid #ccc; padding-bottom:5px;">D. Kolom Pengerjaan / Tantangan:</p>
-                            
-                            <div class="space-y-6 mt-4">
-                                <div>
-                                    <p class="font-bold text-sm mb-1">1. Tuliskan pemahaman utamamu mengenai materi ini secara detail menggunakan bahasamu sendiri!</p>
-                                    <div class="border border-slate-400 bg-white p-4 rounded-lg min-h-[120px]"></div>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-sm mb-1">2. Berikan contoh nyata penerapan materi ini di lingkungan sekolah atau tempat tinggalmu!</p>
-                                    <div class="border border-slate-400 bg-white p-4 rounded-lg min-h-[120px]"></div>
-                                </div>
-                                <div>
-                                    <p class="font-bold text-sm mb-1">3. Tuliskan kesimpulan atau hikmah positif apa yang bisa dipetik dari pelajaran hari ini!</p>
-                                    <div class="border border-slate-400 bg-white p-4 rounded-lg min-h-[120px]"></div>
-                                </div>
-                            </div>
-
-                            <div class="text-right mt-8 font-bold text-emerald-600 text-lg italic">
-                                "Semangat Belajar, Kesuksesan Menanti!" 🌟
-                            </div>
-                        </div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
             </div>
 
             <div id="view-jurnal" class="view-section hidden relative">
-                <div class="paper-preview landscape max-w-full">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">JURNAL PELAKSANAAN PEMBELAJARAN</h1>
-                    <table class="identity-table w-1/2" contenteditable="true">
-                        <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
-                        <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
-                    </table>
-                    <table class="doc-table text-sm">
-                        <thead>
-                            <tr><th width="8%">Hari/Tanggal</th><th width="15%">Materi/Bab</th><th width="40%">Tujuan Pembelajaran (TP)</th><th width="12%">Kehadiran</th><th width="15%">Keterangan</th></tr>
-                        </thead>
-                        <tbody id="out-jurnal"></tbody>
-                    </table>
-                    <div class="signature-area" contenteditable="true">
-                        <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
-                    </div>
-                </div>
-            </div>
+                <div id="jurnal-container"></div> </div>
 
             <div id="view-absensi" class="view-section hidden relative">
-                <div class="paper-preview portrait max-w-[210mm]">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">DAFTAR HADIR (PRESENSI) SISWA</h1>
-                    <table class="identity-table mb-4" contenteditable="true">
-                        <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td><td width="100">Kelas/Rombel</td><td>: <span class="v-kls"></span> / <span class="v-rombel"></span></td></tr>
-                        <tr><td>Semester</td><td>: <span class="v-smt"></span></td><td>Bulan</td><td>: ........................</td></tr>
-                    </table>
-                    <table class="doc-table text-center text-[9pt]">
-                        <thead>
-                            <tr>
-                                <th rowspan="2" width="5%">No</th>
-                                <th rowspan="2" width="25%" class="text-left">Nama Siswa</th>
-                                <th colspan="16">Pertemuan Ke- / Tanggal</th>
-                            </tr>
-                            <tr>
-                                <th>1</th><th>2</th><th>3</th><th>4</th><th>5</th><th>6</th><th>7</th><th>8</th><th>9</th><th>10</th><th>11</th><th>12</th><th>13</th><th>14</th><th>15</th><th>16</th>
-                            </tr>
-                        </thead>
-                        <tbody id="out-absensi">
-                            </tbody>
-                    </table>
-                    <p class="text-[10px] italic text-slate-500 mt-2">*KLIK PADA HURUF untuk mengubah kehadiran: <span class="font-bold text-blue-600">H (Hadir)</span> &rarr; <span class="font-bold text-amber-500">S (Sakit)</span> &rarr; <span class="font-bold text-purple-500">I (Izin)</span> &rarr; <span class="font-bold text-red-600">A (Alpa)</span>.</p>
-                    
-                    <div class="signature-area" contenteditable="true">
-                        <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
-                    </div>
-                </div>
-            </div>
+                <div id="absensi-container"></div> </div>
 
             <div id="view-kktp" class="view-section hidden relative">
                 <div class="paper-preview portrait">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)</h1>
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN (KKTP)</h1>
                     <table class="identity-table mb-4" contenteditable="true">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
@@ -511,16 +301,14 @@
                         </thead>
                         <tbody id="out-kktp"></tbody>
                     </table>
-                    <p class="text-xs italic text-slate-500 mt-2">*Nilai KKTP akhir otomatis menghitung rata-rata dari 3 kriteria.</p>
-
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
                 
-                <div class="paper-preview landscape max-w-full mt-10">
-                    <h1 class="header-title text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">DAFTAR NILAI SUMATIF & FORMATIF</h1>
+                <div class="paper-preview landscape mt-10">
+                    <h1 class="text-center text-[13pt] font-bold mb-4 uppercase" contenteditable="true">DAFTAR NILAI SUMATIF & FORMATIF</h1>
                     <table class="identity-table w-1/3 mb-4" contenteditable="true">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
@@ -533,13 +321,11 @@
                             </tr>
                             <tr><th>S1</th><th>S2</th><th>S3</th><th>S4</th><th>Rata2</th></tr>
                         </thead>
-                        <tbody id="out-nilai">
-                            </tbody>
+                        <tbody id="out-nilai"></tbody>
                     </table>
-
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
-                        <div class="signature-box"><span class="v-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
+                        <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
                     </div>
                 </div>
             </div>
@@ -548,29 +334,20 @@
     </main>
 
     <script>
-        // Data Base Link CP Permanent sesuai Jenjang
         const CP_LINKS = {
             "SD": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?gid=1925091593&single=true&output=csv",
             "SMP": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?gid=1962203786&single=true&output=csv",
             "SMA": "https://docs.google.com/spreadsheets/d/e/2PACX-1vQMR0Vbb2xSEbDOQ708qzRPyGG9I0Vp7RijYHp0NTpjUL7w08EMrVwYy9euEyvyq1Y_XaJBcB668dVi/pub?gid=260922290&single=true&output=csv"
         };
+        const BULAN_IND = ["Januari","Februari","Maret","April","Mei","Juni","Juli","Agustus","September","Oktober","November","Desember"];
 
-        // SAFETY WRAPPER (Mencegah AddEventListener Null error)
         document.addEventListener("DOMContentLoaded", () => {
-            
-            // Bypass Login
-            const btnLogin = document.getElementById('btn-login');
-            if(btnLogin) {
-                btnLogin.addEventListener('click', () => {
+            if(document.getElementById('btn-login')) {
+                document.getElementById('btn-login').addEventListener('click', () => {
                     document.getElementById('login-screen').style.display = 'none';
                     document.getElementById('main-wrapper').classList.remove('hidden');
                     document.getElementById('sidebar').classList.remove('hidden');
-                    
-                    let savedJenjang = localStorage.getItem('sa_jenjang') || "SD";
-                    document.getElementById('in-jenjang').value = savedJenjang;
-                    
-                    window.Engine.fetchGlobalCSV();
-                    window.Engine.loadStudents();
+                    window.Engine.fetchGlobalCSV(); window.Engine.loadStudents();
                 });
             }
         });
@@ -589,556 +366,296 @@
         };
 
         window.Engine = {
-            data: {}, 
-            students: [],
-
-            // MENYIMPAN DAN MEMUAT DATA SISWA
+            data: {}, students: [],
             saveStudents: function() {
-                let raw = document.getElementById('in-data-siswa').value;
-                let list = raw.split('\n').map(s => {
-                    let clean = s.replace(/^[0-9]+[\.\)\-]\s*/, '').trim();
-                    return clean.split(/[\t;]/)[0].trim();
-                }).filter(s => s.length > 0);
-                
+                let list = document.getElementById('in-data-siswa').value.split('\n').map(s => s.replace(/^[0-9]+[\.\)\-]\s*/, '').split(/[\t;]/)[0].trim()).filter(s => s.length > 0);
                 if(list.length > 0) {
-                    this.students = list;
-                    localStorage.setItem('sa_students', JSON.stringify(list));
+                    this.students = list; localStorage.setItem('sa_students', JSON.stringify(list));
                     alert("✅ Berhasil menyimpan " + list.length + " data siswa!");
-                    document.getElementById('modal-siswa').style.display = 'none';
-                    this.syncAll();
-                } else {
-                    alert("Daftar siswa kosong!");
+                    document.getElementById('modal-siswa').style.display = 'none'; this.syncAll();
                 }
             },
-
             loadStudents: function() {
                 let saved = localStorage.getItem('sa_students');
-                if(saved) {
-                    this.students = JSON.parse(saved);
-                    document.getElementById('in-data-siswa').value = this.students.join('\n');
-                } else {
-                    this.students = ["Ahmad Fulan", "Siti Fulanah", "Budi Santoso", "Dewi Lestari", "Eko Prasetyo"];
-                }
+                if(saved) { this.students = JSON.parse(saved); document.getElementById('in-data-siswa').value = this.students.join('\n'); } 
+                else { this.students = ["Ahmad Fulan", "Siti Fulanah", "Budi Santoso"]; }
             },
-
             toggleAbsen: function(el) {
-                const states = {
-                    'H': { text: 'S', cls: 'cursor-pointer text-center font-bold text-amber-500 w-full h-full block' },
-                    'S': { text: 'I', cls: 'cursor-pointer text-center font-bold text-purple-500 w-full h-full block' },
-                    'I': { text: 'A', cls: 'cursor-pointer text-center font-bold text-red-600 w-full h-full block' },
-                    'A': { text: 'H', cls: 'cursor-pointer text-center font-bold text-blue-600 w-full h-full block' }
-                };
-                let current = el.innerText.trim();
-                let next = states[current] || states['A']; 
-                el.innerText = next.text;
-                el.className = next.cls;
+                const s = {'H':{t:'S',c:'text-amber-500'},'S':{t:'I',c:'text-purple-500'},'I':{t:'A',c:'text-red-600'},'A':{t:'H',c:'text-blue-600'}};
+                let curr = el.innerText.trim(); let n = s[curr] || s['A']; 
+                el.innerText = n.t; el.className = `cursor-pointer text-center font-bold w-full h-full block ${n.c}`;
             },
-
-            // --- FITUR BARU: BACA FILE CSV LOKAL ---
             uploadCSV: function(inputElement) {
-                let file = inputElement.files[0];
-                if (!file) return;
-
-                let statusEl = document.getElementById('csvStatus');
-                if (statusEl) {
-                    statusEl.style.display = 'block';
-                    statusEl.className = 'csv-info';
-                    statusEl.innerHTML = `⏳ Membaca file ${file.name}...`;
-                }
-
-                let reader = new FileReader();
-                reader.onload = function(e) {
-                    let csvText = e.target.result;
-                    inputElement.value = ''; 
-                    window.Engine.parseCSV(csvText);
-                };
-                reader.onerror = function() {
-                    if (statusEl) {
-                        statusEl.className = 'csv-info error';
-                        statusEl.innerHTML = "❌ Gagal membaca file lokal.";
-                    }
-                };
-                reader.readAsText(file);
+                let file = inputElement.files[0]; if (!file) return;
+                let r = new FileReader(); r.onload = e => { window.Engine.parseCSV(e.target.result); inputElement.value=''; }; r.readAsText(file);
             },
-
             fetchGlobalCSV: async function() {
                 let jenjang = document.getElementById('in-jenjang')?.value || "SD";
-                let url = CP_LINKS[jenjang];
-                
-                localStorage.setItem('sa_jenjang', jenjang);
-                let statusEl = document.getElementById('csvStatus');
-                if(statusEl) {
-                    statusEl.style.display = 'block';
-                    statusEl.className = 'csv-info';
-                    statusEl.innerHTML = `⏳ Mengunduh data Kurikulum ${jenjang}...`;
-                }
-                
+                let url = CP_LINKS[jenjang]; localStorage.setItem('sa_jenjang', jenjang);
                 try {
-                    let csvText = "";
-                    try {
-                        const res1 = await fetch(url);
-                        if (!res1.ok) throw new Error("Direct fetch failed");
-                        csvText = await res1.text();
-                    } catch (e1) {
-                        try {
-                            const proxyUrl1 = "https://api.codetabs.com/v1/proxy?quest=" + encodeURIComponent(url);
-                            const res2 = await fetch(proxyUrl1);
-                            if (!res2.ok) throw new Error("Proxy 1 failed");
-                            csvText = await res2.text();
-                        } catch (e2) {
-                            const proxyUrl2 = "https://api.allorigins.win/get?url=" + encodeURIComponent(url);
-                            const res3 = await fetch(proxyUrl2);
-                            if (!res3.ok) throw new Error("Semua jalur terblokir.");
-                            const data = await res3.json();
-                            if (!data.contents) throw new Error("Data Kosong");
-                            csvText = data.contents;
-                        }
-                    }
-                    this.parseCSV(csvText);
-                } catch(err) {
-                    if(statusEl) {
-                        statusEl.className = 'csv-info error';
-                        statusEl.innerHTML = "❌ Gagal mengunduh! Silakan gunakan fitur Upload Manual CSV.";
-                    }
+                    let res = await fetch(url); if(!res.ok) throw new Error("");
+                    this.parseCSV(await res.text());
+                } catch(e) {
+                    try { let r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url)); let d = await r.json(); this.parseCSV(d.contents); } 
+                    catch(err) { alert("Gagal unduh database. Upload manual."); }
                 }
             },
-
             parseCSV: function(csvText) {
-                const lines = csvText.split('\n');
-                this.data = {};
-                let count = 0;
-
+                const lines = csvText.split('\n'); this.data = {};
                 for(let i=1; i<lines.length; i++) { 
-                    let row = lines[i].trim();
-                    if(!row) continue;
-                    
-                    let separator = row.includes(';') ? ';' : ',';
-                    let cols = []; let match;
-                    const regex = new RegExp(`(\"([^\"]*)\"|[^\"${separator}]+)(?=${separator}|$)`, 'g');
+                    let row = lines[i].trim(); if(!row) continue;
+                    let cols = []; let match; const regex = new RegExp(`(\"([^\"]*)\"|[^\"\,]+)(?=\,|$)`, 'g');
                     while(match = regex.exec(row)) cols.push(match[2] ? match[2] : match[1]);
-
                     if(cols.length < 5) continue;
-
-                    let mapel  = cols[0] ? cols[0].trim() : "Mata Pelajaran";
-                    let fase   = cols[1] ? cols[1].trim() : "";
-                    let kls    = cols[2] ? cols[2].trim() : "";
-                    let smt    = cols[3] ? cols[3].trim() : "";
-                    let elemen = cols[4] ? cols[4].trim() : "";
-                    
-                    let cpText = cols.length >= 8 ? cols[5].trim() : "Capaian Pembelajaran...";
-                    let tpText = cols.length >= 8 ? cols[6].trim() : (cols[5]||"TP...");
-                    let p3Text = cols.length >= 8 ? cols[7].trim() : "Beriman Bertakwa, Mandiri";
-
-                    if(!this.data[mapel]) this.data[mapel] = {};
-                    if(!this.data[mapel][kls]) this.data[mapel][kls] = {};
-                    if(!this.data[mapel][kls][smt]) this.data[mapel][kls][smt] = {};
-                    if(!this.data[mapel][kls][smt][elemen]) this.data[mapel][kls][smt][elemen] = { cp: cpText, tps: [] };
-                    
-                    this.data[mapel][kls][smt][elemen].tps.push({ tp: tpText, p3: p3Text });
-                    count++;
+                    let m=cols[0]||"", f=cols[1]||"", k=cols[2]||"", s=cols[3]||"", el=cols[4]||"", cp=cols[5]||"", tp=cols[6]||cols[5], p3=cols[7]||"";
+                    if(!this.data[m]) this.data[m] = {}; if(!this.data[m][k]) this.data[m][k] = {}; if(!this.data[m][k][s]) this.data[m][k][s] = {};
+                    if(!this.data[m][k][s][el]) this.data[m][k][s][el] = { cp: cp, tps: [] };
+                    this.data[m][k][s][el].tps.push({ tp: tp, p3: p3 });
                 }
-
-                let statusEl = document.getElementById('csvStatus');
-                if(statusEl) {
-                    statusEl.style.display = 'block';
-                    statusEl.className = 'csv-info';
-                    statusEl.innerHTML = `✅ Sukses memuat <b>${count}</b> TP ke dalam Database!`;
-                }
-                
                 this.initDropdowns();
             },
-
             initDropdowns: function() {
-                let mapelSel = document.getElementById('in-mapel');
-                if(!mapelSel) return;
-                mapelSel.innerHTML = "";
-                let mapels = Object.keys(this.data);
-                if(mapels.length === 0) { mapelSel.innerHTML = "<option value=''>- Kosong -</option>"; return; }
-                mapels.forEach(m => {
-                    let opt = document.createElement('option'); opt.value=m; opt.text=m; mapelSel.appendChild(opt);
-                });
+                let mSel = document.getElementById('in-mapel'); mSel.innerHTML = "";
+                Object.keys(this.data).forEach(m => mSel.appendChild(new Option(m, m)));
                 this.updateKelasList();
             },
-
             updateKelasList: function() {
-                let mapel = document.getElementById('in-mapel')?.value;
-                let klsSel = document.getElementById('in-kelas');
-                if(!klsSel) return;
-                klsSel.innerHTML = "";
-                if(mapel && this.data[mapel]) {
-                    Object.keys(this.data[mapel]).sort((a,b)=>a-b).forEach(k => {
-                        let f = k<=2?'A':k<=4?'B':k<=6?'C':k<=9?'D':k==10?'E':'F';
-                        let opt = document.createElement('option'); opt.value=k; opt.text=`Kls ${k} (Fase ${f})`; klsSel.appendChild(opt);
-                    });
-                }
+                let m = document.getElementById('in-mapel')?.value; let kSel = document.getElementById('in-kelas'); kSel.innerHTML = "";
+                if(m && this.data[m]) Object.keys(this.data[m]).sort((a,b)=>a-b).forEach(k => kSel.appendChild(new Option(k, k)));
                 this.updateSemesterList();
             },
-
             updateSemesterList: function() {
-                let mapel = document.getElementById('in-mapel')?.value;
-                let kls = document.getElementById('in-kelas')?.value;
-                let smtSel = document.getElementById('in-semester');
-                if(!smtSel) return;
-                smtSel.innerHTML = "";
-                if(mapel && kls && this.data[mapel][kls]) {
-                    Object.keys(this.data[mapel][kls]).forEach(s => {
-                        let opt = document.createElement('option'); opt.value=s; opt.text=s; smtSel.appendChild(opt);
-                    });
-                }
+                let m = document.getElementById('in-mapel')?.value; let k = document.getElementById('in-kelas')?.value;
+                let sSel = document.getElementById('in-semester'); sSel.innerHTML = "";
+                if(m && k && this.data[m][k]) Object.keys(this.data[m][k]).forEach(s => sSel.appendChild(new Option(s, s)));
                 this.updateBabList();
             },
-
             updateBabList: function() {
-                let mapel = document.getElementById('in-mapel')?.value;
-                let kls = document.getElementById('in-kelas')?.value;
-                let smt = document.getElementById('in-semester')?.value;
-                let elemSel = document.getElementById('in-elemen');
-                if(!elemSel) return;
-                elemSel.innerHTML = "";
-                if(mapel && kls && smt && this.data[mapel][kls][smt]) {
-                    Object.keys(this.data[mapel][kls][smt]).forEach(b => {
-                        let opt = document.createElement('option'); opt.value=b; opt.text=b; elemSel.appendChild(opt);
-                    });
-                }
+                let m=document.getElementById('in-mapel')?.value, k=document.getElementById('in-kelas')?.value, s=document.getElementById('in-semester')?.value;
+                let eSel = document.getElementById('in-elemen'); eSel.innerHTML = "";
+                if(m && k && s && this.data[m][k][s]) Object.keys(this.data[m][k][s]).forEach(b => eSel.appendChild(new Option(b, b)));
                 this.syncAll();
             },
-
             calcKktp: function(el) {
-                let row = el.closest('tr');
-                let vals = row.querySelectorAll('.kktp-val');
-                let res = row.querySelector('.kktp-hasil');
-                if(vals.length === 3 && res) {
-                    let v1 = parseFloat(vals[0].innerText.replace(/[^0-9.]/g, '')) || 0;
-                    let v2 = parseFloat(vals[1].innerText.replace(/[^0-9.]/g, '')) || 0;
-                    let v3 = parseFloat(vals[2].innerText.replace(/[^0-9.]/g, '')) || 0;
-                    res.innerText = Math.round((v1 + v2 + v3) / 3);
+                let r = el.closest('tr'); let v = r.querySelectorAll('.kktp-val'); let res = r.querySelector('.kktp-hasil');
+                if(v.length === 3 && res) res.innerText = Math.round(((parseFloat(v[0].innerText)||0) + (parseFloat(v[1].innerText)||0) + (parseFloat(v[2].innerText)||0)) / 3);
+            },
+            
+            // FUNGSI CARI TANGGAL PENGESAHAN AKHIR BULAN
+            getLastWorkingDay: function(year, month, liburList) {
+                let d = new Date(year, month + 1, 0); // hari terakhir bulan
+                while (d.getDay() === 0 || liburList.includes(`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`)) {
+                    d.setDate(d.getDate() - 1);
                 }
+                return `${String(d.getDate()).padStart(2,'0')} ${BULAN_IND[d.getMonth()]} ${d.getFullYear()}`;
             },
 
             syncAll: function() {
-                let mapel = document.getElementById('in-mapel')?.value || "";
-                let kls = document.getElementById('in-kelas')?.value || "";
-                let smt = document.getElementById('in-semester')?.value || "";
-                let babAktif = document.getElementById('in-elemen')?.value || "";
-                
-                if(!mapel || !kls || !smt) return;
+                let m=document.getElementById('in-mapel')?.value||"", k=document.getElementById('in-kelas')?.value||"", s=document.getElementById('in-semester')?.value||"", bAktif=document.getElementById('in-elemen')?.value||"";
+                if(!m || !k || !s) return;
 
-                let thnAwal = parseInt(document.getElementById('in-tahun')?.value) || 2024;
+                let tAwal = parseInt(document.getElementById('in-tahun')?.value) || 2024;
                 let jp = parseInt(document.getElementById('in-jp')?.value) || 4;
-                let hariTarget = parseInt(document.getElementById('in-hari')?.value) || 1;
+                let hTarget = parseInt(document.getElementById('in-hari')?.value) || 1;
+                let tAjar = `${tAwal} / ${tAwal + 1}`;
                 
-                let kInt = parseInt(kls);
-                let f = kInt<=2?'A' : kInt<=4?'B' : kInt<=6?'C' : kInt<=9?'D' : kInt==10?'E' : 'F';
-
-                let thnAjarText = `${thnAwal} / ${thnAwal + 1}`;
-
-                document.querySelectorAll('.v-mapel').forEach(e=>e.innerText=mapel);
-                document.querySelectorAll('.v-kls').forEach(e=>e.innerText=kls);
-                document.querySelectorAll('.v-fase').forEach(e=>e.innerText="Fase "+f);
-                document.querySelectorAll('.v-smt').forEach(e=>e.innerText=smt);
-                document.querySelectorAll('.v-thn').forEach(e=>e.innerText=thnAjarText);
-                document.querySelectorAll('.v-bab-aktif').forEach(e=>e.innerText=babAktif);
+                document.querySelectorAll('.v-mapel').forEach(e=>e.innerText=m); document.querySelectorAll('.v-kls').forEach(e=>e.innerText=k);
+                document.querySelectorAll('.v-smt').forEach(e=>e.innerText=s); document.querySelectorAll('.v-thn').forEach(e=>e.innerText=tAjar);
+                document.querySelectorAll('.v-bab-aktif').forEach(e=>e.innerText=bAktif);
                 
                 document.querySelectorAll('.v-sekolah').forEach(e=>e.innerText=document.getElementById('in-sekolah')?.value||"");
                 document.querySelectorAll('.v-kepsek').forEach(e=>e.innerText=document.getElementById('in-kepsek')?.value||"");
                 document.querySelectorAll('.v-nip-kepsek').forEach(e=>e.innerText=document.getElementById('in-nip-kepsek')?.value||"");
                 document.querySelectorAll('.v-guru').forEach(e=>e.innerText=document.getElementById('in-guru')?.value||"");
                 document.querySelectorAll('.v-nip-guru').forEach(e=>e.innerText=document.getElementById('in-nip-guru')?.value||"");
-                document.querySelectorAll('.v-tgl').forEach(e=>e.innerText=document.getElementById('in-tempat-tgl')?.value||"");
                 document.querySelectorAll('.v-rombel').forEach(e=>e.innerText=document.getElementById('in-rombel')?.value||"");
+                
+                // Set default tanda tangan (untuk ATP/Promes)
+                let tmpt = document.getElementById('in-tempat-tgl')?.value||"";
+                document.querySelectorAll('.v-tempat-tgl').forEach(e=>e.innerText=tmpt + ", ......................");
 
-                let allBabInSmt = [];
-                if(this.data[mapel] && this.data[mapel][kls] && this.data[mapel][kls][smt]) {
-                    for (let babName in this.data[mapel][kls][smt]) {
-                        allBabInSmt.push({ bab: babName, cp: this.data[mapel][kls][smt][babName].cp, tps: this.data[mapel][kls][smt][babName].tps });
-                    }
-                }
+                let spData = this.data[m]?.[k]?.[s]?.[bAktif];
+                document.querySelectorAll('.v-jp-bab').forEach(e=>e.innerText = spData ? spData.tps.length * jp : 0);
 
-                let spesifikData = this.data[mapel]?.[kls]?.[smt]?.[babAktif];
-                let spesifikTP = spesifikData ? spesifikData.tps : [];
-                document.querySelectorAll('.v-jp-bab').forEach(e=>e.innerText = spesifikTP.length * jp);
+                let colEv = new Array(30).fill(null);
+                if (s === "Ganjil") { colEv[0]="MPLS"; colEv[13]="STS"; colEv[25]="SAS"; colEv[27]="RAPOR"; colEv[28]="LIBUR"; colEv[29]="LIBUR"; } 
+                else { colEv[0]="LIBUR"; colEv[11]="STS"; colEv[25]="SAS"; colEv[27]="RAPOR"; colEv[28]="LIBUR"; colEv[29]="LIBUR"; }
 
-                let colEvents = new Array(30).fill(null);
-                if (smt === "Ganjil") {
-                    colEvents[0] = "LIBUR SEMESTER GANJIL"; colEvents[1] = "MPLS / Libur";           
-                    colEvents[13] = "SUMATIF TENGAH SMT"; colEvents[25] = "SUMATIF AKHIR SMT";     
-                    colEvents[26] = "PENGAYAAN / CLASSMEET"; colEvents[27] = "PEMBAGIAN RAPOR";       
-                    colEvents[28] = "LIBUR SMT GANJIL"; colEvents[29] = "LIBUR SMT GANJIL";      
-                } else {
-                    colEvents[0] = "LIBUR SMT GANJIL"; colEvents[11] = "SUMATIF TENGAH SMT";    
-                    colEvents[25] = "SUMATIF AKHIR SMT / PAT"; colEvents[26] = "PENGAYAAN / CLASSMEET"; 
-                    colEvents[27] = "PEMBAGIAN RAPOR"; colEvents[28] = "LIBUR SMT GENAP"; colEvents[29] = "LIBUR SMT GENAP";       
-                }
+                let bAwal = s === "Ganjil" ? 6 : 0; 
+                let rLibur = (document.getElementById("in-libur")?.value || "").split(/[\n,]+/);
+                let dLibur = [`${tAwal}-08-17`,`${tAwal}-12-25`,`${tAwal+1}-01-01`,`${tAwal+1}-05-01`];
+                rLibur.forEach(d => { if(d.trim()) dLibur.push(d.trim()); });
 
-                let blnAwal = (smt === "Ganjil") ? 6 : 0; 
-                let rawLibur = (document.getElementById("in-libur")?.value || "").split(/[\n,]+/);
-                let daftarLibur = [`${thnAwal}-08-17`,`${thnAwal}-12-25`,`${thnAwal+1}-01-01`,`${thnAwal+1}-05-01`];
-                rawLibur.forEach(d => { let trimD = d.trim(); if(trimD) daftarLibur.push(trimD); });
-
-                daftarLibur.forEach(dateStr => {
-                    let p = dateStr.split('-');
-                    if(p.length === 3) {
-                        let y = parseInt(p[0]); let m = parseInt(p[1]) - 1; let d = parseInt(p[2]);
-                        let tglLibur = new Date(y, m, d);
-                        if (tglLibur.getDay() === hariTarget) {
-                            let mIdx = m - blnAwal;
-                            if(smt === "Ganjil" && mIdx < 0) mIdx += 12;
-                            if(mIdx >= 0 && mIdx <= 5) {
-                                let wIdx = Math.ceil(d / 7);
-                                if(wIdx > 5) wIdx = 5;
-                                let c = (mIdx * 5) + (wIdx - 1);
-                                if(c >= 0 && c < 30 && colEvents[c] === null) colEvents[c] = "LIBUR NASIONAL / KHUSUS";
-                            }
-                        }
-                    }
-                });
-
-                let thnOperasional = (smt === "Ganjil") ? thnAwal : thnAwal + 1;
-                let semuaTanggalMengajar = [];
+                let activeDates = [];
                 for (let i = 0; i < 6; i++) {
-                    let blnSekarang = blnAwal + i;
-                    let curYear = thnOperasional;
-                    if(smt === "Ganjil" && blnSekarang > 11) { curYear++; blnSekarang -= 12; }
-                    let jmlHari = new Date(curYear, blnSekarang + 1, 0).getDate();
-                    for (let tgl = 1; tgl <= jmlHari; tgl++) {
-                        let tglObyek = new Date(curYear, blnSekarang, tgl);
-                        if (tglObyek.getDay() === hariTarget) {
-                            let wIdx = Math.ceil(tgl / 7);
-                            if(wIdx > 5) wIdx = 5;
-                            let c = (i * 5) + (wIdx - 1);
-                            if(colEvents[c] === null) semuaTanggalMengajar.push(tglObyek);
+                    let curBln = bAwal + i; let cYr = tAwal;
+                    if(s === "Ganjil" && curBln > 11) { cYr++; curBln -= 12; }
+                    let jHari = new Date(cYr, curBln + 1, 0).getDate();
+                    for (let tgl = 1; tgl <= jHari; tgl++) {
+                        let dt = new Date(cYr, curBln, tgl);
+                        let isLibur = dLibur.includes(`${cYr}-${String(curBln+1).padStart(2,'0')}-${String(tgl).padStart(2,'0')}`);
+                        if (dt.getDay() === hTarget && !isLibur) {
+                            let wI = Math.min(Math.ceil(tgl / 7) - 1, 4);
+                            if(!colEv[(i * 5) + wI]) activeDates.push(dt);
                         }
                     }
                 }
 
-                this.renderATPProta(mapel, kls, smt, jp, semuaTanggalMengajar);
-                this.renderPromes(jp, colEvents, smt, blnAwal);
-                this.renderAbsensiList();
+                this.renderATPProta(m, k, s, jp, activeDates);
+                this.renderPromes(jp, colEv, s, bAwal);
+                this.renderJurnalAbsensiBulan(m, k, s, tAwal, dLibur);
                 this.renderDaftarNilai();
-                if(babAktif) this.renderModulDanLainnya(mapel, kls, smt, babAktif, jp);
+                if(bAktif) this.renderModulDanLainnya(m, k, s, bAktif, jp);
             },
 
-            renderATPProta: function(mapel, kls, smt, jp, activeDates) {
-                let atpMode = document.getElementById('in-atp-mode')?.value || "semester";
-                let dataToRender = [];
-                
-                if(atpMode === "tahun") {
-                    if(this.data[mapel] && this.data[mapel][kls]) {
-                        if(this.data[mapel][kls]["Ganjil"]) Object.keys(this.data[mapel][kls]["Ganjil"]).forEach(k => dataToRender.push({smt:"Ganjil", bab:k, d:this.data[mapel][kls]["Ganjil"][k]}));
-                        if(this.data[mapel][kls]["Genap"]) Object.keys(this.data[mapel][kls]["Genap"]).forEach(k => dataToRender.push({smt:"Genap", bab:k, d:this.data[mapel][kls]["Genap"][k]}));
-                    }
-                } else {
-                    if(this.data[mapel] && this.data[mapel][kls] && this.data[mapel][kls][smt]) {
-                        Object.keys(this.data[mapel][kls][smt]).forEach(k => dataToRender.push({smt:smt, bab:k, d:this.data[mapel][kls][smt][k]}));
-                    }
+            renderATPProta: function(m, k, s, jp, aDates) {
+                let md = document.getElementById('in-atp-mode')?.value; let dRender = [];
+                if(md === "tahun" && this.data[m]?.[k]) {
+                    if(this.data[m][k]["Ganjil"]) Object.keys(this.data[m][k]["Ganjil"]).forEach(b => dRender.push({s:"Ganjil", b:b, d:this.data[m][k]["Ganjil"][b]}));
+                    if(this.data[m][k]["Genap"]) Object.keys(this.data[m][k]["Genap"]).forEach(b => dRender.push({s:"Genap", b:b, d:this.data[m][k]["Genap"][b]}));
+                } else if(this.data[m]?.[k]?.[s]) {
+                    Object.keys(this.data[m][k][s]).forEach(b => dRender.push({s:s, b:b, d:this.data[m][k][s][b]}));
                 }
 
-                let atpHtml="", protaHtml=""; 
-                let dIdx = 0;
-                window.promesRows = [];
+                let aHtml="", pHtml=""; let dIdx=0; window.promesRows=[];
+                dRender.forEach((it, i) => {
+                    let tJp = it.d.tps.length * jp;
+                    it.d.tps.forEach((tpO, tI) => {
+                        aHtml += `<tr>`;
+                        if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${i+1}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle"><b>${it.b}</b></td>`;
+                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
+                        if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${tJp} JP</td>`;
+                        aHtml += `</tr>`;
 
-                dataToRender.forEach((item, index) => {
-                    let totalJp = item.d.tps.length * jp;
-                    item.d.tps.forEach((tpObj, tIdx) => {
-                        let match = tpObj.tp.match(/mampu\s+([a-zA-Z\-]+)/i);
-                        let kompetensi = match ? (match[1].charAt(0).toUpperCase() + match[1].slice(1)) : "Memahami";
+                        pHtml += `<tr>`;
+                        if(tI===0) pHtml += `<td rowspan="${it.d.tps.length}" class="font-bold text-center align-middle">${it.s}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 font-bold text-center align-middle">${it.b}</td>`;
+                        pHtml += `<td contenteditable="true">${tpO.tp}</td>`;
+                        if(tI===0) pHtml += `<td rowspan="${it.d.tps.length}" class="font-bold text-center align-middle">${tJp} JP</td>`;
+                        pHtml += `</tr>`;
 
-                        // ATP
-                        atpHtml += `<tr>`;
-                        if(tIdx===0) {
-                            atpHtml += `<td rowspan="${item.d.tps.length}" class="text-center align-middle">${index+1}</td>
-                                        <td rowspan="${item.d.tps.length}" contenteditable="true" class="bg-slate-50 align-middle"><b>${item.bab}</b><br><span class="text-xs text-slate-600">${item.d.cp}</span></td>`;
-                        }
-                        atpHtml += `<td contenteditable="true">${tpObj.tp}</td><td class="text-xs text-blue-800" contenteditable="true">${tpObj.p3}</td><td class="font-bold text-amber-600">${kompetensi}</td>`;
-                        if(tIdx===0) atpHtml += `<td rowspan="${item.d.tps.length}" class="text-center align-middle">${Math.ceil(totalJp/jp)} Minggu<br>${totalJp} JP</td>`;
-                        atpHtml += `</tr>`;
-
-                        // PROTA
-                        protaHtml += `<tr>`;
-                        if(tIdx===0) {
-                            protaHtml += `<td rowspan="${item.d.tps.length}" class="font-bold text-center align-middle">${item.smt}</td>
-                                          <td rowspan="${item.d.tps.length}" class="bg-slate-50 font-bold text-center align-middle" contenteditable="true">${item.bab}</td>`;
-                        }
-                        protaHtml += `<td contenteditable="true">${tpObj.tp}</td>`;
-                        if(tIdx===0) protaHtml += `<td rowspan="${item.d.tps.length}" class="font-bold text-center align-middle">${totalJp} JP</td>`;
-                        protaHtml += `</tr>`;
-
-                        if(atpMode === "semester" || item.smt === smt) {
-                            let alok = [];
-                            if(activeDates && dIdx < activeDates.length) { alok.push({date: activeDates[dIdx], jp: jp}); dIdx++; }
-                            window.promesRows.push({
-                                bab: tIdx===0?item.bab:"", tp: tpObj.tp, jp: jp, alokasi: alok, rowsp: tIdx===0?item.d.tps.length:0
-                            });
+                        if(md === "semester" || it.s === s) {
+                            let dt = null; if(aDates && dIdx < aDates.length) { dt=aDates[dIdx]; dIdx++; }
+                            window.promesRows.push({ bab: tI===0?it.b:"", tp: tpO.tp, jp: jp, dt: dt, rs: tI===0?it.d.tps.length:0 });
                         }
                     });
                 });
-                
-                let outAtp = document.getElementById('out-atp');
-                if(outAtp) outAtp.innerHTML = atpHtml || `<tr><td colspan="6" class="text-center">Data kosong</td></tr>`;
-                let outProta = document.getElementById('out-prota');
-                if(outProta) outProta.innerHTML = protaHtml || `<tr><td colspan="4" class="text-center">Data kosong</td></tr>`;
+                document.getElementById('out-atp').innerHTML = aHtml; document.getElementById('out-prota').innerHTML = pHtml;
             },
 
-            renderPromes: function(jp, colEvents, smt, blnAwal) {
-                let nBulan = smt==="Ganjil" ? ["Jul","Ags","Sep","Okt","Nov","Des"] : ["Jan","Feb","Mar","Apr","Mei","Jun"];
-                let th = `<tr><th rowspan="2" width="10%">Bab / Elemen</th><th rowspan="2" width="22%">Capaian Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
-                nBulan.forEach(b=> th+=`<th colspan="5">${b}</th>`);
-                th+=`</tr><tr>`; for(let i=0;i<6;i++) th+=`<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; th+=`</tr>`;
-                
-                let outPromesHead = document.getElementById('out-promes-head');
-                if(outPromesHead) outPromesHead.innerHTML = th;
+            renderPromes: function(jp, colEv, s, bAwal) {
+                let nb = s==="Ganjil" ? ["Jul","Ags","Sep","Okt","Nov","Des"] : ["Jan","Feb","Mar","Apr","Mei","Jun"];
+                let th = `<tr><th rowspan="2" width="10%">Bab / Elemen</th><th rowspan="2" width="22%">Tujuan Pembelajaran (TP)</th><th rowspan="2" width="3%">JP</th>`;
+                nb.forEach(b=> th+=`<th colspan="5">${b}</th>`); th+=`</tr><tr>`; for(let i=0;i<6;i++) th+=`<th>1</th><th>2</th><th>3</th><th>4</th><th>5</th>`; th+=`</tr>`;
+                document.getElementById('out-promes-head').innerHTML = th;
 
-                let tb = ""; let rows = window.promesRows || [];
-                if(rows.length>0) {
-                    rows.forEach((r, idx) => {
-                        tb+=`<tr>`;
-                        if(r.rowsp>0) tb+=`<td rowspan="${r.rowsp}" class="bg-slate-50 font-bold text-center align-middle" contenteditable="true">${r.bab}</td>`;
-                        tb+=`<td contenteditable="true">${r.tp}</td><td class="text-center font-bold align-middle">${r.jp}</td>`;
-                        
-                        for(let c=0; c<30; c++) {
-                            if(colEvents[c]) {
-                                if(idx===0) tb+=`<td rowspan="${rows.length}" class="bg-slate-200 align-middle border border-slate-400 p-1" contenteditable="true" style="width: 30px;"><div class="vertical-event">${colEvents[c]}</div></td>`;
-                            } else {
-                                let mI=Math.floor(c/5); let wI=(c%5)+1;
-                                let tBln = blnAwal+mI; if(tBln>11) tBln-=12;
-                                let match = r.alokasi.filter(a=> a.date && a.date.getMonth()===tBln && Math.ceil(a.date.getDate()/7)===wI);
-                                
-                                if(match.length>0) {
-                                    tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle" contenteditable="true">${match[0].date.getDate()}</td>`;
-                                } else { tb+=`<td contenteditable="true"></td>`; }
-                            }
+                let tb = ""; let r = window.promesRows || [];
+                r.forEach((ro, idx) => {
+                    tb+=`<tr>`;
+                    if(ro.rs>0) tb+=`<td rowspan="${ro.rs}" class="bg-slate-50 font-bold text-center align-middle">${ro.bab}</td>`;
+                    tb+=`<td contenteditable="true">${ro.tp}</td><td class="text-center font-bold align-middle">${ro.jp}</td>`;
+                    for(let c=0; c<30; c++) {
+                        if(colEv[c] && idx===0) tb+=`<td rowspan="${r.length}" class="bg-slate-200 border border-slate-400 p-1 align-middle"><div class="vertical-event">${colEv[c]}</div></td>`;
+                        else if(!colEv[c]) {
+                            let mI=Math.floor(c/5); let wI=(c%5)+1; let tBln = bAwal+mI; if(tBln>11) tBln-=12;
+                            if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle">✔️</td>`;
+                            else tb+=`<td></td>`;
                         }
-                        tb+=`</tr>`;
-                    });
-                } else tb = `<tr><td colspan="33" class="text-center">Kosong</td></tr>`;
-                
-                let outPromesBody = document.getElementById('out-promes-body');
-                if(outPromesBody) outPromesBody.innerHTML = tb;
-            },
-
-            renderAbsensiList: function() {
-                let html = "";
-                let siswa = this.students && this.students.length > 0 ? this.students : ["Nama Siswa 1 (Kosong)"];
-                
-                siswa.forEach((nama, i) => {
-                    html += `<tr><td class="text-center">${i+1}</td><td class="text-left" contenteditable="true">${nama}</td>`;
-                    for(let j=0; j<16; j++) {
-                        html += `<td><div onclick="Engine.toggleAbsen(this)" class="cursor-pointer text-center font-bold text-blue-600 w-full h-full block">H</div></td>`;
                     }
-                    html += `</tr>`;
+                    tb+=`</tr>`;
                 });
+                document.getElementById('out-promes-body').innerHTML = tb;
+            },
+
+            renderJurnalAbsensiBulan: function(m, k, s, tAwal, liburList) {
+                let tGuru = document.getElementById('in-tipe-guru').value;
+                let cHead = tGuru === 'mapel' ? "Kelas/Rombel" : "Mata Pelajaran";
+                let cVal = tGuru === 'mapel' ? k + "/" + (document.getElementById('in-rombel')?.value||"A") : m;
+                let tmpt = document.getElementById('in-tempat-tgl')?.value||"";
                 
-                let outAbsensi = document.getElementById('out-absensi');
-                if(outAbsensi) outAbsensi.innerHTML = html;
+                let bAwal = s === "Ganjil" ? 6 : 0;
+                let dataJurnalPerBulan = {}; 
+                
+                (window.promesRows || []).forEach(r => {
+                    if(r.dt) {
+                        let y = r.dt.getFullYear(); let mo = r.dt.getMonth(); let key = `${mo}-${y}`;
+                        if(!dataJurnalPerBulan[key]) dataJurnalPerBulan[key] = [];
+                        dataJurnalPerBulan[key].push(r);
+                    }
+                });
+
+                let jHtml="", aHtml="";
+                Object.keys(dataJurnalPerBulan).forEach(key => {
+                    let [moStr, yStr] = key.split('-'); let mo = parseInt(moStr); let yr = parseInt(yStr);
+                    let tglTtd = this.getLastWorkingDay(yr, mo, liburList);
+                    let items = dataJurnalPerBulan[key];
+                    let currentBab = "";
+
+                    // BUILD JURNAL PAGE
+                    jHtml += `<div class="paper-preview landscape mt-5">
+                        <h1 class="text-center text-[13pt] font-bold mb-4 uppercase">JURNAL PELAKSANAAN PEMBELAJARAN<br>BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
+                        <table class="doc-table text-sm">
+                            <thead><tr><th width="10%">Tgl</th><th width="12%">${cHead}</th><th width="15%">Bab/Materi</th><th width="35%">Tujuan Pembelajaran</th><th width="10%">Hadir</th><th width="18%">Ket</th></tr></thead>
+                            <tbody>`;
+                    items.forEach(it => {
+                        if(it.bab) currentBab = it.bab;
+                        let dStr = `${String(it.dt.getDate()).padStart(2,'0')}/${String(mo+1).padStart(2,'0')}/${yr}`;
+                        jHtml += `<tr><td class="text-center font-bold">${dStr}</td><td contenteditable="true" class="text-center">${cVal}</td><td contenteditable="true">${currentBab}</td><td contenteditable="true">${it.tp}</td><td contenteditable="true" class="text-center">....... Siswa</td><td contenteditable="true">Tuntas</td></tr>`;
+                    });
+                    jHtml += `</tbody></table>
+                        <div class="signature-area" contenteditable="true">
+                            <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name">${document.getElementById('in-kepsek')?.value||""}</div>NIP. ${document.getElementById('in-nip-kepsek')?.value||""}</div>
+                            <div class="signature-box">${tmpt}, ${tglTtd}<br>Guru Mata Pelajaran<br><div class="signature-name">${document.getElementById('in-guru')?.value||""}</div>NIP. ${document.getElementById('in-nip-guru')?.value||""}</div>
+                        </div></div>`;
+
+                    // BUILD ABSENSI PAGE
+                    let absTglHead = ""; let absCols = items.length;
+                    items.forEach((it, i) => absTglHead += `<th>${it.dt.getDate()}</th>`);
+                    
+                    aHtml += `<div class="paper-preview portrait mt-5">
+                        <h1 class="text-center text-[13pt] font-bold mb-4 uppercase">PRESENSI SISWA - BULAN ${BULAN_IND[mo].toUpperCase()} ${yr}</h1>
+                        <table class="doc-table text-[9pt] text-center">
+                            <thead><tr><th rowspan="2" width="5%">No</th><th rowspan="2" width="30%" class="text-left">Nama Siswa</th><th colspan="${absCols}">Tanggal Pertemuan</th></tr>
+                            <tr>${absTglHead}</tr></thead><tbody>`;
+                    
+                    let sList = this.students && this.students.length > 0 ? this.students : ["Siswa 1"];
+                    sList.forEach((sn, i) => {
+                        aHtml += `<tr><td>${i+1}</td><td class="text-left">${sn}</td>`;
+                        for(let c=0; c<absCols; c++) aHtml += `<td><div onclick="Engine.toggleAbsen(this)" class="cursor-pointer font-bold text-blue-600 block w-full">H</div></td>`;
+                        aHtml += `</tr>`;
+                    });
+                    
+                    aHtml += `</tbody></table>
+                        <div class="signature-area" contenteditable="true">
+                            <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name">${document.getElementById('in-kepsek')?.value||""}</div>NIP. ${document.getElementById('in-nip-kepsek')?.value||""}</div>
+                            <div class="signature-box">${tmpt}, ${tglTtd}<br>Guru Mata Pelajaran<br><div class="signature-name">${document.getElementById('in-guru')?.value||""}</div>NIP. ${document.getElementById('in-nip-guru')?.value||""}</div>
+                        </div></div>`;
+                });
+
+                document.getElementById('jurnal-container').innerHTML = jHtml || `<div class="paper-preview text-center">Data tidak ditemukan.</div>`;
+                document.getElementById('absensi-container').innerHTML = aHtml || `<div class="paper-preview text-center">Data tidak ditemukan.</div>`;
             },
 
             renderDaftarNilai: function() {
-                let html = "";
-                let siswa = this.students && this.students.length > 0 ? this.students : ["Nama Siswa 1 (Kosong)"];
-                
-                siswa.forEach((nama, i) => {
-                    html += `<tr>
-                                <td>${i+1}</td><td class="text-left" contenteditable="true">${nama}</td>
-                                <td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td>
-                                <td contenteditable="true" class="bg-slate-50"></td>
-                                <td contenteditable="true"></td><td contenteditable="true"></td>
-                                <td class="font-bold bg-blue-50 text-blue-800" contenteditable="true"></td>
-                            </tr>`;
+                let h=""; let sl = this.students && this.students.length > 0 ? this.students : ["Siswa 1"];
+                sl.forEach((n, i) => {
+                    h += `<tr><td>${i+1}</td><td class="text-left" contenteditable="true">${n}</td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="bg-slate-50"></td><td contenteditable="true"></td><td contenteditable="true"></td><td class="font-bold bg-blue-50 text-blue-800"></td></tr>`;
                 });
-                
-                let outNilai = document.getElementById('out-nilai');
-                if(outNilai) outNilai.innerHTML = html;
+                document.getElementById('out-nilai').innerHTML = h;
             },
 
-            renderModulDanLainnya: function(mapel, kls, smt, bab, jp) {
-                let data = this.data[mapel]?.[kls]?.[smt]?.[bab];
-                if(!data) return;
-
-                let cpEl = document.getElementById('out-modul-cp');
-                if(cpEl) cpEl.innerText = data.cp;
-
-                let p3Set = new Set();
-                let mdHtml="", kktpHtml="", jurnalHtml="", lkpdTpHtml="";
-
-                data.tps.forEach((t, i) => {
-                    t.p3.split(',').forEach(p=> { if(p.trim()) p3Set.add(p.trim())});
-                    mdHtml += `<li><strong>Pertemuan ${i+1}:</strong> ${t.tp}</li>`;
-                    lkpdTpHtml += `<li>${t.tp}</li>`;
-                    
-                    kktpHtml += `<tr>`;
-                    if(i===0) kktpHtml += `<td rowspan="${data.tps.length}" class="text-center align-middle">${i+1}</td>`;
-                    kktpHtml += `<td contenteditable="true">${t.tp}</td>
-                                 <td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td>
-                                 <td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td>
-                                 <td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td>
-                                 <td class="kktp-hasil">75</td></tr>`;
-
-                    let dMatch = (window.promesRows||[]).find(pr => pr.tp === t.tp);
-                    let dStr = "...../...../20..";
-                    if(dMatch && dMatch.alokasi && dMatch.alokasi.length>0 && dMatch.alokasi[0].date) {
-                        let dt = dMatch.alokasi[0].date;
-                        dStr = `${String(dt.getDate()).padStart(2,'0')}/${String(dt.getMonth()+1).padStart(2,'0')}/${dt.getFullYear()}`;
-                    }
-                    jurnalHtml += `<tr><td class="text-center font-bold" contenteditable="true">${dStr}</td><td contenteditable="true">${bab}</td><td contenteditable="true">${t.tp}</td><td contenteditable="true" class="text-center font-bold text-blue-700">Hadir Semua</td><td contenteditable="true">KBM Tuntas</td></tr>`;
+            renderModulDanLainnya: function(m, k, s, bAktif, jp) {
+                let d = this.data[m]?.[k]?.[s]?.[bAktif]; if(!d) return;
+                document.getElementById('out-modul-cp').innerText = d.cp;
+                let mt="", st="", kt="";
+                d.tps.forEach((t, i) => {
+                    mt += `<li><strong>Pertemuan ${i+1}:</strong> ${t.tp}</li>`;
+                    st += `<div class="mb-4 bg-slate-50 p-3 rounded border"><strong>Pertemuan ${i+1} (${jp} JP)</strong><br><span class="text-slate-600">A. Pendahuluan (15m): Apersepsi materi <b>${bAktif}</b>.<br>B. Inti (60m): Diskusi kelompok dan presentasi.<br>C. Penutup (15m): Kesimpulan dan Refleksi.</span></div>`;
+                    kt += `<tr>`; if(i===0) kt+=`<td rowspan="${d.tps.length}" class="text-center align-middle">${i+1}</td>`;
+                    kt += `<td contenteditable="true">${t.tp}</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-val" contenteditable="true" oninput="Engine.calcKktp(this)">75</td><td class="kktp-hasil">75</td></tr>`;
                 });
-
-                let p3Html = "<ul class='list-disc'>"; p3Set.forEach(s=> p3Html+=`<li><strong>${s}</strong></li>`); p3Html+="</ul>";
-                
-                let p3El = document.getElementById('out-modul-p3');
-                if(p3El) p3El.innerHTML = p3Html;
-                
-                let tpEl = document.getElementById('out-modul-tp');
-                if(tpEl) tpEl.innerHTML = `<ul class="list-none">${mdHtml}</ul>`;
-                
-                let lkpdTpEl = document.getElementById('out-lkpd-tp');
-                if(lkpdTpEl) lkpdTpEl.innerHTML = lkpdTpHtml;
-                
-                let stepHtml="";
-                data.tps.forEach((t,i)=>{
-                    stepHtml += `<div class="mb-4 bg-slate-50 p-4 rounded border border-slate-300">
-                        <div class="font-bold border-b-2 border-slate-300 pb-2 mb-3 text-blue-800 text-lg">Pertemuan ${i+1} (${jp} JP)</div>
-                        
-                        <div class="mb-3">
-                            <span class="font-bold text-slate-700 underline">A. Pendahuluan (15 Menit)</span>
-                            <ul class="list-decimal pl-6 mt-1 text-justify">
-                                <li>Guru mengucapkan salam, mengajak siswa berdoa, dan mengecek daftar hadir siswa.</li>
-                                <li>Guru memberikan apersepsi dengan mengaitkan materi sebelumnya dengan topik <b>${bab}</b>.</li>
-                                <li>Guru menyampaikan Tujuan Pembelajaran secara jelas.</li>
-                                <li>Guru memberikan pertanyaan pemantik untuk memancing nalar kritis siswa.</li>
-                            </ul>
-                        </div>
-                        
-                        <div class="mb-3">
-                            <span class="font-bold text-slate-700 underline">B. Kegiatan Inti (60 Menit)</span>
-                            <ul class="list-decimal pl-6 mt-1 text-justify">
-                                <li><b>Orientasi (Stimulation):</b> Peserta didik mengamati penjelasan guru, membaca buku referensi, atau melihat media visual.</li>
-                                <li><b>Kolaborasi (Problem Statement):</b> Peserta didik dibagi ke dalam kelompok yang heterogen. Guru membagikan LKPD.</li>
-                                <li><b>Aktivitas (Data Processing):</b> Secara berkelompok, peserta didik berdiskusi untuk memecahkan masalah pada LKPD.</li>
-                                <li><b>Komunikasi (Verification):</b> Perwakilan kelompok mempresentasikan hasil diskusinya. Kelompok lain menanggapi.</li>
-                                <li><b>Penguatan (Generalization):</b> Guru memberikan penguatan pemahaman, meluruskan miskonsepsi, dan memberikan apresiasi.</li>
-                            </ul>
-                        </div>
-
-                        <div>
-                            <span class="font-bold text-slate-700 underline">C. Penutup (15 Menit)</span>
-                            <ul class="list-decimal pl-6 mt-1 text-justify">
-                                <li>Peserta didik bersama guru menyimpulkan materi pembelajaran hari ini.</li>
-                                <li>Guru melakukan refleksi dengan menanyakan bagian mana yang paling menyenangkan atau dirasa sulit.</li>
-                                <li>Guru menyampaikan sekilas materi untuk pertemuan berikutnya.</li>
-                                <li>Kegiatan diakhiri dengan doa penutup dan salam.</li>
-                            </ul>
-                        </div>
-                    </div>`;
-                });
-                
-                let langkahEl = document.getElementById('out-modul-langkah');
-                if(langkahEl) langkahEl.innerHTML = stepHtml;
-                
-                let kktpEl = document.getElementById('out-kktp');
-                if(kktpEl) kktpEl.innerHTML = kktpHtml;
-                
-                let jurnalEl = document.getElementById('out-jurnal');
-                if(jurnalEl) jurnalEl.innerHTML = jurnalHtml;
+                document.getElementById('out-modul-tp').innerHTML = `<ul>${mt}</ul>`;
+                document.getElementById('out-modul-langkah').innerHTML = st;
+                document.getElementById('out-kktp').innerHTML = kt;
             }
         };
     </script>
