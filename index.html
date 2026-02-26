@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin Guru Super App</title>
+    <link rel="icon" href="data:,">
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
@@ -16,21 +17,19 @@
         .doc-table th, .doc-table td { border: 1px solid #1f2937; padding: 6px; text-align: left; vertical-align: top; }
         .doc-table th { background-color: #f1f5f9; font-weight: 600; text-align: center; }
         
-        /* Utility Classes Custom */
         .text-center { text-align: center !important; }
         .align-middle { vertical-align: middle !important; }
         
-        /* Perbaikan Cetak Teks Vertikal Promes */
         .event-cell {
             vertical-align: middle !important;
             text-align: center !important;
-            height: 140px; /* Kunci tinggi sel agar tidak menyusut saat diprint */
+            height: 140px; 
             padding: 0 !important;
             background-color: #e2e8f0 !important;
         }
         .vertical-event { 
             writing-mode: vertical-rl; 
-            transform: scale(-1); /* Cara paling stabil memutar teks untuk Print Chrome */
+            transform: scale(-1); 
             margin: auto; 
             font-size: 8.5pt; 
             font-weight: bold; 
@@ -45,19 +44,16 @@
         .kktp-val { background-color: #fdfde8; font-weight: bold; color: #2563eb; cursor: text; text-align: center;}
         .kktp-hasil { background-color: #e0f2fe; color: #1e40af; font-size: 11pt; text-align: center; font-weight: bold;}
 
-        /* Signature Layout Terkalibrasi */
         .signature-area { display: flex; justify-content: space-between; margin-top: 30px; page-break-inside: avoid; padding: 0 5%; }
         .signature-box { text-align: center; font-size: 11pt; min-width: 250px; }
         .signature-name { text-decoration: underline; font-weight: bold; margin-top: 80px; }
 
-        /* Scrollbar Sidebar */
         .sidebar-scroll::-webkit-scrollbar { width: 5px; }
         .sidebar-scroll::-webkit-scrollbar-thumb { background: #475569; border-radius: 4px; }
 
         .csv-info { padding: 10px; background-color: #047857; border-radius: 6px; font-size: 0.8rem; display: none; margin-top: 5px; line-height: 1.4; color: white;}
         .csv-info.error { background-color: #991b1b; }
 
-        /* Modal Custom */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.6); z-index: 1000; justify-content: center; align-items: center; }
         .modal-content { background: white; width: 700px; max-width: 90%; border-radius: 10px; padding: 25px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); max-height: 90vh; overflow-y: auto; }
 
@@ -97,6 +93,19 @@
         </div>
     </div>
 
+    <div id="modal-panduan" class="modal-overlay">
+        <div class="modal-content relative">
+            <button onclick="document.getElementById('modal-panduan').style.display='none'" class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1 rounded font-bold hover:bg-red-600">X Tutup</button>
+            <h2 class="text-xl font-bold text-blue-600 mb-4">📖 Panduan Penggunaan Rinci</h2>
+            <h3 class="font-bold mt-4">1. Solusi Gagal Download Cloud</h3>
+            <p class="text-sm text-slate-600 mb-2">Jika Anda menggunakan Live Server dan gagal mengunduh dari Cloud (Error CORS), cukup klik tombol <b>B. Upload File CSV Manual</b> dan masukkan file <i>cp-global - SD.csv</i> yang Anda miliki.</p>
+            <h3 class="font-bold mt-4">2. Format CSV (8 Kolom)</h3>
+            <p class="text-sm text-slate-600 mb-2">Pastikan file Excel memuat: Mapel, Fase, Kelas, Semester, Bab, CP, TP, Profil Lulusan.</p>
+            <h3 class="font-bold mt-4">3. Sistem Absensi Cerdas</h3>
+            <p class="text-sm text-slate-600 mb-2">Pada tab "Absensi", jangan mengetik manual! Cukup <b>KLIK</b> pada sel kehadiran untuk mengubah status siswa (Hadir -> Sakit -> Izin -> Alpa).</p>
+        </div>
+    </div>
+
     <aside id="sidebar" class="w-[340px] min-w-[340px] bg-slate-900 text-slate-300 flex flex-col h-full border-r border-slate-700 hidden no-print">
         <div class="p-5 border-b border-slate-700">
             <h2 class="text-xl font-bold text-white">Super App</h2>
@@ -105,11 +114,11 @@
                     <span class="px-2 py-0.5 rounded text-xs font-semibold bg-emerald-500/20 text-emerald-400">PRO</span>
                     <span class="text-xs truncate ml-1">guru@sekolah.id</span>
                 </div>
+                <button onclick="document.getElementById('modal-panduan').style.display='flex'" class="text-xs bg-blue-600 hover:bg-blue-500 text-white px-2 py-1 rounded transition">Panduan</button>
             </div>
         </div>
 
         <div class="flex-1 overflow-y-auto p-4 space-y-5 sidebar-scroll text-sm">
-            
             <button onclick="document.getElementById('modal-siswa').style.display='flex'" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-bold py-2 rounded-lg shadow transition flex items-center justify-center gap-2">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path></svg>
                 Input Data Siswa
@@ -134,7 +143,7 @@
                     <button onclick="Engine.fetchGlobalCSV()" class="w-full bg-amber-600 hover:bg-amber-500 text-white font-bold py-1.5 rounded text-xs transition">A. Load dari Cloud</button>
                     <div class="relative w-full">
                         <input type="file" accept=".csv" onchange="Engine.uploadCSV(this)" class="absolute inset-0 w-full h-full opacity-0 cursor-pointer">
-                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">B. Upload CSV Manual</button>
+                        <button class="w-full bg-slate-700 hover:bg-slate-600 text-white font-bold py-1.5 rounded text-xs transition border border-slate-500">B. Upload CSV Manual 📁</button>
                     </div>
                 </div>
                 <div id="csvStatus" class="csv-info"></div>
@@ -145,7 +154,7 @@
                 <div class="space-y-2">
                     <div>
                         <label class="text-[10px] text-slate-500 uppercase font-bold">Mata Pelajaran</label>
-                        <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer"><option value="">-- Load Kurikulum --</option></select>
+                        <select id="in-mapel" onchange="Engine.updateKelasList()" class="w-full bg-slate-800 border border-slate-600 rounded p-2 focus:border-blue-500 outline-none font-bold text-blue-400 cursor-pointer"><option value="">-- Kosong --</option></select>
                     </div>
                     <div class="grid grid-cols-2 gap-2">
                         <div>
@@ -209,7 +218,7 @@
         
         <div class="p-4 border-t border-slate-700">
             <button onclick="Engine.syncAll()" class="w-full bg-blue-600 hover:bg-blue-500 text-white font-semibold py-3 rounded-lg shadow-lg shadow-blue-500/30 transition transform active:scale-95">
-                🚀 RENDER DOKUMEN
+                🚀 GENERATE DOKUMEN
             </button>
         </div>
     </aside>
@@ -251,8 +260,8 @@
                         </table>
                     </div>
                     <table class="doc-table">
-                        <thead><tr><th width="3%">NO</th><th width="18%">ELEMEN / CP</th><th width="20%">TUJUAN PEMBELAJARAN (TP)</th><th width="15%">PROFIL LULUSAN</th><th width="10%">KOMPETENSI</th><th width="8%">WAKTU</th></tr></thead>
-                        <tbody id="out-atp"></tbody>
+                        <thead><tr><th width="3%">NO</th><th width="20%">ELEMEN DAN CAPAIAN PEMBELAJARAN (CP)</th><th width="22%">TUJUAN PEMBELAJARAN (TP)</th><th width="15%">PROFIL LULUSAN</th><th width="10%">KOMPETENSI</th><th width="8%">WAKTU</th></tr></thead>
+                        <tbody id="out-atp"><tr><td colspan="6" class="text-center italic text-slate-400">Silakan muat data dan klik tombol Generate...</td></tr></tbody>
                     </table>
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
@@ -268,7 +277,7 @@
                         <tr><td>Tahun Pelajaran</td><td>: <span class="v-thn"></span></td></tr>
                     </table>
                     <table class="doc-table">
-                        <thead><tr><th width="10%">Smt</th><th width="25%">Elemen/Bab</th><th width="55%">Tujuan Pembelajaran</th><th width="10%">JP</th></tr></thead>
+                        <thead><tr><th width="10%">Smt</th><th width="25%">Elemen & Capaian Pembelajaran</th><th width="55%">Tujuan Pembelajaran (TP)</th><th width="10%">JP</th></tr></thead>
                         <tbody id="out-prota"></tbody>
                     </table>
                     <div class="signature-area" contenteditable="true">
@@ -373,7 +382,7 @@
 
             <div id="view-kktp" class="view-section hidden relative">
                 <div class="paper-preview portrait">
-                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN (KKTP)</h1>
+                    <h1 class="header-title text-center text-[14pt] font-bold mb-5 uppercase" contenteditable="true">KRITERIA KETERCAPAIAN TUJUAN PEMBELAJARAN (KKTP)</h1>
                     <table class="identity-table mb-4" contenteditable="true" style="font-weight: bold; font-size: 11pt; width: 100%;">
                         <tr><td width="150">Mata Pelajaran</td><td>: <span class="v-mapel"></span></td></tr>
                         <tr><td>Kelas/Semester</td><td>: <span class="v-kls"></span> / <span class="v-smt"></span></td></tr>
@@ -388,6 +397,7 @@
                         </thead>
                         <tbody id="out-kktp"></tbody>
                     </table>
+                    <p class="text-xs italic text-slate-500 mt-2">*Nilai KKTP akhir otomatis menghitung rata-rata dari 3 kriteria.</p>
                     <div class="signature-area" contenteditable="true">
                         <div class="signature-box">Mengetahui,<br>Kepala Sekolah<div class="signature-name v-kepsek"></div>NIP. <span class="v-nip-kepsek"></span></div>
                         <div class="signature-box"><span class="v-tempat-tgl"></span><br>Guru Mata Pelajaran<br><div class="signature-name v-guru"></div>NIP. <span class="v-nip-guru"></span></div>
@@ -481,17 +491,22 @@
             fetchGlobalCSV: async function() {
                 let jenjang = document.getElementById('in-jenjang')?.value || "SD";
                 let url = CP_LINKS[jenjang]; localStorage.setItem('sa_jenjang', jenjang);
+                let statusEl = document.getElementById('csvStatus');
+                if(statusEl) { statusEl.style.display = 'block'; statusEl.className = 'csv-info'; statusEl.innerHTML = `⏳ Mengunduh Kurikulum...`; }
+                
                 try {
                     let res = await fetch(url); if(!res.ok) throw new Error("");
                     this.parseCSV(await res.text());
                 } catch(e) {
-                    try { let r = await fetch("https://api.allorigins.win/get?url=" + encodeURIComponent(url)); let d = await r.json(); this.parseCSV(d.contents); } 
-                    catch(err) { alert("Server Sibuk. Silakan gunakan fitur Upload CSV Manual."); }
+                    try { let r = await fetch("https://api.allorigins.win/raw?url=" + encodeURIComponent(url)); this.parseCSV(await r.text()); } 
+                    catch(err) { 
+                        if(statusEl) { statusEl.className='csv-info error'; statusEl.innerHTML="❌ Gagal mengunduh. Silakan gunakan tombol <b>B. Upload CSV Manual</b>."; }
+                    }
                 }
             },
             
             parseCSV: function(csvText) {
-                const lines = csvText.split('\n'); this.data = {};
+                const lines = csvText.split('\n'); this.data = {}; let count = 0;
                 for(let i=1; i<lines.length; i++) { 
                     let row = lines[i].trim(); if(!row) continue;
                     let cols = []; let match; const regex = new RegExp(`(\"([^\"]*)\"|[^\"\,]+)(?=\,|$)`, 'g');
@@ -500,8 +515,10 @@
                     let m=cols[0]||"", f=cols[1]||"", k=cols[2]||"", s=cols[3]||"", el=cols[4]||"", cp=cols[5]||"", tp=cols[6]||cols[5], p3=cols[7]||"";
                     if(!this.data[m]) this.data[m] = {}; if(!this.data[m][k]) this.data[m][k] = {}; if(!this.data[m][k][s]) this.data[m][k][s] = {};
                     if(!this.data[m][k][s][el]) this.data[m][k][s][el] = { cp: cp, tps: [] };
-                    this.data[m][k][s][el].tps.push({ tp: tp, p3: p3 });
+                    this.data[m][k][s][el].tps.push({ tp: tp, p3: p3 }); count++;
                 }
+                let statusEl = document.getElementById('csvStatus');
+                if(statusEl) { statusEl.className='csv-info'; statusEl.innerHTML=`✅ Sukses memuat <b>${count}</b> TP.`; }
                 this.initDropdowns();
             },
             
@@ -639,14 +656,33 @@
                 dRender.forEach((it, i) => {
                     let tJp = it.d.tps.length * jp;
                     it.d.tps.forEach((tpO, tI) => {
+                        let match = tpO.tp.match(/mampu\s+([a-zA-Z\-]+)/i);
+                        let kompetensi = match ? (match[1].charAt(0).toUpperCase() + match[1].slice(1)) : "Memahami";
+
+                        // ATP
                         aHtml += `<tr>`;
-                        if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${i+1}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle"><b>${it.b}</b></td>`;
-                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs">${tpO.p3}</td><td class="font-bold text-amber-600">Memahami</td>`;
-                        if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${tJp} JP</td>`;
+                        if(tI===0) {
+                            aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${i+1}</td>
+                                      <td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle p-2" contenteditable="true">
+                                          <b class="text-blue-900">${it.b}</b>
+                                          <hr class="my-1 border-slate-300">
+                                          <span class="text-[8pt] text-slate-600 font-normal text-justify block leading-tight">${it.d.cp}</span>
+                                      </td>`;
+                        }
+                        aHtml += `<td contenteditable="true">${tpO.tp}</td><td class="text-xs text-blue-700">${tpO.p3}</td><td class="font-bold text-amber-600">${kompetensi}</td>`;
+                        if(tI===0) aHtml += `<td rowspan="${it.d.tps.length}" class="text-center align-middle">${Math.ceil(tJp/jp)} Minggu<br>${tJp} JP</td>`;
                         aHtml += `</tr>`;
 
+                        // PROTA
                         pHtml += `<tr>`;
-                        if(tI===0) pHtml += `<td rowspan="${it.d.tps.length}" class="font-bold text-center align-middle">${it.s}</td><td rowspan="${it.d.tps.length}" class="bg-slate-50 font-bold text-center align-middle">${it.b}</td>`;
+                        if(tI===0) {
+                            pHtml += `<td rowspan="${it.d.tps.length}" class="font-bold text-center align-middle">${it.s}</td>
+                                      <td rowspan="${it.d.tps.length}" class="bg-slate-50 align-middle p-2" contenteditable="true">
+                                          <b class="block text-center text-blue-900">${it.b}</b>
+                                          <hr class="my-1 border-slate-300">
+                                          <span class="text-[8pt] text-slate-600 font-normal text-justify block leading-tight">${it.d.cp}</span>
+                                      </td>`;
+                        }
                         pHtml += `<td contenteditable="true">${tpO.tp}</td>`;
                         if(tI===0) pHtml += `<td rowspan="${it.d.tps.length}" class="font-bold text-center align-middle">${tJp} JP</td>`;
                         pHtml += `</tr>`;
@@ -657,7 +693,11 @@
                         }
                     });
                 });
-                document.getElementById('out-atp').innerHTML = aHtml; document.getElementById('out-prota').innerHTML = pHtml;
+                
+                let outAtp = document.getElementById('out-atp');
+                if(outAtp) outAtp.innerHTML = aHtml || `<tr><td colspan="6" class="text-center">Data kosong</td></tr>`;
+                let outProta = document.getElementById('out-prota');
+                if(outProta) outProta.innerHTML = pHtml || `<tr><td colspan="4" class="text-center">Data kosong</td></tr>`;
             },
 
             renderPromes: function(jp, colEv, s, bAwal) {
@@ -681,7 +721,6 @@
                             } else {
                                 let mI=Math.floor(c/5); let wI=(c%5)+1; let tBln = bAwal+mI; if(tBln>11) tBln-=12;
                                 
-                                // PERBAIKAN: Logika pencocokan tanggal dikembalikan agar tidak crash
                                 if(ro.dt && ro.dt.getMonth()===tBln && Math.min(Math.ceil(ro.dt.getDate()/7),5)===wI) {
                                     tb+=`<td class="bg-blue-100 text-center font-bold text-blue-800 align-middle text-xs" contenteditable="true">${ro.dt.getDate()}</td>`;
                                 } else { 
